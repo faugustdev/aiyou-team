@@ -16,17 +16,17 @@ export type {
 } from "./types";
 
 export { createAvailableToolContext, isAvailableTool, listAvailableTools } from "./registries";
-export { isCrewBeeLoggingEnabled, shouldEmitCrewBeeLog } from "./logging";
-export type { CrewBeeLogEvent, CrewBeeLogLevel } from "./logging";
+export { isAiyouTeamLoggingEnabled, shouldEmitAiyouTeamLog } from "./logging";
+export type { AiyouTeamLogEvent, AiyouTeamLogLevel } from "./logging";
 export {
-  getCrewBeePluginTool,
-  listCrewBeePluginTools,
-  listImplementedCrewBeePluginTools,
+  getAiyouTeamPluginTool,
+  listAiyouTeamPluginTools,
+  listImplementedAiyouTeamPluginTools,
 } from "./registries";
 export type {
-  CrewBeePluginToolDefinition,
-  CrewBeePluginToolStatus,
-  CrewBeePluginToolVisibility,
+  AiyouTeamPluginToolDefinition,
+  AiyouTeamPluginToolStatus,
+  AiyouTeamPluginToolVisibility,
   AvailableToolContext,
   AvailableToolDefinition,
 } from "./registries";

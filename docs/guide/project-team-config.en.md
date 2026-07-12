@@ -1,14 +1,14 @@
-# CrewBee Project-Level Team Configuration
+# aiyou-team Project-Level Team Configuration
 
 Language: [中文](./project-team-config.md) | English
 
 Audience: **users and Team authors** configuring global and project-level Teams. Repository release and CI/CD workflows are covered in the [Release And CI/CD Guide](../developer/release.md).
 
-> Status: implemented and published in `crewbee@0.1.9`. This document describes the current project/global Team configuration model and the architectural constraints that keep both sources on the same assembly path.
+> Status: implemented and published in `aiyou-team@0.1.9`. This document describes the current project/global Team configuration model and the architectural constraints that keep both sources on the same assembly path.
 
 ## 1. Design conclusion
 
-The P0 goal is to let CrewBee support both **global Teams** and **project Teams**, with project Teams naturally taking priority in the current worktree.
+The P0 goal is to let aiyou-team support both **global Teams** and **project Teams**, with project Teams naturally taking priority in the current worktree.
 
 This design does **not** introduce a second project-specific Team system.
 
@@ -18,8 +18,8 @@ They differ only by configuration source metadata:
 
 | Dimension | Global Team | Project Team |
 | --- | --- | --- |
-| Config file | `crewbee.json` under the OpenCode config root | `.crewbee/crewbee.json` under the project worktree |
-| Path base | OpenCode config root | project `.crewbee` directory |
+| Config file | `aiyou-team.json` under the OpenCode config root | `.aiyou-team/aiyou-team.json` under the project worktree |
+| Path base | OpenCode config root | project `.aiyou-team` directory |
 | Scope semantic | `global` | `project` |
 | Source precedence | lower than project | higher than global |
 | `teams` schema | same | same |
@@ -29,17 +29,17 @@ They differ only by configuration source metadata:
 
 Core rule:
 
-> During OpenCode bootstrap / config, CrewBee collects all `crewbee.json` sources, normalizes their `teams` entries into the same Team Registration model, and then uses one shared Team discovery, parsing, validation, assembly, projection, and default Agent selection pipeline. Project config is not a new flow; it is a higher-precedence source.
+> During OpenCode bootstrap / config, aiyou-team collects all `aiyou-team.json` sources, normalizes their `teams` entries into the same Team Registration model, and then uses one shared Team discovery, parsing, validation, assembly, projection, and default Agent selection pipeline. Project config is not a new flow; it is a higher-precedence source.
 
 ---
 
 ## 2. Relationship to the template configuration model
 
-CrewBee already ships template configuration assets:
+aiyou-team already ships template configuration assets:
 
 ```text
 templates/
-  crewbee.json
+  aiyou-team.json
   teams/
     general-team/
     template-team/
@@ -50,7 +50,7 @@ During installation these are copied into the OpenCode config root:
 
 ```text
 <OpenCodeConfigRoot>/
-  crewbee.json
+  aiyou-team.json
   teams/
     general-team/
     template-team/
@@ -59,10 +59,10 @@ During installation these are copied into the OpenCode config root:
 
 This project-level config design builds on that model:
 
-1. Global config continues to use `<OpenCodeConfigRoot>/crewbee.json`.
-2. Project config is added at `<worktree>/.crewbee/crewbee.json`.
+1. Global config continues to use `<OpenCodeConfigRoot>/aiyou-team.json`.
+2. Project config is added at `<worktree>/.aiyou-team/aiyou-team.json`.
 3. Both use the same `teams` schema.
-4. `@teams/...` means: remove `@`, then resolve relative to the directory containing the current `crewbee.json`.
+4. `@teams/...` means: remove `@`, then resolve relative to the directory containing the current `aiyou-team.json`.
 
 Examples:
 
@@ -71,7 +71,7 @@ global  @teams/general-team
   -> <OpenCodeConfigRoot>/teams/general-team
 
 project @teams/project-coding-team
-  -> <worktree>/.crewbee/teams/project-coding-team
+  -> <worktree>/.aiyou-team/teams/project-coding-team
 ```
 
 Project-level Team support does not require a new directory layout, template format, loader, validator, projection, or prompt builder.
@@ -85,13 +85,13 @@ Project-level Team support does not require a new directory layout, template for
 Global config lives under the OpenCode config root:
 
 ```text
-~/.config/opencode/crewbee.json
+~/.config/opencode/aiyou-team.json
 ```
 
 Windows commonly uses:
 
 ```text
-C:\Users\<your-user>\.config\opencode\crewbee.json
+C:\Users\<your-user>\.config\opencode\aiyou-team.json
 ```
 
 Example:
@@ -110,7 +110,7 @@ Example:
 Project config lives under the current OpenCode worktree:
 
 ```text
-<project-worktree>/.crewbee/crewbee.json
+<project-worktree>/.aiyou-team/aiyou-team.json
 ```
 
 Example:
@@ -128,8 +128,8 @@ Directory:
 
 ```text
 <project-worktree>/
-  .crewbee/
-    crewbee.json
+  .aiyou-team/
+    aiyou-team.json
     teams/
       project-coding-team/
         team.manifest.yaml
@@ -173,9 +173,9 @@ Constraint:
 
 ---
 
-## 5. `crewbee.json` schema is shared
+## 5. `aiyou-team.json` schema is shared
 
-Global `crewbee.json` and project `.crewbee/crewbee.json` use the same schema.
+Global `aiyou-team.json` and project `.aiyou-team/aiyou-team.json` use the same schema.
 
 Minimal shape:
 
@@ -209,12 +209,12 @@ P0 does not add user-authored `scope`, `source`, `extends`, or `include` fields.
 
 ## 6. Path resolution
 
-`path` behavior stays the same, but the base directory is always the directory containing the current `crewbee.json`.
+`path` behavior stays the same, but the base directory is always the directory containing the current `aiyou-team.json`.
 
 Global example:
 
 ```text
-~/.config/opencode/crewbee.json
+~/.config/opencode/aiyou-team.json
 { "path": "@teams/ResearchOpsTeam" }
 -> ~/.config/opencode/teams/ResearchOpsTeam
 ```
@@ -222,9 +222,9 @@ Global example:
 Project example:
 
 ```text
-<project-worktree>/.crewbee/crewbee.json
+<project-worktree>/.aiyou-team/aiyou-team.json
 { "path": "@teams/ProjectCodingTeam" }
--> <project-worktree>/.crewbee/teams/ProjectCodingTeam
+-> <project-worktree>/.aiyou-team/teams/ProjectCodingTeam
 ```
 
 Supported forms:
@@ -232,14 +232,14 @@ Supported forms:
 ```json
 { "path": "@teams/ProjectCodingTeam" }
 { "path": "teams/ProjectCodingTeam" }
-{ "path": "~/CrewBeeTeams/ProjectCodingTeam" }
-{ "path": "E:/CrewBeeTeams/ProjectCodingTeam" }
+{ "path": "~/aiyou-teams/ProjectCodingTeam" }
+{ "path": "E:/aiyou-teams/ProjectCodingTeam" }
 ```
 
 | Form | Meaning |
 | --- | --- |
-| `@teams/xxx` | remove `@`, resolve relative to current `crewbee.json` directory |
-| `teams/xxx` | resolve relative to current `crewbee.json` directory |
+| `@teams/xxx` | remove `@`, resolve relative to current `aiyou-team.json` directory |
+| `teams/xxx` | resolve relative to current `aiyou-team.json` directory |
 | `~/xxx` | resolve relative to user home |
 | absolute path | use as-is |
 
@@ -272,7 +272,7 @@ collect config sources
 Conceptual model:
 
 ```text
-crewbee.json
+aiyou-team.json
   -> Team Registration Source
   -> Team Registration
   -> Team Package
@@ -287,14 +287,14 @@ Global and project config differ only in source metadata.
 
 ## 8. Source semantics
 
-Each `crewbee.json` is a configuration source.
+Each `aiyou-team.json` is a configuration source.
 
 Global source:
 
 ```text
 scope: global
 baseDir: <OpenCodeConfigRoot>
-configPath: <OpenCodeConfigRoot>/crewbee.json
+configPath: <OpenCodeConfigRoot>/aiyou-team.json
 precedence: lower than project
 ```
 
@@ -302,8 +302,8 @@ Project source:
 
 ```text
 scope: project
-baseDir: <project-worktree>/.crewbee
-configPath: <project-worktree>/.crewbee/crewbee.json
+baseDir: <project-worktree>/.aiyou-team
+configPath: <project-worktree>/.aiyou-team/aiyou-team.json
 precedence: higher than global
 ```
 
@@ -377,7 +377,7 @@ Default Agent selection:
 3. If still unavailable, use the first user-selectable Agent.
 4. If the Team has no usable entry, skip it and try the next Team.
 
-Manual user selection is not overwritten. Project default Agent only affects OpenCode initialization and new session defaults; CrewBee should not switch back during `chat.message` after a user explicitly chooses another Agent.
+Manual user selection is not overwritten. Project default Agent only affects OpenCode initialization and new session defaults; aiyou-team should not switch back during `chat.message` after a user explicitly chooses another Agent.
 
 ---
 
@@ -439,7 +439,7 @@ Global Team:
 
 ```text
 ~/.config/opencode/
-  crewbee.json
+  aiyou-team.json
   teams/
     ResearchOpsTeam/
       team.manifest.yaml
@@ -454,8 +454,8 @@ Project Team:
 
 ```text
 MyProject/
-  .crewbee/
-    crewbee.json
+  .aiyou-team/
+    aiyou-team.json
     teams/
       ProjectCodingTeam/
         team.manifest.yaml
@@ -492,8 +492,8 @@ Project Teams participate during OpenCode plugin config / bootstrap:
 ```text
 OpenCode plugin config/bootstrap
   -> read ctx.worktree
-  -> collect global crewbee.json
-  -> collect project .crewbee/crewbee.json
+  -> collect global aiyou-team.json
+  -> collect project .aiyou-team/aiyou-team.json
   -> assemble one TeamLibrary
   -> generate one OpenCode agent config
 ```
@@ -503,7 +503,7 @@ Do not defer project Team injection to `chat.message`, because agent list, defau
 `ctx.worktree` is used only to locate:
 
 ```text
-<ctx.worktree>/.crewbee/crewbee.json
+<ctx.worktree>/.aiyou-team/aiyou-team.json
 ```
 
 It should not leak into Team parsing, prompt generation, or OpenCode projection.
@@ -514,7 +514,7 @@ Caching, if added later, must be keyed by:
 OpenCode config root + worktree
 ```
 
-P0 does not require hot reload. Users should restart OpenCode after changing `.crewbee/crewbee.json`, `team.manifest.yaml`, `team.policy.yaml`, or `*.agent.md`.
+P0 does not require hot reload. Users should restart OpenCode after changing `.aiyou-team/aiyou-team.json`, `team.manifest.yaml`, `team.policy.yaml`, or `*.agent.md`.
 
 ---
 
@@ -522,7 +522,7 @@ P0 does not require hot reload. Users should restart OpenCode after changing `.c
 
 ### 15.1 Missing project config
 
-Load only global `crewbee.json`. Keep existing behavior.
+Load only global `aiyou-team.json`. Keep existing behavior.
 
 ### 15.2 Invalid project JSON
 
@@ -554,7 +554,7 @@ Fall back to global Teams. OpenCode remains usable.
 Global config keeps the existing install / startup self-repair behavior:
 
 ```text
-use packaged templates/crewbee.json to create or repair <OpenCodeConfigRoot>/crewbee.json
+use packaged templates/aiyou-team.json to create or repair <OpenCodeConfigRoot>/aiyou-team.json
 copy templates/teams to <OpenCodeConfigRoot>/teams when needed
 ```
 
@@ -567,7 +567,7 @@ Project config is not auto-created to avoid hidden side effects in user projects
 Doctor / debug output should eventually show the effective configuration:
 
 ```text
-CrewBee Effective Team Configuration
+aiyou-team Effective Team Configuration
 
 OpenCode config root:
   ~/.config/opencode
@@ -576,14 +576,14 @@ Worktree:
   /Users/yong/work/MyProject
 
 Global config:
-  ~/.config/opencode/crewbee.json
+  ~/.config/opencode/aiyou-team.json
 
 Project config:
-  /Users/yong/work/MyProject/.crewbee/crewbee.json
+  /Users/yong/work/MyProject/.aiyou-team/aiyou-team.json
 
 Loaded sources:
-  [project] /Users/yong/work/MyProject/.crewbee/crewbee.json
-  [global]  ~/.config/opencode/crewbee.json
+  [project] /Users/yong/work/MyProject/.aiyou-team/aiyou-team.json
+  [global]  ~/.config/opencode/aiyou-team.json
 
 Effective teams:
   1. [project] project-coding-team priority=0
@@ -600,7 +600,7 @@ Warnings:
 Potential future command:
 
 ```text
-crewbee doctor --project .
+aiyou-team doctor --project .
 ```
 
 It should report worktree, project config validity, Team path validity, Team package validation, effective TeamLibrary inclusion, default Agent, shadows, collisions, and fallbacks.
@@ -611,7 +611,7 @@ It should report worktree, project config validity, Team path validity, Team pac
 
 ### 17.1 Only global config
 
-Project has no `.crewbee/crewbee.json`. Result: only global Teams load; default Agent comes from the highest-priority global Team leader.
+Project has no `.aiyou-team/aiyou-team.json`. Result: only global Teams load; default Agent comes from the highest-priority global Team leader.
 
 ### 17.2 Project config has one project Team
 
@@ -645,8 +645,8 @@ If both global and project Team manifests use `id: coding-team`, the project Tea
 
 ## 18. Compatibility requirements
 
-- Existing global `crewbee.json` files continue to work unchanged.
-- If project `.crewbee/crewbee.json` is absent, behavior remains compatible with previous versions.
+- Existing global `aiyou-team.json` files continue to work unchanged.
+- If project `.aiyou-team/aiyou-team.json` is absent, behavior remains compatible with previous versions.
 - Team file structure stays unchanged.
 - No `agents/`, `docs/`, `routing-map.yaml`, or `handoff.contract.yaml` directories are introduced in P0.
 - `priority` still means lower number is higher priority; only source precedence is added above it.
@@ -657,10 +657,10 @@ If both global and project Team manifests use `id: coding-team`, the project Tea
 
 Minimal implementation order:
 
-1. Keep the existing `crewbee.json` `teams` schema.
+1. Keep the existing `aiyou-team.json` `teams` schema.
 2. Read `ctx.worktree` during OpenCode bootstrap.
-3. Add project config candidate `<worktree>/.crewbee/crewbee.json`.
-4. Parse global and project `crewbee.json` into the same Team Registration model.
+3. Add project config candidate `<worktree>/.aiyou-team/aiyou-team.json`.
+4. Parse global and project `aiyou-team.json` into the same Team Registration model.
 5. Attach source scope, source baseDir, source precedence, and declaration order.
 6. Use the same package loader for `id` and `path` entries.
 7. Use the same validator.
@@ -686,7 +686,7 @@ no project-only OpenCode patch
 
 Configuration compatibility:
 
-- old global `crewbee.json` still works
+- old global `aiyou-team.json` still works
 - no project config means unchanged behavior
 - project config uses the same `teams` schema
 
@@ -714,7 +714,7 @@ Reliable fallback:
 
 User experience:
 
-- users learn one `crewbee.json` schema
+- users learn one `aiyou-team.json` schema
 - project and global Team directory structures are identical
 - doctor can explain effective Team order and default Agent
 
@@ -722,13 +722,13 @@ User experience:
 
 ## 21. Final positioning
 
-This design implements project-level Team support as a second same-schema `crewbee.json` source, not as a separate project-specific Team subsystem.
+This design implements project-level Team support as a second same-schema `aiyou-team.json` source, not as a separate project-specific Team subsystem.
 
 Final flow:
 
 ```text
-global crewbee.json
-project .crewbee/crewbee.json
+global aiyou-team.json
+project .aiyou-team/aiyou-team.json
         ↓
 unified Team Registration
         ↓

@@ -41,7 +41,7 @@ function bumpVersion(baseVersion, bump) {
 
 function fetchRegistryLatestVersion() {
   return new Promise((resolve) => {
-    https.get("https://registry.npmjs.org/crewbee/latest", (response) => {
+    https.get("https://registry.npmjs.org/aiyou-team/latest", (response) => {
       let raw = "";
       response.setEncoding("utf8");
       response.on("data", (chunk) => {
@@ -116,4 +116,4 @@ if (dryRun || !shouldPublish) {
 }
 
 run("npm", ["publish", "--access", "public", "--provenance", "--tag", distTag]);
-console.log(`\nPublished crewbee@${nextVersion} with dist-tag '${distTag}'.`);
+console.log(`\nPublished aiyou-team@${nextVersion} with dist-tag '${distTag}'.`);

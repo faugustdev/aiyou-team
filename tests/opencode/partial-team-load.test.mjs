@@ -6,8 +6,8 @@ import path from "node:path";
 
 import { loadDefaultTeamLibrary } from "../../dist/src/agent-teams/library.js";
 import { validateTeamLibrary } from "../../dist/src/agent-teams/validation.js";
-import { OpenCodeCrewBeePlugin } from "../../dist/src/adapters/opencode/plugin.js";
-import BundledOpenCodeCrewBeePlugin from "../../dist/opencode-plugin.mjs";
+import { OpenCodeAiyouTeamPlugin } from "../../dist/src/adapters/opencode/plugin.js";
+import BundledOpenCodeAiyouTeamPlugin from "../../dist/opencode-plugin.mjs";
 
 function createPluginInput(worktree, logs) {
   return {
@@ -36,7 +36,7 @@ function writeFile(filePath, content) {
   writeFileSync(filePath, content);
 }
 
-function createCrewBeeConfig(teams) {
+function createAiyouTeamConfig(teams) {
   return JSON.stringify({ teams }, null, 2);
 }
 
@@ -231,7 +231,7 @@ responsibility_core:
 }
 
 test("invalid configured file-based teams are skipped without blocking valid teams or plugin startup", async () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-partial-load-"));
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-partial-load-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
@@ -244,8 +244,8 @@ test("invalid configured file-based teams are skipped without blocking valid tea
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
     writeFile(
-      path.join(configRoot, "crewbee.json"),
-      createCrewBeeConfig([
+      path.join(configRoot, "aiyou-team.json"),
+      createAiyouTeamConfig([
         { id: "coding-team", enabled: true, priority: 0 },
         { path: "@tmp/ValidTeam", enabled: true },
         { path: "@tmp/BrokenTeam", enabled: true },
@@ -295,7 +295,7 @@ test("invalid configured file-based teams are skipped without blocking valid tea
     const library = loadDefaultTeamLibrary(workspace);
     const issues = validateTeamLibrary(library);
     const logs = [];
-    const plugin = await OpenCodeCrewBeePlugin(createPluginInput(workspace, logs));
+    const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput(workspace, logs));
     const config = { agent: {} };
 
     await plugin.config?.(config);
@@ -326,7 +326,7 @@ test("invalid configured file-based teams are skipped without blocking valid tea
 });
 
 test("invalid non-leader agents are skipped without invalidating the containing team", async () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-agent-partial-load-"));
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-agent-partial-load-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
@@ -337,8 +337,8 @@ test("invalid non-leader agents are skipped without invalidating the containing 
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
     writeFile(
-      path.join(configRoot, "crewbee.json"),
-      createCrewBeeConfig([{ path: "@tmp/PartiallyBrokenTeam", enabled: true, priority: 0 }]),
+      path.join(configRoot, "aiyou-team.json"),
+      createAiyouTeamConfig([{ path: "@tmp/PartiallyBrokenTeam", enabled: true, priority: 0 }]),
     );
     writeFile(path.join(teamDir, "team.manifest.yaml"), createTeamManifest("partially-broken-team", "PartiallyBrokenTeam", "partial-leader", "partial-executor"));
     writeFile(path.join(teamDir, "team.policy.yaml"), createTeamPolicy());
@@ -359,7 +359,7 @@ test("invalid non-leader agents are skipped without invalidating the containing 
     const library = loadDefaultTeamLibrary(workspace);
     const issues = validateTeamLibrary(library);
     const team = library.teams.find((entry) => entry.manifest.id === "partially-broken-team");
-    const plugin = await OpenCodeCrewBeePlugin(createPluginInput(workspace, logs));
+    const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput(workspace, logs));
     const config = { agent: {} };
 
     await plugin.config?.(config);
@@ -390,8 +390,8 @@ test("invalid non-leader agents are skipped without invalidating the containing 
   }
 });
 
-test("plugin startup auto-creates default crewbee.json when missing", async () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-plugin-config-missing-"));
+test("plugin startup auto-creates default aiyou-team.json when missing", async () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-plugin-config-missing-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
@@ -400,21 +400,21 @@ test("plugin startup auto-creates default crewbee.json when missing", async () =
 
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    const plugin = await OpenCodeCrewBeePlugin(createPluginInput(workspace, logs));
+    const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput(workspace, logs));
     const config = { agent: {} };
 
     await plugin.config?.(config);
 
-    const configPath = path.join(configRoot, "crewbee.json");
+    const configPath = path.join(configRoot, "aiyou-team.json");
 
     assert.equal(existsSync(configPath), true);
     assert.equal(existsSync(path.join(configRoot, "teams", "general-team", "team.manifest.yaml")), true);
     assert.deepEqual(
       JSON.parse(readFileSync(configPath, "utf8")),
-      JSON.parse(readFileSync(path.join(process.cwd(), "templates", "crewbee.json"), "utf8")),
+      JSON.parse(readFileSync(path.join(process.cwd(), "templates", "aiyou-team.json"), "utf8")),
     );
     assert.ok(config.agent["coding-leader"]);
-    assert.ok(logs.some((entry) => entry.message.includes("CrewBee auto-repaired Team config")));
+    assert.ok(logs.some((entry) => entry.message.includes("aiyou-team auto-repaired Team config")));
     assert.ok(logs.some((entry) => entry.extra?.reason === "created-default"));
   } finally {
     if (previousConfigDir === undefined) {
@@ -427,8 +427,8 @@ test("plugin startup auto-creates default crewbee.json when missing", async () =
   }
 });
 
-test("bundled plugin startup creates crewbee.json from packaged template", async () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-bundled-plugin-config-missing-"));
+test("bundled plugin startup creates aiyou-team.json from packaged template", async () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-bundled-plugin-config-missing-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
@@ -437,16 +437,16 @@ test("bundled plugin startup creates crewbee.json from packaged template", async
 
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    const plugin = await BundledOpenCodeCrewBeePlugin(createPluginInput(workspace, logs));
+    const plugin = await BundledOpenCodeAiyouTeamPlugin(createPluginInput(workspace, logs));
     const config = { agent: {} };
 
     await plugin.config?.(config);
 
-    const configPath = path.join(configRoot, "crewbee.json");
+    const configPath = path.join(configRoot, "aiyou-team.json");
 
     assert.deepEqual(
       JSON.parse(readFileSync(configPath, "utf8")),
-      JSON.parse(readFileSync(path.join(process.cwd(), "templates", "crewbee.json"), "utf8")),
+      JSON.parse(readFileSync(path.join(process.cwd(), "templates", "aiyou-team.json"), "utf8")),
     );
     assert.equal(existsSync(path.join(configRoot, "teams", "general-team", "team.manifest.yaml")), true);
     assert.ok(config.agent["coding-leader"]);
@@ -461,26 +461,26 @@ test("bundled plugin startup creates crewbee.json from packaged template", async
   }
 });
 
-test("plugin startup uses project crewbee config as default agent source", async () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-plugin-project-config-"));
+test("plugin startup uses project aiyou-team config as default agent source", async () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-plugin-project-config-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
     const configRoot = path.join(workspace, ".config", "opencode");
-    const projectConfigRoot = path.join(workspace, ".crewbee");
+    const projectConfigRoot = path.join(workspace, ".aiyou-team");
     const projectTeamDir = path.join(projectConfigRoot, "teams", "ProjectTeam");
     const logs = [];
 
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    writeFile(path.join(configRoot, "crewbee.json"), createCrewBeeConfig([{ id: "coding-team", enabled: true, priority: 0 }]));
-    writeFile(path.join(projectConfigRoot, "crewbee.json"), createCrewBeeConfig([{ path: "@teams/ProjectTeam", enabled: true, priority: 10 }]));
+    writeFile(path.join(configRoot, "aiyou-team.json"), createAiyouTeamConfig([{ id: "coding-team", enabled: true, priority: 0 }]));
+    writeFile(path.join(projectConfigRoot, "aiyou-team.json"), createAiyouTeamConfig([{ path: "@teams/ProjectTeam", enabled: true, priority: 10 }]));
     writeFile(path.join(projectTeamDir, "team.manifest.yaml"), createTeamManifest("project-team", "ProjectTeam", "project-leader", "project-executor"));
     writeFile(path.join(projectTeamDir, "team.policy.yaml"), createTeamPolicy());
     writeFile(path.join(projectTeamDir, "project-leader.agent.md"), createAgentProfile("project-leader", "Project Leader", "user-selectable", "leader", "project-executor", "project-executor"));
     writeFile(path.join(projectTeamDir, "project-executor.agent.md"), createAgentProfile("project-executor", "Project Executor", "internal-only", "executor", undefined, undefined));
 
-    const plugin = await OpenCodeCrewBeePlugin(createPluginInput(workspace, logs));
+    const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput(workspace, logs));
     const config = { agent: {} };
 
     await plugin.config?.(config);
@@ -499,8 +499,8 @@ test("plugin startup uses project crewbee config as default agent source", async
   }
 });
 
-test("plugin startup repairs invalid crewbee.json automatically", async () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-plugin-config-invalid-"));
+test("plugin startup repairs invalid aiyou-team.json automatically", async () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-plugin-config-invalid-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
   const invalidContent = "{broken json";
 
@@ -509,24 +509,24 @@ test("plugin startup repairs invalid crewbee.json automatically", async () => {
     const logs = [];
 
     process.env.OPENCODE_CONFIG_DIR = configRoot;
-    writeFile(path.join(configRoot, "crewbee.json"), invalidContent);
+    writeFile(path.join(configRoot, "aiyou-team.json"), invalidContent);
 
-    const plugin = await OpenCodeCrewBeePlugin(createPluginInput(workspace, logs));
+    const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput(workspace, logs));
     const config = { agent: {} };
 
     await plugin.config?.(config);
 
-    const configPath = path.join(configRoot, "crewbee.json");
+    const configPath = path.join(configRoot, "aiyou-team.json");
     const backupPath = `${configPath}.bak`;
 
     assert.deepEqual(
       JSON.parse(readFileSync(configPath, "utf8")),
-      JSON.parse(readFileSync(path.join(process.cwd(), "templates", "crewbee.json"), "utf8")),
+      JSON.parse(readFileSync(path.join(process.cwd(), "templates", "aiyou-team.json"), "utf8")),
     );
     assert.equal(existsSync(path.join(configRoot, "teams", "general-team", "team.manifest.yaml")), true);
     assert.equal(readFileSync(backupPath, "utf8"), invalidContent);
     assert.ok(config.agent["coding-leader"]);
-    assert.ok(logs.some((entry) => entry.message.includes("CrewBee auto-repaired Team config")));
+    assert.ok(logs.some((entry) => entry.message.includes("aiyou-team auto-repaired Team config")));
     assert.ok(logs.some((entry) => entry.extra?.reason === "repaired-invalid"));
     assert.ok(logs.some((entry) => entry.extra?.backupPath === backupPath));
   } finally {

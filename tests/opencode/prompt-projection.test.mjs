@@ -251,11 +251,11 @@ test("coding-leader prompt renders final semantic section ordering with strong c
   assert.match(prompt, /Allow Assume For/);
   assert.match(prompt, /Default Consults:\n  - Item 1:/);
   assert.match(prompt, /- Id: coding-codebase-explorer/);
-  assert.match(prompt, /- Description: 定位实现位置、调用链、入口与既有模式。/);
-  assert.match(prompt, /- When To Delegate: 实现位置或调用链不清时。/);
-  assert.match(prompt, /持续推进，解决问题；只有在真实不可推进时才提问/);
-  assert.match(prompt, /默认自己持有主链路/);
-  assert.match(prompt, /已完成：/);
+  assert.match(prompt, /- Description: Locate implementation positions, call chains, entry points, and existing patterns\./);
+  assert.match(prompt, /- When To Delegate: Implementation position or call chain is unclear\./);
+  assert.match(prompt, /Keep pushing forward to solve the problem; only ask questions when genuinely blocked/);
+  assert.match(prompt, /Default to holding the main chain yourself/);
+  assert.match(prompt, /Completed:/);
 });
 
 test("coordination-leader prompt renders coordination-specific sections structurally", () => {
@@ -266,7 +266,7 @@ test("coordination-leader prompt renders coordination-specific sections structur
 
   assert.match(prompt, /### Core Principle/);
   assert.match(prompt, /### Concern Escalation Policy/);
-  assert.match(prompt, /不直接承担主要实现工作/);
+  assert.match(prompt, /do not directly take on primary implementation work/);
   assert.match(prompt, /### Operations/);
 });
 

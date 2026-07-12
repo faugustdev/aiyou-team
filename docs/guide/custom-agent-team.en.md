@@ -9,7 +9,7 @@ Audience: **users and Team authors** defining Agent Team assets. Repository rele
 When defining a custom Agent Team, the two operational decisions are:
 
 1. **Put all Team definition files in one Team directory.**
-2. **Register that Team directory in either a global or project-level `crewbee.json`.**
+2. **Register that Team directory in either a global or project-level `aiyou-team.json`.**
 
 ### 0.1 Team directory layout
 
@@ -36,27 +36,27 @@ Optional files:
 - `TEAM.md`
 - `README.md`
 
-> Key constraint: `*.agent.md` files must be in the same directory as `team.manifest.yaml` and `team.policy.yaml`. CrewBee does not load agents from an `agents/` subdirectory.
+> Key constraint: `*.agent.md` files must be in the same directory as `team.manifest.yaml` and `team.policy.yaml`. aiyou-team does not load agents from an `agents/` subdirectory.
 
-### 0.2 Where to configure `crewbee.json`
+### 0.2 Where to configure `aiyou-team.json`
 
-CrewBee supports two isomorphic configuration sources:
+aiyou-team supports two isomorphic configuration sources:
 
 | Scope | Config file | Use case |
 | --- | --- | --- |
-| global | `crewbee.json` under the OpenCode config root | Teams available by default across projects |
-| project | `.crewbee/crewbee.json` under the current worktree | Teams specific to the current project |
+| global | `aiyou-team.json` under the OpenCode config root | Teams available by default across projects |
+| project | `.aiyou-team/aiyou-team.json` under the current worktree | Teams specific to the current project |
 
 The common global location is:
 
 ```text
-~/.config/opencode/crewbee.json
+~/.config/opencode/aiyou-team.json
 ```
 
 On Windows this usually maps to:
 
 ```text
-C:\Users\<your-user>\.config\opencode\crewbee.json
+C:\Users\<your-user>\.config\opencode\aiyou-team.json
 ```
 
 If OpenCode uses a different config root, use that actual config root.
@@ -64,12 +64,12 @@ If OpenCode uses a different config root, use that actual config root.
 Project-level configuration lives in the current OpenCode worktree:
 
 ```text
-<project-worktree>/.crewbee/crewbee.json
+<project-worktree>/.aiyou-team/aiyou-team.json
 ```
 
 Project and global config use the same schema, Team directory structure, loader, validator, projection, and OpenCode config patch. The only differences are source path, path resolution base, runtime scope (`project` / `global`), and source precedence.
 
-### 0.3 Minimal `crewbee.json`
+### 0.3 Minimal `aiyou-team.json`
 
 ```json
 {
@@ -93,14 +93,14 @@ Supported `path` forms:
 ```json
 { "path": "@teams/ResearchOpsTeam" }
 { "path": "teams/ResearchOpsTeam" }
-{ "path": "~/CrewBeeTeams/ResearchOpsTeam" }
-{ "path": "E:/CrewBeeTeams/ResearchOpsTeam" }
+{ "path": "~/aiyou-teams/ResearchOpsTeam" }
+{ "path": "E:/aiyou-teams/ResearchOpsTeam" }
 ```
 
 Path rules:
 
-- `@teams/ResearchOpsTeam`: remove `@`, then resolve relative to the directory containing the current `crewbee.json`.
-- `teams/ResearchOpsTeam`: resolve relative to the directory containing the current `crewbee.json`.
+- `@teams/ResearchOpsTeam`: remove `@`, then resolve relative to the directory containing the current `aiyou-team.json`.
+- `teams/ResearchOpsTeam`: resolve relative to the directory containing the current `aiyou-team.json`.
 - `~/...`: resolve relative to the user home directory.
 - Absolute paths: use as-is.
 
@@ -113,23 +113,23 @@ Global example:
 Project example:
 
 ```text
-<project-worktree>/.crewbee/teams/ResearchOpsTeam/
+<project-worktree>/.aiyou-team/teams/ResearchOpsTeam/
 ```
 
 ### 0.4 Shortest working path
 
-1. Choose the Team scope: global Teams live under the OpenCode config root; project Teams live under the current project's `.crewbee` directory.
+1. Choose the Team scope: global Teams live under the OpenCode config root; project Teams live under the current project's `.aiyou-team` directory.
 2. Create the Team directory:
    - global: `<OpenCodeConfigRoot>/teams/ResearchOpsTeam/`
-   - project: `<project-worktree>/.crewbee/teams/ResearchOpsTeam/`
+   - project: `<project-worktree>/.aiyou-team/teams/ResearchOpsTeam/`
 3. Put `team.manifest.yaml`, `team.policy.yaml`, and all `*.agent.md` files at the Team directory root.
-4. Add this entry to the matching `crewbee.json`:
+4. Add this entry to the matching `aiyou-team.json`:
 
 ```json
 { "path": "@teams/ResearchOpsTeam", "enabled": true, "priority": 1 }
 ```
 
-5. Restart OpenCode or the OpenCode server so CrewBee reloads the configuration.
+5. Restart OpenCode or the OpenCode server so aiyou-team reloads the configuration.
 
 ---
 
@@ -137,16 +137,16 @@ Project example:
 
 This guide is for:
 
-1. People who want to add a Team to CrewBee.
+1. People who want to add a Team to aiyou-team.
 2. People who want to encode their own workflow as an Agent Team.
 
 The goal is practical:
 
-> Help you design and land a runnable Team that matches CrewBee's current implementation.
+> Help you design and land a runnable Team that matches aiyou-team's current implementation.
 
 ---
 
-## 2. What a Team is in CrewBee
+## 2. What a Team is in aiyou-team
 
 A Team is a directory containing four categories of files:
 
@@ -165,7 +165,7 @@ A Team is a directory containing four categories of files:
 - `*.agent.md`: defines each Agent profile.
 - `TEAM.md`: optional human-facing explanation.
 
-Register the Team in `crewbee.json`:
+Register the Team in `aiyou-team.json`:
 
 ```json
 {
@@ -180,7 +180,7 @@ Notes:
 
 - `coding-team` is built in and does not need a `path`.
 - File-based Team paths point to the Team directory.
-- `@...` is relative to the current `crewbee.json` directory.
+- `@...` is relative to the current `aiyou-team.json` directory.
 - Project Teams outrank global Teams by source precedence.
 - If a project Team and global Team use the same manifest id, the project Team shadows the global Team.
 
@@ -277,7 +277,7 @@ Do not rely on the framework to infer whether an Agent is a planner, reviewer, o
 
 ### 4.5 Collaboration should be written for delegation
 
-CrewBee combines Agent collaboration entries with Team Manifest member metadata to generate useful delegation descriptions. Make `members.responsibility`, `delegate_when`, and `delegate_mode` concrete.
+aiyou-team combines Agent collaboration entries with Team Manifest member metadata to generate useful delegation descriptions. Make `members.responsibility`, `delegate_when`, and `delegate_mode` concrete.
 
 ---
 
@@ -299,7 +299,7 @@ Global Team:
 Project Team:
 
 ```text
-<project-worktree>/.crewbee/teams/
+<project-worktree>/.aiyou-team/teams/
   ResearchOpsTeam/
     team.manifest.yaml
     team.policy.yaml

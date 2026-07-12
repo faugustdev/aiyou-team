@@ -1,51 +1,51 @@
-export type CrewBeePluginToolStatus = "reserved-placeholder" | "implemented";
+export type AiyouTeamPluginToolStatus = "reserved-placeholder" | "implemented";
 
-export type CrewBeePluginToolVisibility = "agent-addressable" | "internal-only";
+export type AiyouTeamPluginToolVisibility = "agent-addressable" | "internal-only";
 
-export interface CrewBeePluginToolDefinition {
+export interface AiyouTeamPluginToolDefinition {
   id: string;
-  source: "crewbee-plugin";
-  status: CrewBeePluginToolStatus;
-  visibility: CrewBeePluginToolVisibility;
+  source: "aiyou-team-plugin";
+  status: AiyouTeamPluginToolStatus;
+  visibility: AiyouTeamPluginToolVisibility;
   description: string;
   hostTargets: string[];
 }
 
-const CREWBEE_PLUGIN_TOOLS: Record<string, CrewBeePluginToolDefinition> = {
+const AIYOU_TEAM_PLUGIN_TOOLS: Record<string, AiyouTeamPluginToolDefinition> = {
   task: {
     id: "task",
-    source: "crewbee-plugin",
+    source: "aiyou-team-plugin",
     status: "implemented",
     visibility: "agent-addressable",
-    description: "Delegate work to a CrewBee team member through the OpenCode-compatible task tool.",
+    description: "Delegate work to a aiyou-dev team member through the OpenCode-compatible task tool.",
     hostTargets: ["opencode"],
   },
   delegate_status: {
     id: "delegate_status",
-    source: "crewbee-plugin",
+    source: "aiyou-team-plugin",
     status: "implemented",
     visibility: "agent-addressable",
-    description: "Query the status of a CrewBee background delegation.",
+    description: "Query the status of a aiyou-dev background delegation.",
     hostTargets: ["opencode"],
   },
   delegate_cancel: {
     id: "delegate_cancel",
-    source: "crewbee-plugin",
+    source: "aiyou-team-plugin",
     status: "implemented",
     visibility: "agent-addressable",
-    description: "Cancel a CrewBee background delegation.",
+    description: "Cancel a aiyou-dev background delegation.",
     hostTargets: ["opencode"],
   },
 };
 
-export function listCrewBeePluginTools(): CrewBeePluginToolDefinition[] {
-  return Object.values(CREWBEE_PLUGIN_TOOLS);
+export function listAiyouTeamPluginTools(): AiyouTeamPluginToolDefinition[] {
+  return Object.values(AIYOU_TEAM_PLUGIN_TOOLS);
 }
 
-export function listImplementedCrewBeePluginTools(): CrewBeePluginToolDefinition[] {
-  return listCrewBeePluginTools().filter((tool) => tool.status === "implemented");
+export function listImplementedAiyouTeamPluginTools(): AiyouTeamPluginToolDefinition[] {
+  return listAiyouTeamPluginTools().filter((tool) => tool.status === "implemented");
 }
 
-export function getCrewBeePluginTool(toolId: string): CrewBeePluginToolDefinition | undefined {
-  return CREWBEE_PLUGIN_TOOLS[toolId];
+export function getAiyouTeamPluginTool(toolId: string): AiyouTeamPluginToolDefinition | undefined {
+  return AIYOU_TEAM_PLUGIN_TOOLS[toolId];
 }

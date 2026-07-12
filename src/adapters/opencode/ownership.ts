@@ -1,4 +1,4 @@
-export interface CrewBeeManagedAgentOptions {
+export interface AiyouTeamManagedAgentOptions {
   managed: true;
   teamId: string;
   canonicalAgentId: string;
@@ -8,7 +8,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-export function isManagedCrewBeeAgentDefinition(value: unknown): boolean {
+export function isManagedAiyouTeamAgentDefinition(value: unknown): boolean {
   if (!isRecord(value)) {
     return false;
   }
@@ -18,21 +18,21 @@ export function isManagedCrewBeeAgentDefinition(value: unknown): boolean {
     return false;
   }
 
-  const crewbee = options.crewbee;
-  return isRecord(crewbee) && crewbee.managed === true;
+  const aiyouTeam = options.aiyouTeam;
+  return isRecord(aiyouTeam) && aiyouTeam.managed === true;
 }
 
-export function createManagedCrewBeeAgentOptions(input: {
+export function createManagedAiyouTeamAgentOptions(input: {
   teamId: string;
   canonicalAgentId: string;
   existingOptions?: Record<string, unknown>;
 }): Record<string, unknown> {
   return {
     ...(input.existingOptions ?? {}),
-    crewbee: {
+    aiyouTeam: {
       managed: true,
       teamId: input.teamId,
       canonicalAgentId: input.canonicalAgentId,
-    } satisfies CrewBeeManagedAgentOptions,
+    } satisfies AiyouTeamManagedAgentOptions,
   };
 }

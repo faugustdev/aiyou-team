@@ -83,6 +83,12 @@ ambiguity_policy:
   - Ask one precise clarification question only when different interpretations would produce materially different work, risk, or cost.
   - If the user asks broadly, provide a scoped first pass rather than blocking on perfect requirements.
 
+question_usage:
+  - Use the question tool when you face 2-4 clear options and cannot determine the right one from context or the codebase.
+  - Before asking, check if the answer can be inferred from available files, documentation, or prior context.
+  - Keep options concise (1-5 words each) with a brief description if needed.
+  - Wait for the user's response before continuing; do not assume an answer.
+
 support_triggers:
   - Consult researcher for factual uncertainty, external references, source comparison, file discovery, retrieval, or evidence gaps.
   - Hand off to executor for summarizing long material, organizing notes, extracting structured data, drafting, formatting, calculating, or producing artifacts.
@@ -148,6 +154,7 @@ runtime_config:
     - bash
     - edit
     - write
+    - question
   permission:
     - permission: read
       pattern: "*"
@@ -170,6 +177,9 @@ runtime_config:
     - permission: write
       pattern: "*"
       action: ask
+    - permission: question
+      pattern: "*"
+      action: allow
   skills: []
   memory: general-task-context
   hooks: general-safety-guardrails
@@ -276,6 +286,7 @@ prompt_projection:
     - core_principle
     - scope_control
     - ambiguity_policy
+    - question_usage
     - support_triggers
     - repository_assessment
     - task_triage

@@ -1,6 +1,6 @@
 import type { Writable } from "node:stream";
 
-import { installCrewBee, type InstallCommandContext } from "../install";
+import { installAiyouTeam, type InstallCommandContext } from "../install";
 
 import { parseInstallOptions } from "./parse-install-options";
 
@@ -19,15 +19,15 @@ export async function runInstallCommand(argv: string[], io: {
   }
 
   try {
-    const result = await installCrewBee({
+    const result = await installAiyouTeam({
       context,
       options,
     });
 
     io.stdout.write([
-      result.dryRun ? "CrewBee user-level install plan generated." : "CrewBee user-level install completed.",
+      result.dryRun ? "aiyou-team user-level install plan generated." : "aiyou-team user-level install completed.",
       `Config: ${result.configPath}`,
-      `CrewBee Team config: ${result.crewbeeConfigPath}`,
+      `aiyou-team Team config: ${result.aiyouTeamConfigPath}`,
       `Install root: ${result.installRoot}`,
       `Package workspace: ${result.packageWorkspaceRoot}`,
       result.backupPath ? `Backup created: ${result.backupPath}` : undefined,
@@ -41,8 +41,8 @@ export async function runInstallCommand(argv: string[], io: {
         ? (result.configChanged ? "Plugin array would be updated." : "Plugin array already up to date.")
         : (result.configChanged ? "Plugin array updated." : "Plugin array already up to date."),
       result.dryRun
-        ? (result.crewbeeConfigChanged ? `crewbee.json would be updated (${result.crewbeeConfigReason}).` : "crewbee.json already usable.")
-        : (result.crewbeeConfigChanged ? `crewbee.json updated (${result.crewbeeConfigReason}).` : "crewbee.json already usable."),
+        ? (result.aiyouTeamConfigChanged ? `aiyou-team.json would be updated (${result.aiyouTeamConfigReason}).` : "aiyou-team.json already usable.")
+        : (result.aiyouTeamConfigChanged ? `aiyou-team.json updated (${result.aiyouTeamConfigReason}).` : "aiyou-team.json already usable."),
       result.migratedEntries.length > 0
         ? `Migrated old entries: ${result.migratedEntries.join(", ")}`
         : undefined,
@@ -53,7 +53,7 @@ export async function runInstallCommand(argv: string[], io: {
       "  opencode",
       "  select coding-leader",
       "",
-      "CrewBee installs into the OpenCode user-level workspace and does not modify your repository files.",
+      "aiyou-team installs into the OpenCode user-level workspace and does not modify your repository files.",
     ].filter(Boolean).join("\n") + "\n");
 
     return 0;

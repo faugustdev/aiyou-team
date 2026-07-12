@@ -9,7 +9,7 @@
 定义一支自定义 Agent Team 时，最直接、最必然要接触的是这两件事：
 
 1. **把 Team 定义文件放进同一个 Team 目录**
-2. **在全局或项目级 `crewbee.json` 中注册这个 Team 目录**
+2. **在全局或项目级 `aiyou-team.json` 中注册这个 Team 目录**
 
 ### 0.1 Team 目录应该怎么放
 
@@ -38,25 +38,25 @@ ResearchOpsTeam/
 
 > 关键约束：`*.agent.md` 必须和 `team.manifest.yaml`、`team.policy.yaml` 放在同一层目录。当前实现不会从 `agents/` 子目录加载 Agent。
 
-### 0.2 在哪里配置 `crewbee.json`
+### 0.2 在哪里配置 `aiyou-team.json`
 
-CrewBee 现在支持两类同构配置来源：
+aiyou-team 现在支持两类同构配置来源：
 
 | 作用域 | 配置文件 | 适用场景 |
 | --- | --- | --- |
-| global | OpenCode 配置目录下的 `crewbee.json` | 所有项目默认可用的 Team |
-| project | 当前项目下的 `.crewbee/crewbee.json` | 只对当前 worktree 生效的项目 Team |
+| global | OpenCode 配置目录下的 `aiyou-team.json` | 所有项目默认可用的 Team |
+| project | 当前项目下的 `.aiyou-team/aiyou-team.json` | 只对当前 worktree 生效的项目 Team |
 
 全局配置常见位置是：
 
 ```text
-~/.config/opencode/crewbee.json
+~/.config/opencode/aiyou-team.json
 ```
 
 在 Windows 上通常对应：
 
 ```text
-C:\Users\<你的用户名>\.config\opencode\crewbee.json
+C:\Users\<你的用户名>\.config\opencode\aiyou-team.json
 ```
 
 如果你通过环境变量或 OpenCode 自身配置使用了其它 OpenCode config root，则以实际 OpenCode 配置目录为准。
@@ -64,12 +64,12 @@ C:\Users\<你的用户名>\.config\opencode\crewbee.json
 项目级配置位于当前 OpenCode 工作项目中：
 
 ```text
-<project-worktree>/.crewbee/crewbee.json
+<project-worktree>/.aiyou-team/aiyou-team.json
 ```
 
 项目级配置和全局配置使用相同 schema、相同 Team 目录结构、相同 loader / validator / projection / OpenCode config patch。差异只在于配置文件位置、路径解析基准、`project` scope 语义和更高 source precedence。
 
-### 0.3 `crewbee.json` 怎么写
+### 0.3 `aiyou-team.json` 怎么写
 
 最小示例：
 
@@ -95,14 +95,14 @@ C:\Users\<你的用户名>\.config\opencode\crewbee.json
 ```json
 { "path": "@teams/ResearchOpsTeam" }
 { "path": "teams/ResearchOpsTeam" }
-{ "path": "~/CrewBeeTeams/ResearchOpsTeam" }
-{ "path": "E:/CrewBeeTeams/ResearchOpsTeam" }
+{ "path": "~/aiyou-teams/ResearchOpsTeam" }
+{ "path": "E:/aiyou-teams/ResearchOpsTeam" }
 ```
 
 路径规则：
 
-- `@teams/ResearchOpsTeam`：相对于当前 `crewbee.json` 所在目录，`@` 会被去掉。
-- `teams/ResearchOpsTeam`：同样相对于当前 `crewbee.json` 所在目录。
+- `@teams/ResearchOpsTeam`：相对于当前 `aiyou-team.json` 所在目录，`@` 会被去掉。
+- `teams/ResearchOpsTeam`：同样相对于当前 `aiyou-team.json` 所在目录。
 - `~/...`：相对于用户 home 目录。
 - 绝对路径：按原样使用。
 
@@ -112,24 +112,24 @@ C:\Users\<你的用户名>\.config\opencode\crewbee.json
 ~/.config/opencode/teams/ResearchOpsTeam/
 ```
 
-如果你在项目配置 `<project-worktree>/.crewbee/crewbee.json` 中使用同样写法，实际目录是：
+如果你在项目配置 `<project-worktree>/.aiyou-team/aiyou-team.json` 中使用同样写法，实际目录是：
 
 ```text
-<project-worktree>/.crewbee/teams/ResearchOpsTeam/
+<project-worktree>/.aiyou-team/teams/ResearchOpsTeam/
 ```
 
 ### 0.4 最短落地步骤
 
-1. 选择 Team 生效范围：全局 Team 放到 OpenCode 配置目录；项目 Team 放到当前项目 `.crewbee` 目录
-2. 创建 Team 目录：全局为 `<OpenCodeConfigRoot>/teams/ResearchOpsTeam/`，项目为 `<project-worktree>/.crewbee/teams/ResearchOpsTeam/`
+1. 选择 Team 生效范围：全局 Team 放到 OpenCode 配置目录；项目 Team 放到当前项目 `.aiyou-team` 目录
+2. 创建 Team 目录：全局为 `<OpenCodeConfigRoot>/teams/ResearchOpsTeam/`，项目为 `<project-worktree>/.aiyou-team/teams/ResearchOpsTeam/`
 3. 把 `team.manifest.yaml`、`team.policy.yaml`、所有 `*.agent.md` 放在这个目录根部
-4. 在对应的 `crewbee.json` 中添加：
+4. 在对应的 `aiyou-team.json` 中添加：
 
 ```json
 { "path": "@teams/ResearchOpsTeam", "enabled": true, "priority": 1 }
 ```
 
-5. 重启 OpenCode，或重新启动 OpenCode server，让 CrewBee 重新加载配置
+5. 重启 OpenCode，或重新启动 OpenCode server，让 aiyou-team 重新加载配置
 
 ---
 
@@ -137,7 +137,7 @@ C:\Users\<你的用户名>\.config\opencode\crewbee.json
 
 这份文档面向两类人：
 
-1. **想在 CrewBee 里新增一支 Team 的设计者**
+1. **想在 aiyou-team 里新增一支 Team 的设计者**
 2. **想把自己团队的工作方式固化成 Agent Team 的使用者**
 
 目标不是讲抽象概念，而是：
@@ -148,7 +148,7 @@ C:\Users\<你的用户名>\.config\opencode\crewbee.json
 
 ## 2. 先理解当前实现里的“一个 Team 到底是什么”
 
-在当前 CrewBee 里，一套 Team 本质上就是一个目录，里面放四类东西：
+在当前 aiyou-team 里，一套 Team 本质上就是一个目录，里面放四类东西：
 
 ```text
 <YourTeamDir>/
@@ -169,7 +169,7 @@ C:\Users\<你的用户名>\.config\opencode\crewbee.json
 
 > 当前实现里，`*.agent.md` 必须和 `team.manifest.yaml`、`team.policy.yaml` 放在同一目录；`TEAM.md` 也是同目录下的可选说明文件。当前不使用 `agents/` 或 `docs/` 子目录，也不会扫描这些子目录中的 Agent 文件。
 
-要让 CrewBee 加载这支 Team，还需要在某个 `crewbee.json` 里注册它。全局 Team 写入 OpenCode 配置目录下的 `crewbee.json`；项目 Team 写入当前工作项目的 `.crewbee/crewbee.json`：
+要让 aiyou-team 加载这支 Team，还需要在某个 `aiyou-team.json` 里注册它。全局 Team 写入 OpenCode 配置目录下的 `aiyou-team.json`；项目 Team 写入当前工作项目的 `.aiyou-team/aiyou-team.json`：
 
 ```json
 {
@@ -184,7 +184,7 @@ C:\Users\<你的用户名>\.config\opencode\crewbee.json
 
 - `coding-team` 是内置 Team，没有 `path`
 - 文件型 Team 的 `path` 指向 `team.manifest.yaml` 所在目录
-- `@...` 路径相对于当前 `crewbee.json` 所在目录；全局配置通常是 `~/.config/opencode`，项目配置通常是 `<project-worktree>/.crewbee`
+- `@...` 路径相对于当前 `aiyou-team.json` 所在目录；全局配置通常是 `~/.config/opencode`，项目配置通常是 `<project-worktree>/.aiyou-team`
 - 数字越小优先级越高；跨 source 时项目 Team 优先于全局 Team；最高优先级可用 Team 的默认 leader 会成为 OpenCode 默认 Agent
 - 当项目 Team 与全局 Team 的 manifest id 相同，项目 Team 会 shadow 全局 Team
 
@@ -212,7 +212,7 @@ C:\Users\<你的用户名>\.config\opencode\crewbee.json
 
 ### 3.2 谁是 formal leader？
 
-CrewBee 当前设计里，每支 Team 都必须有一个 **formal leader**。
+aiyou-team 当前设计里，每支 Team 都必须有一个 **formal leader**。
 
 它意味着：
 
@@ -358,7 +358,7 @@ CrewBee 当前设计里，每支 Team 都必须有一个 **formal leader**。
 如果它是项目 Team，目录结构如下：
 
 ```text
-<project-worktree>/.crewbee/teams/
+<project-worktree>/.aiyou-team/teams/
   ResearchOpsTeam/
     team.manifest.yaml
     team.policy.yaml
@@ -679,7 +679,7 @@ prompt_projection:
 
 ## 8. 第四步：先设计 Leader Agent
 
-在当前 CrewBee 里，**先把 leader 设计好**，比先设计所有 support agents 更重要。
+在当前 aiyou-team 里，**先把 leader 设计好**，比先设计所有 support agents 更重要。
 
 ### 8.1 Leader 必须回答的 6 个问题
 
@@ -1112,7 +1112,7 @@ output_contract:
 
 ## 13. 最佳实践总结
 
-如果你要在当前 CrewBee 项目中自定义一套 Team，最推荐的步骤就是：
+如果你要在当前 aiyou-team 项目中自定义一套 Team，最推荐的步骤就是：
 
 1. **先确定 Team 要解决什么问题**
 2. **先选定 formal leader**
@@ -1128,4 +1128,4 @@ output_contract:
 
 > **先把 Team 结构、Leader、成员边界和关键执行语义设计清楚，再去调 prompt 文本细节。**
 
-这也是当前 CrewBee 框架下，自定义设计一套 Agent Team 的最佳实践。
+这也是当前 aiyou-team 框架下，自定义设计一套 Agent Team 的最佳实践。

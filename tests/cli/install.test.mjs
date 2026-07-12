@@ -93,8 +93,8 @@ test("runCli help output includes user-level commands", async () => {
 test("runCli setup dry-run prints the productized next steps without mutating install roots", async () => {
   const stdout = createCaptureStream();
   const stderr = createCaptureStream();
-  const installRoot = path.join(mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-setup-install-")), "workspace");
-  const configPath = path.join(mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-setup-config-")), "opencode.json");
+  const installRoot = path.join(mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-setup-install-")), "workspace");
+  const configPath = path.join(mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-setup-config-")), "opencode.json");
 
   const exitCode = await runCli([
     "setup",
@@ -111,8 +111,8 @@ test("runCli setup dry-run prints the productized next steps without mutating in
   });
 
   assert.equal(exitCode, 0);
-  assert.match(stdout.getOutput(), /CrewBee setup plan generated/);
-  assert.match(stdout.getOutput(), /Registry package: crewbee@latest/);
+  assert.match(stdout.getOutput(), /aiyou-team setup plan generated/);
+  assert.match(stdout.getOutput(), /Registry package: aiyou-team@latest/);
   assert.match(stdout.getOutput(), /No files changed/);
   assert.match(stdout.getOutput(), /select coding-leader/);
   assert.equal(stderr.getOutput(), "");
@@ -121,11 +121,11 @@ test("runCli setup dry-run prints the productized next steps without mutating in
 test("runCli validate reports project Team config diagnostics", async () => {
   const stdout = createCaptureStream();
   const stderr = createCaptureStream();
-  const configRoot = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-validate-config-"));
-  const projectWorktree = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-validate-project-"));
+  const configRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-validate-config-"));
+  const projectWorktree = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-validate-project-"));
 
-  mkdirSync(path.join(projectWorktree, ".crewbee"), { recursive: true });
-  writeFileSync(path.join(projectWorktree, ".crewbee", "crewbee.json"), "{broken json", "utf8");
+  mkdirSync(path.join(projectWorktree, ".aiyou-team"), { recursive: true });
+  writeFileSync(path.join(projectWorktree, ".aiyou-team", "aiyou-team.json"), "{broken json", "utf8");
 
   const exitCode = await runCli([
     "validate",
@@ -140,8 +140,8 @@ test("runCli validate reports project Team config diagnostics", async () => {
   });
 
   assert.equal(exitCode, 1);
-  assert.match(stdout.getOutput(), /CrewBee Team validation: issues found/);
-  assert.match(stdout.getOutput(), /crewbee_config_parse_failed/);
+  assert.match(stdout.getOutput(), /aiyou-team Team validation: issues found/);
+  assert.match(stdout.getOutput(), /aiyou_team_config_parse_failed/);
   assert.match(stdout.getOutput(), /scope=project/);
   assert.match(stdout.getOutput(), /Blocking Team issues: 0/);
   assert.equal(stderr.getOutput(), "");
@@ -150,11 +150,11 @@ test("runCli validate reports project Team config diagnostics", async () => {
 test("runCli validate supports machine-readable JSON diagnostics", async () => {
   const stdout = createCaptureStream();
   const stderr = createCaptureStream();
-  const configRoot = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-validate-json-config-"));
-  const projectWorktree = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-validate-json-project-"));
+  const configRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-validate-json-config-"));
+  const projectWorktree = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-validate-json-project-"));
 
-  mkdirSync(path.join(projectWorktree, ".crewbee"), { recursive: true });
-  writeFileSync(path.join(projectWorktree, ".crewbee", "crewbee.json"), "{broken json", "utf8");
+  mkdirSync(path.join(projectWorktree, ".aiyou-team"), { recursive: true });
+  writeFileSync(path.join(projectWorktree, ".aiyou-team", "aiyou-team.json"), "{broken json", "utf8");
 
   const exitCode = await runCli([
     "validate",
@@ -173,15 +173,15 @@ test("runCli validate supports machine-readable JSON diagnostics", async () => {
   assert.equal(exitCode, 1);
   assert.equal(parsed.healthy, false);
   assert.equal(parsed.blockingIssueCount, 0);
-  assert.equal(parsed.issues.some((issue) => issue.code === "crewbee_config_parse_failed" && issue.sourceScope === "project"), true);
+  assert.equal(parsed.issues.some((issue) => issue.code === "aiyou_team_config_parse_failed" && issue.sourceScope === "project"), true);
   assert.equal(stderr.getOutput(), "");
 });
 
 test("runCli validate succeeds for default embedded Team diagnostics", async () => {
   const stdout = createCaptureStream();
   const stderr = createCaptureStream();
-  const configRoot = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-validate-healthy-config-"));
-  const projectWorktree = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-validate-healthy-project-"));
+  const configRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-validate-healthy-config-"));
+  const projectWorktree = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-validate-healthy-project-"));
 
   const exitCode = await runCli([
     "validate",
@@ -207,19 +207,19 @@ test("runCli validate succeeds for default embedded Team diagnostics", async () 
 test("runCli doctor reports Team diagnostics for the selected project worktree", async () => {
   const stdout = createCaptureStream();
   const stderr = createCaptureStream();
-  const installRoot = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-doctor-install-"));
-  const configRoot = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-doctor-config-"));
-  const projectWorktree = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-doctor-project-"));
-  const installedRoot = path.join(installRoot, "packages", "crewbee@latest", "node_modules", "crewbee");
+  const installRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-doctor-install-"));
+  const configRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-doctor-config-"));
+  const projectWorktree = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-doctor-project-"));
+  const installedRoot = path.join(installRoot, "packages", "aiyou-team@latest", "node_modules", "aiyou-team");
   const configPath = path.join(configRoot, "opencode.json");
 
   mkdirSync(installedRoot, { recursive: true });
-  mkdirSync(path.join(projectWorktree, ".crewbee"), { recursive: true });
-  writeFileSync(path.join(installRoot, "packages", "crewbee@latest", "package.json"), JSON.stringify({ private: true }, null, 2), "utf8");
-  writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "crewbee", version: "9.9.9" }, null, 2), "utf8");
+  mkdirSync(path.join(projectWorktree, ".aiyou-team"), { recursive: true });
+  writeFileSync(path.join(installRoot, "packages", "aiyou-team@latest", "package.json"), JSON.stringify({ private: true }, null, 2), "utf8");
+  writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "aiyou-team", version: "9.9.9" }, null, 2), "utf8");
   writeFileSync(path.join(installedRoot, "opencode-plugin.mjs"), "export default {};\n", "utf8");
-  writeFileSync(configPath, JSON.stringify({ plugin: ["crewbee"] }, null, 2), "utf8");
-  writeFileSync(path.join(projectWorktree, ".crewbee", "crewbee.json"), "{broken json", "utf8");
+  writeFileSync(configPath, JSON.stringify({ plugin: ["aiyou-team"] }, null, 2), "utf8");
+  writeFileSync(path.join(projectWorktree, ".aiyou-team", "aiyou-team.json"), "{broken json", "utf8");
 
   const exitCode = await runCli([
     "doctor",
@@ -236,10 +236,10 @@ test("runCli doctor reports Team diagnostics for the selected project worktree",
   });
 
   assert.equal(exitCode, 1);
-  assert.match(stdout.getOutput(), /CrewBee doctor: issues found/);
+  assert.match(stdout.getOutput(), /aiyou-team doctor: issues found/);
   assert.match(stdout.getOutput(), /Installed version: 9\.9\.9/);
   assert.match(stdout.getOutput(), /Team definitions: issues found/);
-  assert.match(stdout.getOutput(), /crewbee_config_parse_failed/);
+  assert.match(stdout.getOutput(), /aiyou_team_config_parse_failed/);
   assert.match(stdout.getOutput(), /Blocking Team issues: 0/);
   assert.equal(stderr.getOutput(), "");
 });
@@ -247,16 +247,16 @@ test("runCli doctor reports Team diagnostics for the selected project worktree",
 test("runCli doctor reports legacy top-level package residue as unhealthy", async () => {
   const stdout = createCaptureStream();
   const stderr = createCaptureStream();
-  const installRoot = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-doctor-legacy-install-"));
-  const configRoot = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-doctor-legacy-config-"));
-  const installedRoot = path.join(installRoot, "node_modules", "crewbee");
+  const installRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-doctor-legacy-install-"));
+  const configRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-doctor-legacy-config-"));
+  const installedRoot = path.join(installRoot, "node_modules", "aiyou-team");
   const configPath = path.join(configRoot, "opencode.json");
 
   mkdirSync(installedRoot, { recursive: true });
   writeFileSync(path.join(installRoot, "package.json"), JSON.stringify({ private: true }, null, 2), "utf8");
-  writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "crewbee", version: "8.8.8" }, null, 2), "utf8");
+  writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "aiyou-team", version: "8.8.8" }, null, 2), "utf8");
   writeFileSync(path.join(installedRoot, "opencode-plugin.mjs"), "export default {};\n", "utf8");
-  writeFileSync(configPath, JSON.stringify({ plugin: ["crewbee"] }, null, 2), "utf8");
+  writeFileSync(configPath, JSON.stringify({ plugin: ["aiyou-team"] }, null, 2), "utf8");
 
   const exitCode = await runCli([
     "doctor",
@@ -271,7 +271,7 @@ test("runCli doctor reports legacy top-level package residue as unhealthy", asyn
   });
 
   assert.equal(exitCode, 1);
-  assert.match(stdout.getOutput(), /CrewBee doctor: issues found/);
+  assert.match(stdout.getOutput(), /aiyou-team doctor: issues found/);
   assert.match(stdout.getOutput(), /Installed package: no/);
   assert.match(stdout.getOutput(), /Plugin file: no/);
   assert.match(stdout.getOutput(), /Legacy top-level package: yes/);
@@ -281,13 +281,13 @@ test("runCli doctor reports legacy top-level package residue as unhealthy", asyn
 test("runCli version reports current and installed package versions", async () => {
   const stdout = createCaptureStream();
   const stderr = createCaptureStream();
-  const currentRoot = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-current-"));
-  const installRoot = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-install-"));
-  const installedRoot = path.join(installRoot, "packages", "crewbee@latest", "node_modules", "crewbee");
+  const currentRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-current-"));
+  const installRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-install-"));
+  const installedRoot = path.join(installRoot, "packages", "aiyou-team@latest", "node_modules", "aiyou-team");
 
-  writeFileSync(path.join(currentRoot, "package.json"), JSON.stringify({ name: "crewbee", version: "1.2.3" }, null, 2), "utf8");
+  writeFileSync(path.join(currentRoot, "package.json"), JSON.stringify({ name: "aiyou-team", version: "1.2.3" }, null, 2), "utf8");
   mkdirSync(installedRoot, { recursive: true });
-  writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "crewbee", version: "9.8.7" }, null, 2), "utf8");
+  writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "aiyou-team", version: "9.8.7" }, null, 2), "utf8");
 
   const exitCode = await runCli(["version", "--install-root", installRoot], {
     packageRoot: currentRoot,
@@ -304,13 +304,13 @@ test("runCli version reports current and installed package versions", async () =
 test("runCli version detects installed package in the OpenCode package cache", async () => {
   const stdout = createCaptureStream();
   const stderr = createCaptureStream();
-  const currentRoot = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-current-cache-"));
-  const installRoot = mkdtempSync(path.join(os.tmpdir(), "crewbee-cli-install-cache-"));
-  const installedRoot = path.join(installRoot, "packages", "crewbee@latest", "node_modules", "crewbee");
+  const currentRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-current-cache-"));
+  const installRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-install-cache-"));
+  const installedRoot = path.join(installRoot, "packages", "aiyou-team@latest", "node_modules", "aiyou-team");
 
-  writeFileSync(path.join(currentRoot, "package.json"), JSON.stringify({ name: "crewbee", version: "1.2.3" }, null, 2), "utf8");
+  writeFileSync(path.join(currentRoot, "package.json"), JSON.stringify({ name: "aiyou-team", version: "1.2.3" }, null, 2), "utf8");
   mkdirSync(installedRoot, { recursive: true });
-  writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "crewbee", version: "0.1.3" }, null, 2), "utf8");
+  writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "aiyou-team", version: "0.1.3" }, null, 2), "utf8");
 
   const exitCode = await runCli(["version", "--install-root", installRoot], {
     packageRoot: currentRoot,

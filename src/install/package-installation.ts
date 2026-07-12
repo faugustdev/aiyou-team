@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
 import {
-  CREWBEE_PACKAGE_NAME,
+  AIYOU_TEAM_PACKAGE_NAME,
   resolveLegacyInstalledPackageRoot,
   resolvePackageWorkspaceRoot,
 } from "./plugin-entry";
@@ -65,7 +65,7 @@ export function installRegistryPackage(input: {
   installPackageSpec(input);
 }
 
-export function uninstallCrewBeePackage(input: {
+export function uninstallAiyouTeamPackage(input: {
   dryRun: boolean;
   installRoot: string;
 }): boolean {
@@ -89,7 +89,7 @@ export function uninstallCrewBeePackage(input: {
       "uninstall",
       "--prefix",
       input.installRoot,
-      CREWBEE_PACKAGE_NAME,
+      AIYOU_TEAM_PACKAGE_NAME,
       "--no-audit",
       "--no-fund",
     ]);
@@ -102,7 +102,7 @@ export function uninstallCrewBeePackage(input: {
   return true;
 }
 
-export function cleanupLegacyCrewBeePackage(input: {
+export function cleanupLegacyAiyouTeamPackage(input: {
   dryRun: boolean;
   installRoot: string;
 }): boolean {
@@ -120,7 +120,7 @@ export function cleanupLegacyCrewBeePackage(input: {
     "uninstall",
     "--prefix",
     input.installRoot,
-    CREWBEE_PACKAGE_NAME,
+    AIYOU_TEAM_PACKAGE_NAME,
     "--no-audit",
     "--no-fund",
   ]);

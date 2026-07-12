@@ -14,7 +14,7 @@
   "main": "./dist/opencode-plugin.mjs",
   "types": "./dist/src/adapters/opencode/plugin.d.ts",
   "bin": {
-    "aiyou-team": "bin/crewbee.js"
+    "aiyou-team": "bin/aiyou-team.js"
   },
   "exports": {
     ".": "./dist/opencode-plugin.mjs",
@@ -39,14 +39,14 @@
     "pack:release": "node ./scripts/pack-release.mjs",
     "smoke:package": "node ./scripts/smoke-packed-package.mjs",
     "release:registry:dry-run": "node ./scripts/release-registry.mjs --dryRun",
-    "setup": "node ./bin/crewbee.js setup --with-opencode",
-    "install:local:user": "npm run pack:local && node ./bin/crewbee.js install --source local --local-tarball ./.artifacts/local/crewbee-local.tgz",
-    "install:registry:user": "node ./bin/crewbee.js install --source registry",
-    "update": "node ./bin/crewbee.js update",
-    "uninstall": "node ./bin/crewbee.js uninstall",
-    "uninstall:user": "node ./bin/crewbee.js uninstall:user",
-    "doctor": "node ./bin/crewbee.js doctor",
-    "version": "node ./bin/crewbee.js version",
+    "setup": "node ./bin/aiyou-team.js setup --with-opencode",
+    "install:local:user": "npm run pack:local && node ./bin/aiyou-team.js install --source local --local-tarball ./.artifacts/local/aiyou-team-local.tgz",
+    "install:registry:user": "node ./bin/aiyou-team.js install --source registry",
+    "update": "node ./bin/aiyou-team.js update",
+    "uninstall": "node ./bin/aiyou-team.js uninstall",
+    "uninstall:user": "node ./bin/aiyou-team.js uninstall:user",
+    "doctor": "node ./bin/aiyou-team.js doctor",
+    "version": "node ./bin/aiyou-team.js version",
     "test": "npm run build && node --test tests/**/*.test.mjs"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 import type { Writable } from "node:stream";
 
-import { uninstallCrewBee } from "../install";
+import { uninstallAiyouTeam } from "../install";
 
 import { parseCommandPathOptions } from "./parse-command-path-options";
 
@@ -10,10 +10,10 @@ export async function runUninstallUserCommand(argv: string[], io: {
 }): Promise<number> {
   try {
     const options = parseCommandPathOptions(argv, true);
-    const result = await uninstallCrewBee(options);
+    const result = await uninstallAiyouTeam(options);
 
     io.stdout.write([
-      result.dryRun ? "CrewBee uninstall plan generated." : "CrewBee uninstall completed.",
+      result.dryRun ? "aiyou-team uninstall plan generated." : "aiyou-team uninstall completed.",
       `Config: ${result.configPath}`,
       `Install root: ${result.installRoot}`,
       result.backupPath ? `Backup created: ${result.backupPath}` : undefined,

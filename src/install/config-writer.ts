@@ -1,10 +1,10 @@
 export {
   backupOpenCodeConfig,
-  findCrewBeePluginEntries,
+  findAiyouTeamPluginEntries,
   readOpenCodeConfig,
-  removeCrewBeePluginEntries,
+  removeAiyouTeamPluginEntries,
   restoreOpenCodeConfigBackup,
-  upsertCrewBeePluginEntry,
+  upsertAiyouTeamPluginEntry,
   writeOpenCodeConfig,
 } from "./opencode-config-file";
 export type { OpenCodeConfigBackup, OpenCodeConfigDocument, PluginRemovalResult, PluginUpdateResult } from "./opencode-config-file";

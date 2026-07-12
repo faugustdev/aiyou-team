@@ -16,7 +16,7 @@ export function createSystemTransformHook(
     }
 
     const lines = [
-      "CrewBee runtime binding:",
+      "aiyou-team runtime binding:",
       `- Team: ${binding.teamId}`,
       `- Entry Agent: ${binding.selectedAgentId}`,
       `- Active Owner: ${binding.activeOwnerId}`,

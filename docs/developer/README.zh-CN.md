@@ -1,8 +1,8 @@
-# CrewBee 开发者指南
+# aiyou-team 开发者指南
 
 语言：[English](./README.md) | 中文
 
-这些指南面向参与 CrewBee 仓库本身开发、维护和发布的贡献者。
+这些指南面向参与 aiyou-team 仓库本身开发、维护和发布的贡献者。
 
 ## 指南
 
@@ -12,7 +12,7 @@
 
 ## 维护者 CI/CD 流程
 
-CrewBee 将用户文档和仓库维护流程分开：
+aiyou-team 将用户文档和仓库维护流程分开：
 
 - 普通代码改动通过正常 pull request 和 `ci.yml` 验证
 - 官方发布由维护者手动运行 `release-ci.yml` 开始

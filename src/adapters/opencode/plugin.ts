@@ -1,6 +1,6 @@
 import type { Plugin } from "@opencode-ai/plugin";
 
-import { ensureCrewBeeConfigFile, loadDefaultTeamLibrary } from "../../agent-teams";
+import { ensureAiyouTeamConfigFile, loadDefaultTeamLibrary } from "../../agent-teams";
 import { resolveOpenCodeConfigRoot } from "../../install";
 import { createSessionRuntimeBinding, type SessionRuntimeBinding } from "../../runtime";
 
@@ -10,29 +10,29 @@ import { createConfigHook, createInitialBootstrap, validateAndLogTeamLibrary } f
 import { createEventHook } from "./event-hook";
 import { DelegateStateStore } from "./delegation/store";
 import { createDelegateTools } from "./delegation/tools";
-import { logCrewBee } from "./logging";
+import { logAiyouTeam } from "./logging";
 import { createSystemTransformHook } from "./system-transform-hook";
 import { createToolDefinitionHook, createToolExecuteAfterHook, createToolExecuteBeforeHook } from "./tool-hooks";
 import { startBackgroundReleaseRefresh } from "../../update/refresh";
 
-export const OpenCodeCrewBeePlugin: Plugin = async (ctx) => {
-  const crewbeeConfigUpdate = ensureCrewBeeConfigFile({
+export const OpenCodeAiyouTeamPlugin: Plugin = async (ctx) => {
+  const aiyouTeamConfigUpdate = ensureAiyouTeamConfigFile({
     configRoot: resolveOpenCodeConfigRoot(),
     mode: "startup",
   });
-  if (crewbeeConfigUpdate.changed) {
-    await logCrewBee(ctx, "CrewBee auto-repaired Team config", {
-      backupPath: crewbeeConfigUpdate.backupPath,
-      configPath: crewbeeConfigUpdate.configPath,
-      reason: crewbeeConfigUpdate.reason,
+  if (aiyouTeamConfigUpdate.changed) {
+    await logAiyouTeam(ctx, "aiyou-team auto-repaired Team config", {
+      backupPath: aiyouTeamConfigUpdate.backupPath,
+      configPath: aiyouTeamConfigUpdate.configPath,
+      reason: aiyouTeamConfigUpdate.reason,
     }, "warn");
   }
 
-  const teamLibrary = loadDefaultTeamLibrary(ctx.worktree);
+  const teamLibrary = await loadDefaultTeamLibrary(ctx.worktree);
   await validateAndLogTeamLibrary(ctx, teamLibrary);
 
   const initial = await createInitialBootstrap(ctx, teamLibrary);
-  await logCrewBee(ctx, "CrewBee plugin initialized", {
+  await logAiyouTeam(ctx, "aiyou-team plugin initialized", {
     worktree: ctx.worktree,
     projectedAgentCount: initial.boot.projectedAgents.length,
     visibleAgentCount: initial.boot.projectedAgents.filter((agent) => !agent.hidden).length,
@@ -84,4 +84,4 @@ export const OpenCodeCrewBeePlugin: Plugin = async (ctx) => {
   };
 };
 
-export default OpenCodeCrewBeePlugin;
+export default OpenCodeAiyouTeamPlugin;

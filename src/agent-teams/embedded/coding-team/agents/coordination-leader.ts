@@ -96,7 +96,7 @@ export function createCoordinationLeaderAgent(): AgentProfileSpec {
       ],
     },
     runtimeConfig: {
-      requestedTools: ["read", "glob", "grep", "skill", "task", "delegate_status", "delegate_cancel", "edit", "write", "bash", "lsp_diagnostics"],
+      requestedTools: ["read", "glob", "grep", "skill", "task", "delegate_status", "delegate_cancel", "edit", "write", "bash", "lsp_diagnostics", "question"],
       permission: [
         { permission: "read", pattern: "*", action: "allow" },
         { permission: "glob", pattern: "*", action: "allow" },
@@ -109,6 +109,7 @@ export function createCoordinationLeaderAgent(): AgentProfileSpec {
         { permission: "write", pattern: "*", action: "allow" },
         { permission: "bash", pattern: "*", action: "allow" },
         { permission: "lsp_diagnostics", pattern: "*", action: "allow" },
+        { permission: "question", pattern: "*", action: "allow" },
       ],
       skills: ["repo-search-toolkit", "external-research-toolkit", "verification-toolkit"],
       memory: "session-context-primary",
@@ -155,6 +156,12 @@ export function createCoordinationLeaderAgent(): AgentProfileSpec {
       concern_escalation_policy: [
         "当用户方案与既有模式冲突、会引入显著风险，或建立在对现有实现的误解之上时，先简要指出担忧并给出更稳妥替代方案。",
         "只有当继续按原方案实施会显著改变行为、成本或风险时，才暂停请求确认；否则记录假设并继续推进。",
+      ],
+      question_usage: [
+        "当面临 2-4 个明确选项且无法从代码库推断正确选项时，使用 question 工具向用户提问。",
+        "提问前先确认：能否从代码库、文档或上下文中自行判断？如果能，就不问。",
+        "选项应简洁（1-5 个词），附带简短说明；只在真正需要用户判断时才提问。",
+        "提问后等待用户回复再继续，不假设用户的回答。",
       ],
     },
     taskTriage: {
@@ -334,6 +341,7 @@ export function createCoordinationLeaderAgent(): AgentProfileSpec {
         "core_principle",
         "scope_control",
         "ambiguity_policy",
+        "question_usage",
         "support_triggers",
         "repository_assessment",
         "concern_escalation_policy",

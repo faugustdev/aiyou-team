@@ -1,5 +1,5 @@
 export interface OpenCodeCoexistencePolicy {
-  pluginId: "crewbee";
+  pluginId: "aiyou-team";
   dependsOnOhMyOpenCode: false;
   featureDevelopmentMode: "mutually-exclusive";
   safeWhenCoInstalled: boolean;
@@ -17,7 +17,7 @@ export interface OpenCodeProjectedIdentity {
 
 export function createOpenCodeCoexistencePolicy(): OpenCodeCoexistencePolicy {
   return {
-    pluginId: "crewbee",
+    pluginId: "aiyou-team",
     dependsOnOhMyOpenCode: false,
     featureDevelopmentMode: "mutually-exclusive",
     safeWhenCoInstalled: true,

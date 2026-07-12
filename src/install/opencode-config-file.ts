@@ -85,7 +85,7 @@ function resolveOpenCodeConfigBackupPath(configPath: string): string {
   return path.join(parsed.dir, `${parsed.base}.backup-${timestamp}`);
 }
 
-export function upsertCrewBeePluginEntry(config: Record<string, unknown>, pluginEntry: string): PluginUpdateResult {
+export function upsertAiyouTeamPluginEntry(config: Record<string, unknown>, pluginEntry: string): PluginUpdateResult {
   const currentPlugins = getRawPluginArray(config);
   const nextPlugins: unknown[] = [];
   const migratedEntries: string[] = [];
@@ -105,7 +105,7 @@ export function upsertCrewBeePluginEntry(config: Record<string, unknown>, plugin
       continue;
     }
 
-    if (isCrewBeePluginReference(value)) {
+    if (isAiyouTeamPluginReference(value)) {
       migratedEntries.push(value);
       if (!hasCanonicalEntry) {
         nextPlugins.push(pluginEntry);
@@ -127,10 +127,10 @@ export function upsertCrewBeePluginEntry(config: Record<string, unknown>, plugin
   return { changed, migratedEntries };
 }
 
-export function removeCrewBeePluginEntries(config: Record<string, unknown>): PluginRemovalResult {
+export function removeAiyouTeamPluginEntries(config: Record<string, unknown>): PluginRemovalResult {
   const currentPlugins = getRawPluginArray(config);
-  const removedEntries = currentPlugins.filter((value): value is string => typeof value === "string" && isCrewBeePluginReference(value));
-  const nextPlugins = currentPlugins.filter((value) => typeof value !== "string" || !isCrewBeePluginReference(value));
+  const removedEntries = currentPlugins.filter((value): value is string => typeof value === "string" && isAiyouTeamPluginReference(value));
+  const nextPlugins = currentPlugins.filter((value) => typeof value !== "string" || !isAiyouTeamPluginReference(value));
   const changed = removedEntries.length > 0;
 
   if (changed) {
@@ -143,8 +143,8 @@ export function removeCrewBeePluginEntries(config: Record<string, unknown>): Plu
   };
 }
 
-export function findCrewBeePluginEntries(config: Record<string, unknown>): string[] {
-  return getRawPluginArray(config).filter((value): value is string => typeof value === "string" && isCrewBeePluginReference(value));
+export function findAiyouTeamPluginEntries(config: Record<string, unknown>): string[] {
+  return getRawPluginArray(config).filter((value): value is string => typeof value === "string" && isAiyouTeamPluginReference(value));
 }
 
 function getRawPluginArray(config: Record<string, unknown>): unknown[] {
@@ -157,11 +157,11 @@ function arePluginArraysEqual(left: unknown[], right: unknown[]): boolean {
   return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
-function isCrewBeePluginReference(value: string): boolean {
-  if (value === "crewbee" || value.startsWith("crewbee@")) {
+function isAiyouTeamPluginReference(value: string): boolean {
+  if (value === "aiyou-team" || value.startsWith("aiyou-team@")) {
     return true;
   }
 
   const normalized = value.replace(/\\/g, "/").toLowerCase();
-  return normalized.includes("/node_modules/crewbee/") || normalized.endsWith("/entry/crewbee-opencode-entry.mjs");
+  return normalized.includes("/node_modules/@aiyou-dev/team/") || normalized.includes("/node_modules/aiyou-team/") || normalized.endsWith("/entry/aiyou-team-opencode-entry.mjs");
 }

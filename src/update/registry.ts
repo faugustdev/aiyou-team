@@ -1,7 +1,7 @@
-import type { CrewBeeReleaseIntent } from "./types";
+import type { AiyouTeamReleaseIntent } from "./types";
 
 export async function fetchTargetVersion(input: {
-  intent: CrewBeeReleaseIntent;
+  intent: AiyouTeamReleaseIntent;
   fetchJson(url: string): Promise<unknown>;
 }): Promise<string | undefined> {
   const url = `https://registry.npmjs.org/${input.intent.packageName}`;

@@ -4,97 +4,97 @@ import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { backupOpenCodeConfig, removeCrewBeePluginEntries, restoreOpenCodeConfigBackup, upsertCrewBeePluginEntry } from "../../dist/src/install/index.js";
+import { backupOpenCodeConfig, removeAiyouTeamPluginEntries, restoreOpenCodeConfigBackup, upsertAiyouTeamPluginEntry } from "../../dist/src/install/index.js";
 
-test("upsertCrewBeePluginEntry migrates project-local entries to the canonical user-level entry", () => {
+test("upsertAiyouTeamPluginEntry migrates project-local entries to the canonical user-level entry", () => {
   const config = {
     plugin: [
       "foreign-plugin",
-      "file:///tmp/project/node_modules/crewbee/opencode-plugin.mjs",
+      "file:///tmp/project/node_modules/aiyou-team/opencode-plugin.mjs",
     ],
   };
 
-  const result = upsertCrewBeePluginEntry(config, "crewbee");
+  const result = upsertAiyouTeamPluginEntry(config, "aiyou-team");
 
   assert.equal(result.changed, true);
-  assert.deepEqual(result.migratedEntries, ["file:///tmp/project/node_modules/crewbee/opencode-plugin.mjs"]);
+  assert.deepEqual(result.migratedEntries, ["file:///tmp/project/node_modules/aiyou-team/opencode-plugin.mjs"]);
   assert.deepEqual(config.plugin, [
     "foreign-plugin",
-    "crewbee",
+    "aiyou-team",
   ]);
 });
 
-test("removeCrewBeePluginEntries removes all CrewBee references and preserves foreign plugins", () => {
+test("removeAiyouTeamPluginEntries removes all AiyouTeam references and preserves foreign plugins", () => {
   const config = {
     plugin: [
       "foreign-plugin",
-      "crewbee",
-      "file:///tmp/user/.cache/opencode/node_modules/crewbee/opencode-plugin.mjs",
+      "aiyou-team",
+      "file:///tmp/user/.cache/opencode/node_modules/aiyou-team/opencode-plugin.mjs",
     ],
   };
 
-  const result = removeCrewBeePluginEntries(config);
+  const result = removeAiyouTeamPluginEntries(config);
 
   assert.equal(result.changed, true);
   assert.deepEqual(result.removedEntries, [
-    "crewbee",
-    "file:///tmp/user/.cache/opencode/node_modules/crewbee/opencode-plugin.mjs",
+    "aiyou-team",
+    "file:///tmp/user/.cache/opencode/node_modules/aiyou-team/opencode-plugin.mjs",
   ]);
   assert.deepEqual(config.plugin, ["foreign-plugin"]);
 });
 
-test("upsertCrewBeePluginEntry preserves non-string plugin entries", () => {
+test("upsertAiyouTeamPluginEntry preserves non-string plugin entries", () => {
   const customPlugin = { name: "foreign-object-plugin" };
   const config = {
     plugin: [
       customPlugin,
-      "file:///tmp/project/node_modules/crewbee/opencode-plugin.mjs",
+      "file:///tmp/project/node_modules/aiyou-team/opencode-plugin.mjs",
     ],
   };
 
-  upsertCrewBeePluginEntry(config, "crewbee");
+  upsertAiyouTeamPluginEntry(config, "aiyou-team");
 
   assert.deepEqual(config.plugin, [
     customPlugin,
-    "crewbee",
+    "aiyou-team",
   ]);
 });
 
-test("upsertCrewBeePluginEntry migrates package-internal js entries to the canonical package entry", () => {
+test("upsertAiyouTeamPluginEntry migrates package-internal js entries to the canonical package entry", () => {
   const config = {
     plugin: [
-      "file:///tmp/user/.cache/opencode/crewbee/node_modules/crewbee/opencode-plugin.js",
+      "file:///tmp/user/.cache/opencode/aiyou-team/node_modules/aiyou-team/opencode-plugin.js",
     ],
   };
 
-  const result = upsertCrewBeePluginEntry(config, "crewbee");
+  const result = upsertAiyouTeamPluginEntry(config, "aiyou-team");
 
   assert.equal(result.changed, true);
-  assert.deepEqual(result.migratedEntries, ["file:///tmp/user/.cache/opencode/crewbee/node_modules/crewbee/opencode-plugin.js"]);
-  assert.deepEqual(config.plugin, ["crewbee"]);
+  assert.deepEqual(result.migratedEntries, ["file:///tmp/user/.cache/opencode/aiyou-team/node_modules/aiyou-team/opencode-plugin.js"]);
+  assert.deepEqual(config.plugin, ["aiyou-team"]);
 });
 
-test("upsertCrewBeePluginEntry migrates legacy standalone shim entries to the canonical package entry", () => {
+test("upsertAiyouTeamPluginEntry migrates legacy standalone shim entries to the canonical package entry", () => {
   const config = {
     plugin: [
-      "file:///tmp/user/.cache/opencode/crewbee/entry/crewbee-opencode-entry.mjs",
+      "file:///tmp/user/.cache/opencode/aiyou-team/entry/aiyou-team-opencode-entry.mjs",
     ],
   };
 
-  const result = upsertCrewBeePluginEntry(config, "crewbee");
+  const result = upsertAiyouTeamPluginEntry(config, "aiyou-team");
 
   assert.equal(result.changed, true);
-  assert.deepEqual(result.migratedEntries, ["file:///tmp/user/.cache/opencode/crewbee/entry/crewbee-opencode-entry.mjs"]);
-  assert.deepEqual(config.plugin, ["crewbee"]);
+  assert.deepEqual(result.migratedEntries, ["file:///tmp/user/.cache/opencode/aiyou-team/entry/aiyou-team-opencode-entry.mjs"]);
+  assert.deepEqual(config.plugin, ["aiyou-team"]);
 });
 
 test("OpenCode config backup can restore an existing config", () => {
-  const configPath = path.join(mkdtempSync(path.join(os.tmpdir(), "crewbee-config-backup-")), "opencode.json");
+  const configPath = path.join(mkdtempSync(path.join(os.tmpdir(), "aiyou-team-config-backup-")), "opencode.json");
   const original = JSON.stringify({ plugin: ["foreign-plugin"] }, null, 2) + "\n";
 
   writeFileSync(configPath, original, "utf8");
   const backup = backupOpenCodeConfig(configPath);
-  writeFileSync(configPath, JSON.stringify({ plugin: ["crewbee"] }, null, 2) + "\n", "utf8");
+  writeFileSync(configPath, JSON.stringify({ plugin: ["aiyou-team"] }, null, 2) + "\n", "utf8");
 
   restoreOpenCodeConfigBackup(backup);
 

@@ -1,6 +1,7 @@
 import path from "node:path";
 
 import type { AgentTeamDefinition, TeamLibrary } from "../core";
+import type { AiyouTeamLanguage } from "./constants";
 
 import type { TeamValidationIssue } from "./types";
 import { normalizeTeamAgentIds } from "./canonical-agent-id";
@@ -22,7 +23,7 @@ function createSkippedTeamIssue(teamDir: string, message: string): TeamValidatio
     filePath: teamDir,
     code: "team_load_failed",
     message: `Skipped Team '${path.basename(teamDir)}': ${message}`,
-    suggestion: "Fix this Team directory; CrewBee will continue loading other valid Teams.",
+    suggestion: "Fix this Team directory; aiyou-team will continue loading other valid Teams.",
   };
 }
 
@@ -35,9 +36,10 @@ function loadValidatedTeamDefinition(input: {
   teamDir: string;
   workspaceRoot: string;
   usedCanonicalIds: Set<string>;
+  language?: AiyouTeamLanguage;
 }): { team?: AgentTeamDefinition; issues: TeamValidationIssue[] } {
   try {
-    const loaded = loadTeamDefinitionFromDirectoryWithIssues(input.teamDir, input.workspaceRoot);
+    const loaded = loadTeamDefinitionFromDirectoryWithIssues(input.teamDir, input.workspaceRoot, input.language);
     const loadedTeam = loaded.team;
     const normalized = normalizeTeamAgentIds({ team: loadedTeam, usedCanonicalIds: input.usedCanonicalIds });
     if (!normalized.team) {
@@ -100,6 +102,7 @@ export function loadDefaultTeamLibrary(input: string | LoadDefaultTeamLibraryOpt
       ? { projectWorktree: input }
       : { globalConfigRoot: input.globalConfigRoot, projectWorktree: input.projectWorktree },
   );
+  const language = configured.language;
   const pendingTeams: Array<{
     loader: () => { team?: AgentTeamDefinition; issues: TeamValidationIssue[] };
     priority: number;
@@ -115,7 +118,7 @@ export function loadDefaultTeamLibrary(input: string | LoadDefaultTeamLibraryOpt
     }
 
     if (source.kind === "embedded") {
-      const embeddedTeam = loadEmbeddedTeam(source);
+      const embeddedTeam = loadEmbeddedTeam(source, language);
       configured.issues.push(...embeddedTeam.issues);
 
       if (!embeddedTeam.team) {
@@ -141,7 +144,7 @@ export function loadDefaultTeamLibrary(input: string | LoadDefaultTeamLibraryOpt
     pendingTeams.push({
       loader: () => {
         try {
-          const loaded = loadTeamDefinitionFromDirectoryWithIssues(source.teamDir, baseDir);
+          const loaded = loadTeamDefinitionFromDirectoryWithIssues(source.teamDir, baseDir, language);
           return {
             team: { ...loaded.team, modelConfigOverride: source.modelConfigOverride },
             issues: loaded.issues,
@@ -241,13 +244,16 @@ export function loadDefaultTeamLibrary(input: string | LoadDefaultTeamLibraryOpt
   };
 }
 
-function loadEmbeddedTeam(source: Extract<ConfiguredTeamSource, { kind: "embedded" }>): {
+function loadEmbeddedTeam(
+  source: Extract<ConfiguredTeamSource, { kind: "embedded" }>,
+  language?: AiyouTeamLanguage,
+): {
   team?: AgentTeamDefinition;
   issues: TeamValidationIssue[];
 } {
   if (source.teamId === BUILTIN_CODING_TEAM_ID) {
     return {
-      team: createEmbeddedCodingTeam(),
+      team: createEmbeddedCodingTeam(language),
       issues: [],
     };
   }

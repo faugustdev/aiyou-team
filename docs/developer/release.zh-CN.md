@@ -2,28 +2,28 @@
 
 语言：[English](./release.md) | 中文
 
-适用对象：参与 CrewBee 仓库开发、维护和发布的**开发者与维护者**。如果只是安装或使用 CrewBee，请从[安装指南](../guide/installation.zh-CN.md)开始。
+适用对象：参与 aiyou-team 仓库开发、维护和发布的**开发者与维护者**。如果只是安装或使用 aiyou-team，请从[安装指南](../guide/installation.zh-CN.md)开始。
 
 ## 范围
 
-本文覆盖本地维护者流程、GitHub Actions CI/CD、官方发布、npm publish 和发布后验证。普通 CrewBee 用户不需要阅读本文。
+本文覆盖本地维护者流程、GitHub Actions CI/CD、官方发布、npm publish 和发布后验证。普通 aiyou-team 用户不需要阅读本文。
 
 ## 目标
 
-CrewBee 当前支持两条并行流程：
+aiyou-team 当前支持两条并行流程：
 
 1. **保留本地开发 pack / install 流程**，用于日常开发验证。
-2. **提供 registry publish 流程**，让 OpenCode 可以通过 package name `crewbee` 加载 CrewBee。
+2. **提供 registry publish 流程**，让 OpenCode 可以通过 package name `@aiyou-dev/team` 加载 aiyou-team。
 
 这与 `oh-my-openagent` 使用的 **package-name-first** 模型一致：
 
 ```json
 {
-  "plugin": ["crewbee"]
+  "plugin": ["@aiyou-dev/team"]
 }
 ```
 
-当 OpenCode 支持 package-name plugin resolution 时，这份配置可以让它从已发布的 npm package 中解析 CrewBee。
+当 OpenCode 支持 package-name plugin resolution 时，这份配置可以让它从已发布的 npm package 中解析 aiyou-team。
 
 ---
 
@@ -42,8 +42,8 @@ npm run doctor
 
 产物：
 
-- 稳定本地 tarball：`.artifacts/local/crewbee-local.tgz`
-- OpenCode plugin config entry：`crewbee`
+- 稳定本地 tarball：`.artifacts/local/aiyou-team-local.tgz`
+- OpenCode plugin config entry：`@aiyou-dev/team`
 
 当你正在本地迭代，并希望发布前测试 package 时使用该流程。
 
@@ -51,8 +51,8 @@ npm run doctor
 
 用于正式线上分发：
 
-- npm package name：`crewbee`
-- OpenCode config plugin entry：`crewbee`
+- npm package name：`@aiyou-dev/team`
+- OpenCode config plugin entry：`@aiyou-dev/team`
 - publish target：npm registry
 - release automation：支持本地脚本和 GitHub Actions
 
@@ -156,7 +156,7 @@ gh release create vX.Y.Z --generate-notes
 
 这是推荐的 **official** release path。人正常将功能 / 修复 PR 合并到 `main`，需要发布时手动运行 `release-ci`。`release-ci` 通过后，版本号 bump、tag、npm publish 和 GitHub Release 会自动继续执行。
 
-该流程要求仓库 secret 中配置 `CREWBEE_AUTOMATION_TOKEN`。该 token 必须允许 push 到 `main` 并 push tag；默认 `GITHUB_TOKEN` 不够，因为 GitHub 会抑制由 `GITHUB_TOKEN` push 触发的后续 workflow。
+该流程要求仓库 secret 中配置 `AIYOU_TEAM_AUTOMATION_TOKEN`。该 token 必须允许 push 到 `main` 并 push tag；默认 `GITHUB_TOKEN` 不够，因为 GitHub 会抑制由 `GITHUB_TOKEN` push 触发的后续 workflow。
 
 ### CI workflow
 
@@ -247,7 +247,7 @@ Release CI gates：
 行为：
 
 - 如果 push 到 `main` 时修改了 `package.json` 或 `package-lock.json`，校验两者包含相同 release version `X.Y.Z`
-- 如果 `crewbee@X.Y.Z` 已经存在于 npm，则拒绝创建 tag
+- 如果 `@aiyou-dev/team@X.Y.Z` 已经存在于 npm，则拒绝创建 tag
 - 当 `vX.Y.Z` tag 不存在时，自动创建并 push 该 tag
 - 未修改 package version 文件的 push 会被忽略
 
@@ -273,7 +273,7 @@ Release CI gates：
    - stable release 先发布到 `next`
    - prerelease 发布到对应 prerelease tag，例如 `beta`
 6. 从 npm registry 拉回刚发布的 package 并 smoke-test。
-7. stable release 通过后，将 `crewbee@X.Y.Z` promote 到 `latest`。
+7. stable release 通过后，将 `@aiyou-dev/team@X.Y.Z` promote 到 `latest`。
 8. stable release promote 后，从 registry 安装并再次运行 OpenCode smoke。
 9. 创建 GitHub Release 并生成 notes。
 
@@ -287,7 +287,7 @@ Release CI gates：
 6. `release-tag.yml` 检测 `main` 上的 package version bump 并自动创建 `vX.Y.Z`。
 7. `publish.yml` 自动发布该 tag。
 8. 成功后验证：
-   - npm 存在 `crewbee@<version>`
+   - npm 存在 `@aiyou-dev/team@<version>`
    - `latest` 指向该 stable version
    - tag `v<version>` 存在
    - GitHub Release 存在
@@ -309,17 +309,17 @@ GitHub UI 操作：
 如果让 Agent 执行，直接给出版本号即可，例如：
 
 ```text
-请发布 CrewBee 0.2.0
+请发布 aiyou-team 0.2.0
 ```
 
 Agent 应执行以下流程：
 
-1. 确认工作区没有未提交的发布相关改动；不要读取或提交 `.crewbee/`、`.crewbeectxt/`、`.local/`。
+1. 确认工作区没有未提交的发布相关改动；不要读取或提交 `.aiyou-team/`、`.aiyou-teamctxt/`、`.local/`。
 2. 触发 `release-ci` 的 `workflow_dispatch`，参数为 `version=<目标版本>`，`bump=patch`。
 3. 等待 `release-ci` 创建 `Release v<目标版本>` commit。
 4. 等待 `release-tag.yml` 创建 `v<目标版本>` tag。
 5. 等待 `publish.yml` 完成 npm publish、`latest` promotion、GitHub Release 创建。
-6. 验证 `npm view crewbee version`、`npm view crewbee dist-tags --json` 和 GitHub Release。
+6. 验证 `npm view @aiyou-dev/team version`、`npm view @aiyou-dev/team dist-tags --json` 和 GitHub Release。
 
 失败处理规则：
 
@@ -331,20 +331,20 @@ Agent 应执行以下流程：
 
 ## OpenCode 自动安装模型
 
-CrewBee 发布后，目标 OpenCode config 应直接引用 package name：
+aiyou-team 发布后，目标 OpenCode config 应直接引用 package name：
 
 ```json
 {
-  "plugin": ["crewbee"]
+  "plugin": ["@aiyou-dev/team"]
 }
 ```
 
 ### 为什么这样可行
 
-CrewBee 当前写入和校验的 canonical plugin entry 是：
+aiyou-team 当前写入和校验的 canonical plugin entry 是：
 
 ```text
-crewbee
+@aiyou-dev/team
 ```
 
 而不是 `file://.../opencode-plugin.mjs` 路径。
@@ -363,7 +363,7 @@ npm run install:local:user
 
 ```json
 {
-  "plugin": ["crewbee"]
+  "plugin": ["@aiyou-dev/team"]
 }
 ```
 
@@ -413,7 +413,7 @@ workflow_dispatch release-ci -> Release vX.Y.Z commit -> automatic tag -> automa
 
 发布后：
 
-- npm 显示 `crewbee@<version>`
-- OpenCode config 可以使用 `"crewbee"`
+- npm 显示 `@aiyou-dev/team@<version>`
+- OpenCode config 可以使用 `"@aiyou-dev/team"`
 - `npm run install:registry:user` 成功
 - `npm run doctor` 健康

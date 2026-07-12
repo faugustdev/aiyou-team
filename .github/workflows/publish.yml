@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   publish:
-    if: github.repository == 'CrewBeeLab/CrewBee'
+    if: github.repository == 'faugustdev/aiyou-team'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
             exit 1
           fi
 
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/crewbee/${VERSION}")
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/aiyou-team/${VERSION}")
           ALREADY_PUBLISHED="false"
           if [ "$STATUS" = "200" ]; then
             ALREADY_PUBLISHED="true"
@@ -86,7 +86,7 @@ jobs:
       - name: Install OpenCode CLI
         run: npm install -g opencode-ai@latest
 
-      - name: Install local CrewBee package
+      - name: Install local aiyou-team package
         run: npm run install:local:user
 
       - name: Run doctor
@@ -97,7 +97,7 @@ jobs:
         run: |
           set -euo pipefail
           npm run pack:release
-          TARBALL=$(find .artifacts/release -name 'crewbee-*.tgz' -print -quit)
+          TARBALL=$(find .artifacts/release -name 'aiyou-team-*.tgz' -print -quit)
           if [ -z "$TARBALL" ]; then
             echo "::error::release tarball was not generated."
             exit 1
@@ -131,16 +131,16 @@ jobs:
           mkdir -p .artifacts/registry-smoke
           for attempt in {1..12}; do
             CACHE_DIR=".artifacts/npm-registry-cache-${attempt}"
-            if npm pack "crewbee@${VERSION}" --pack-destination .artifacts/registry-smoke --prefer-online --cache "$CACHE_DIR"; then
+            if npm pack "aiyou-team@${VERSION}" --pack-destination .artifacts/registry-smoke --prefer-online --cache "$CACHE_DIR"; then
               break
             fi
             if [ "$attempt" = "12" ]; then
-              echo "::error::crewbee@${VERSION} was not visible in the npm registry after retries."
+              echo "::error::aiyou-team@${VERSION} was not visible in the npm registry after retries."
               exit 1
             fi
             sleep 10
           done
-          TARBALL=$(find .artifacts/registry-smoke -name 'crewbee-*.tgz' -print -quit)
+          TARBALL=$(find .artifacts/registry-smoke -name 'aiyou-team-*.tgz' -print -quit)
           if [ -z "$TARBALL" ]; then
             echo "::error::registry smoke tarball was not generated."
             exit 1
@@ -152,15 +152,15 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
           VERSION: ${{ steps.release.outputs.version }}
-        run: npm dist-tag add "crewbee@${VERSION}" latest
+        run: npm dist-tag add "aiyou-team@${VERSION}" latest
 
       - name: Verify latest registry install in OpenCode
         if: steps.release.outputs.stable == 'true'
         run: |
           set -euo pipefail
-          node ./bin/crewbee.js install --source registry
-          node ./bin/crewbee.js version
-          node ./bin/crewbee.js doctor
+          node ./bin/aiyou-team.js install --source registry
+          node ./bin/aiyou-team.js version
+          node ./bin/aiyou-team.js doctor
           opencode models --print-logs --log-level DEBUG
 
       - name: Create GitHub release

@@ -37,7 +37,7 @@ function createCollaborationPromptValue(agent: ProjectedAgent): unknown {
     delegationBoundary: [
       "Only delegate to agents explicitly listed in default_consults or default_handoffs for this Agent Profile.",
       "Do not delegate to host-provided agents, OpenCode built-in agents, agents from other Teams, or agents not listed here.",
-      "Use the OpenCode-compatible CrewBee task tool for delegation; it is implemented by CrewBee and constrained by this Team boundary.",
+      "Use the OpenCode-compatible aiyou-team task tool for delegation; it is implemented by aiyou-team and constrained by this Team boundary.",
     ],
   };
 }

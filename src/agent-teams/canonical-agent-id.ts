@@ -71,7 +71,7 @@ export function normalizeTeamAgentIds(input: {
         code: "canonical_agent_id_collision",
         message: `Team '${input.team.manifest.id}' cannot assign a unique canonicalAgentId for source agent '${sourceId}'. Candidate '${candidate}' and fallback '${fallback}' both collide.`,
         path: `agents.${sourceId}.id`,
-        suggestion: "Rename the source Agent id or Team id so CrewBee can derive a unique canonical Agent id.",
+        suggestion: "Rename the source Agent id or Team id so aiyou-team can derive a unique canonical Agent id.",
       });
       return { issues };
     }

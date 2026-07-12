@@ -1,8 +1,8 @@
-# CrewBee Developer Guides
+# aiyou-team Developer Guides
 
 Language: English | [中文](./README.zh-CN.md)
 
-These guides are for contributors and maintainers working on the CrewBee repository itself.
+These guides are for contributors and maintainers working on the aiyou-team repository itself.
 
 ## Guides
 
@@ -12,7 +12,7 @@ These guides are for contributors and maintainers working on the CrewBee reposit
 
 ## Maintainer CI/CD Flow
 
-CrewBee separates user-facing documentation from repository maintenance workflows:
+aiyou-team separates user-facing documentation from repository maintenance workflows:
 
 - ordinary code changes go through normal pull requests and `ci.yml`
 - official releases are started manually through `release-ci.yml`

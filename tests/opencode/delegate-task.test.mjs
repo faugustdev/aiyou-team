@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { mkdtempSync } from "node:fs";
 
-import { OpenCodeCrewBeePlugin } from "../../dist/src/adapters/opencode/plugin.js";
+import { OpenCodeAiyouTeamPlugin } from "../../dist/src/adapters/opencode/plugin.js";
 
 function parseJson(text) {
   return JSON.parse(text);
@@ -23,7 +23,7 @@ function createToolContext(worktree, sessionID = "ses-parent") {
 }
 
 function createPluginInput(options = {}) {
-  const worktree = mkdtempSync(path.join(os.tmpdir(), "crewbee-delegate-"));
+  const worktree = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-delegate-"));
   const sessions = new Map();
   const promptBodies = [];
   let counter = 0;
@@ -129,7 +129,7 @@ async function runAfterHook(plugin, output) {
 
 test("task foreground returns structured result with resume hint", async () => {
   const fixture = createPluginInput();
-  const plugin = await OpenCodeCrewBeePlugin(fixture.input);
+  const plugin = await OpenCodeAiyouTeamPlugin(fixture.input);
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -157,7 +157,7 @@ test("task foreground retries with host default when non-strict delegated model 
     availableModels: ["openai/gpt-5.5"],
     failFirstModelPrompt: true,
   });
-  const plugin = await OpenCodeCrewBeePlugin(fixture.input);
+  const plugin = await OpenCodeAiyouTeamPlugin(fixture.input);
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -180,7 +180,7 @@ test("task foreground retries with host default when non-strict delegated model 
 
 test("task rejects agents outside the active Team member collaboration list", async () => {
   const fixture = createPluginInput();
-  const plugin = await OpenCodeCrewBeePlugin(fixture.input);
+  const plugin = await OpenCodeAiyouTeamPlugin(fixture.input);
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -202,7 +202,7 @@ test("task rejects agents outside the active Team member collaboration list", as
 
 test("task creates a new child session when task_id is unknown", async () => {
   const fixture = createPluginInput();
-  const plugin = await OpenCodeCrewBeePlugin(fixture.input);
+  const plugin = await OpenCodeAiyouTeamPlugin(fixture.input);
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -225,7 +225,7 @@ test("task creates a new child session when task_id is unknown", async () => {
 
 test("task creates a replacement child session when stored task_id is stale", async () => {
   const fixture = createPluginInput();
-  const plugin = await OpenCodeCrewBeePlugin(fixture.input);
+  const plugin = await OpenCodeAiyouTeamPlugin(fixture.input);
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -253,7 +253,7 @@ test("task creates a replacement child session when stored task_id is stale", as
 
 test("task background is finalized from session events and appears in compaction context", async () => {
   const fixture = createPluginInput();
-  const plugin = await OpenCodeCrewBeePlugin(fixture.input);
+  const plugin = await OpenCodeAiyouTeamPlugin(fixture.input);
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -294,7 +294,7 @@ test("task background is finalized from session events and appears in compaction
 
 test("task foreground sessions also appear in compaction context", async () => {
   const fixture = createPluginInput();
-  const plugin = await OpenCodeCrewBeePlugin(fixture.input);
+  const plugin = await OpenCodeAiyouTeamPlugin(fixture.input);
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -319,7 +319,7 @@ test("task foreground sessions also appear in compaction context", async () => {
 
 test("delegate_cancel marks a background delegation as cancelled", async () => {
   const fixture = createPluginInput();
-  const plugin = await OpenCodeCrewBeePlugin(fixture.input);
+  const plugin = await OpenCodeAiyouTeamPlugin(fixture.input);
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -341,7 +341,7 @@ test("delegate_cancel marks a background delegation as cancelled", async () => {
 
 test("background resume updates the latest task for a reused delegated session", async () => {
   const fixture = createPluginInput();
-  const plugin = await OpenCodeCrewBeePlugin(fixture.input);
+  const plugin = await OpenCodeAiyouTeamPlugin(fixture.input);
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -369,7 +369,7 @@ test("background resume updates the latest task for a reused delegated session",
 
 test("task failure adds retry guidance", async () => {
   const fixture = createPluginInput();
-  const plugin = await OpenCodeCrewBeePlugin(fixture.input);
+  const plugin = await OpenCodeAiyouTeamPlugin(fixture.input);
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -391,7 +391,7 @@ test("task failure adds retry guidance", async () => {
 
 test("delegated subagents cannot delegate again", async () => {
   const fixture = createPluginInput();
-  const plugin = await OpenCodeCrewBeePlugin(fixture.input);
+  const plugin = await OpenCodeAiyouTeamPlugin(fixture.input);
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -417,7 +417,7 @@ test("delegated subagents cannot delegate again", async () => {
 
 test("session.compacted records continuity state without injecting recovery prompts", async () => {
   const fixture = createPluginInput();
-  const plugin = await OpenCodeCrewBeePlugin(fixture.input);
+  const plugin = await OpenCodeAiyouTeamPlugin(fixture.input);
   const config = { agent: {} };
 
   await plugin.config?.(config);

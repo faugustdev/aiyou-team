@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`templates/teams/template-team` is a ready-to-use general-purpose CrewBee Team template. It is not only a skeleton for authors: once installed into the OpenCode config root as `teams/template-team`, a user can select this Team without modifying any files and use it for real work such as assistance, summarization, note organization, question research, information retrieval, comparison, drafting, lightweight data analysis, and structured extraction.
+`templates/teams/template-team` is a ready-to-use general-purpose aiyou-team template. It is not only a skeleton for authors: once installed into the OpenCode config root as `teams/template-team`, a user can select this Team without modifying any files and use it for real work such as assistance, summarization, note organization, question research, information retrieval, comparison, drafting, lightweight data analysis, and structured extraction.
 
 The Team is intentionally broad but not careless: it defaults to useful direct answers for simple tasks, uses research when evidence matters, uses production support when an artifact must be organized or transformed, and reports assumptions or source limits when they affect trust.
 
@@ -58,7 +58,7 @@ templates/teams/template-team/
 
 ## Loader Compatibility Notes
 
-This Team uses the current file-based CrewBee schema:
+This Team uses the current file-based aiyou-team schema:
 
 - `team.manifest.yaml` contains `id`, `version`, `name`, `description`, `mission`, `scope`, `leader`, `members`, `workflow`, `governance`, `agent_runtime`, `tags`, and `prompt_projection`.
 - `team.policy.yaml` is required and defines instruction precedence, approval policy, forbidden actions, quality floor, working rules, and prompt projection.

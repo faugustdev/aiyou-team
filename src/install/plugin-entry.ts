@@ -1,15 +1,15 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 
-export const CREWBEE_PACKAGE_NAME = "crewbee";
-export const CREWBEE_PACKAGE_WORKSPACE = "crewbee@latest";
+export const AIYOU_TEAM_PACKAGE_NAME = "aiyou-team";
+export const AIYOU_TEAM_PACKAGE_WORKSPACE = "aiyou-team@latest";
 
 export function resolvePackageWorkspaceRoot(installRoot: string): string {
-  return path.join(installRoot, "packages", CREWBEE_PACKAGE_WORKSPACE);
+  return path.join(installRoot, "packages", AIYOU_TEAM_PACKAGE_WORKSPACE);
 }
 
 export function resolveInstalledPackageRoot(installRoot: string): string {
-  return path.join(resolvePackageWorkspaceRoot(installRoot), "node_modules", CREWBEE_PACKAGE_NAME);
+  return path.join(resolvePackageWorkspaceRoot(installRoot), "node_modules", AIYOU_TEAM_PACKAGE_NAME);
 }
 
 export function resolveInstalledPluginPath(installRoot: string): string {
@@ -25,17 +25,17 @@ export function detectInstalledPluginPath(installRoot: string): string {
 }
 
 export function createCanonicalPluginEntry(_installRoot?: string): string {
-  return CREWBEE_PACKAGE_NAME;
+  return AIYOU_TEAM_PACKAGE_NAME;
 }
 
 export function assertInstalledPluginExists(installRoot: string): void {
   const pluginPath = detectInstalledPluginPath(installRoot);
 
   if (!existsSync(pluginPath)) {
-    throw new Error(`CrewBee plugin entry does not exist at ${pluginPath}.`);
+    throw new Error(`aiyou-team plugin entry does not exist at ${pluginPath}.`);
   }
 }
 
 export function resolveLegacyInstalledPackageRoot(installRoot: string): string {
-  return path.join(installRoot, "node_modules", CREWBEE_PACKAGE_NAME);
+  return path.join(installRoot, "node_modules", AIYOU_TEAM_PACKAGE_NAME);
 }

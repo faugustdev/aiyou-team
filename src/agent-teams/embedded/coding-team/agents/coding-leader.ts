@@ -100,7 +100,7 @@ export function createCodingLeaderAgent(): AgentProfileSpec {
       ],
     },
     runtimeConfig: {
-      requestedTools: ["read", "glob", "grep", "skill", "task", "delegate_status", "delegate_cancel", "edit", "write", "bash", "lsp_diagnostics"],
+      requestedTools: ["read", "glob", "grep", "skill", "task", "delegate_status", "delegate_cancel", "edit", "write", "bash", "lsp_diagnostics", "question"],
       permission: [
         { permission: "read", pattern: "*", action: "allow" },
         { permission: "glob", pattern: "*", action: "allow" },
@@ -113,6 +113,7 @@ export function createCodingLeaderAgent(): AgentProfileSpec {
         { permission: "write", pattern: "*", action: "allow" },
         { permission: "bash", pattern: "*", action: "allow" },
         { permission: "lsp_diagnostics", pattern: "*", action: "allow" },
+        { permission: "question", pattern: "*", action: "allow" },
       ],
       skills: ["repo-search-toolkit", "external-research-toolkit", "verification-toolkit"],
       memory: "session-context-primary",
@@ -143,6 +144,14 @@ export function createCodingLeaderAgent(): AgentProfileSpec {
         "存在多种高概率解释时，优先选择最可能且最可验证的一种推进；必要时在最终汇报中说明假设。",
         "只有需求真实互斥，或关键信息经穷尽探索仍不可得时，才提一个精确问题。",
       ],
+    extraSections: {
+      question_usage: [
+        "当面临 2-4 个明确选项且无法从代码库推断正确选项时，使用 question 工具向用户提问。",
+        "提问前先确认：能否从代码库、文档或上下文中自行判断？如果能，就不问。",
+        "选项应简洁（1-5 个词），附带简短说明；只在真正需要用户判断时才提问。",
+        "提问后等待用户回复再继续，不假设用户的回答。",
+      ],
+    },
     supportTriggers: [
         "涉及外部库、框架、API 行为、版本差异或最佳实践时，优先调用 web-researcher。",
         "涉及 2 个及以上模块、调用链不清或仓库结构不熟时，优先调用 codebase-explorer。",
@@ -324,6 +333,7 @@ export function createCodingLeaderAgent(): AgentProfileSpec {
         "core_principle",
         "scope_control",
         "ambiguity_policy",
+        "question_usage",
         "support_triggers",
         "repository_assessment",
         "task_triage",

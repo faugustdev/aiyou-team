@@ -1,16 +1,18 @@
 import path from "node:path";
 
-import { ensureCrewBeeConfigFile } from "../agent-teams";
+import { ensureAiyouTeamConfigFile } from "../agent-teams";
 
-import { backupOpenCodeConfig, readOpenCodeConfig, restoreOpenCodeConfigBackup, upsertCrewBeePluginEntry, writeOpenCodeConfig } from "./opencode-config-file";
+
+
+import { backupOpenCodeConfig, readOpenCodeConfig, restoreOpenCodeConfigBackup, upsertAiyouTeamPluginEntry, writeOpenCodeConfig } from "./opencode-config-file";
 import { resolveOpenCodeConfigPath, resolveInstallRoot } from "./install-root";
 import { resolveLocalTarballPath } from "./local-tarball";
-import { cleanupLegacyCrewBeePackage, installLocalTarball, installRegistryPackage } from "./package-installation";
+import { cleanupLegacyAiyouTeamPackage, installLocalTarball, installRegistryPackage } from "./package-installation";
 import { assertInstalledPluginExists, createCanonicalPluginEntry, resolvePackageWorkspaceRoot } from "./plugin-entry";
 import type { InstallCommandContext, InstallCommandOptions, InstallResult } from "./types";
 import { ensureInstallWorkspace } from "./workspace";
 
-export async function installCrewBee(input: {
+export async function installAiyouTeam(input: {
   context: InstallCommandContext;
   options: InstallCommandOptions;
 }): Promise<InstallResult> {
@@ -33,7 +35,7 @@ export async function installCrewBee(input: {
       tarballPath,
     });
   } else {
-    packageSpec = input.options.channel === "next" ? "crewbee@next" : "crewbee@latest";
+    packageSpec = input.options.channel === "next" ? "aiyou-team@next" : "aiyou-team@latest";
     installRegistryPackage({
       dryRun: input.options.dryRun,
       installRoot: packageWorkspaceRoot,
@@ -41,7 +43,7 @@ export async function installCrewBee(input: {
     });
   }
 
-  const legacyPackageRemoved = cleanupLegacyCrewBeePackage({
+  const legacyPackageRemoved = cleanupLegacyAiyouTeamPackage({
     dryRun: input.options.dryRun,
     installRoot,
   });
@@ -52,7 +54,7 @@ export async function installCrewBee(input: {
 
   const pluginEntry = createCanonicalPluginEntry(installRoot);
   const configDocument = readOpenCodeConfig(configPath);
-  const pluginUpdate = upsertCrewBeePluginEntry(configDocument.config, pluginEntry);
+  const pluginUpdate = upsertAiyouTeamPluginEntry(configDocument.config, pluginEntry);
   const configBackup = !input.options.dryRun && pluginUpdate.changed
     ? backupOpenCodeConfig(configPath)
     : undefined;
@@ -62,7 +64,7 @@ export async function installCrewBee(input: {
       writeOpenCodeConfig(configPath, configDocument.config);
     }
 
-    const crewbeeConfigUpdate = ensureCrewBeeConfigFile({
+    const aiyouTeamConfigUpdate = ensureAiyouTeamConfigFile({
       configRoot: path.dirname(configPath),
       dryRun: input.options.dryRun,
       mode: "install",
@@ -72,9 +74,9 @@ export async function installCrewBee(input: {
       backupPath: configBackup?.backupPath,
       configChanged: pluginUpdate.changed,
       configPath,
-      crewbeeConfigChanged: crewbeeConfigUpdate.changed,
-      crewbeeConfigPath: crewbeeConfigUpdate.configPath,
-      crewbeeConfigReason: crewbeeConfigUpdate.reason,
+      aiyouTeamConfigChanged: aiyouTeamConfigUpdate.changed,
+      aiyouTeamConfigPath: aiyouTeamConfigUpdate.configPath,
+      aiyouTeamConfigReason: aiyouTeamConfigUpdate.reason,
       dryRun: input.options.dryRun,
       installRoot,
       packageWorkspaceRoot,

@@ -2,14 +2,14 @@
 
 Language: English | [中文](./installation.zh-CN.md)
 
-Audience: **users** installing or operating CrewBee with OpenCode. Maintainer-only CI/CD and release work is covered in the [Release And CI/CD Guide](../developer/release.md).
+Audience: **users** installing or operating aiyou-team with OpenCode. Maintainer-only CI/CD and release work is covered in the [Release And CI/CD Guide](../developer/release.md).
 
 ## Quick Start
 
-Install CrewBee for OpenCode in one command:
+Install aiyou-team for OpenCode in one command:
 
 ```bash
-npx crewbee@latest setup --with-opencode
+npx aiyou-team@latest setup --with-opencode
 ```
 
 Then open your project:
@@ -25,40 +25,40 @@ Select:
 coding-leader
 ```
 
-CrewBee installs into the OpenCode user-level workspace, writes the canonical plugin entry `"crewbee"`, runs doctor checks, and prints the next step. It does not install into your business project's `node_modules` and does not modify repository files.
+aiyou-team installs into the OpenCode user-level workspace, writes the canonical plugin entry `"@aiyou-dev/team"`, runs doctor checks, and prints the next step. It does not install into your business project's `node_modules` and does not modify repository files.
 
 ## Already Have OpenCode
 
 If OpenCode is already installed and available in your terminal:
 
 ```bash
-npx crewbee@latest setup
+npx aiyou-team@latest setup
 ```
 
 If OpenCode is missing, use the recommended command instead:
 
 ```bash
-npx crewbee@latest setup --with-opencode
+npx aiyou-team@latest setup --with-opencode
 ```
 
-When `--with-opencode` is used, CrewBee installs OpenCode with the official npm package path:
+When `--with-opencode` is used, aiyou-team installs OpenCode with the official npm package path:
 
 ```bash
 npm install -g opencode-ai
 ```
 
-If global npm installation is not writable, install OpenCode manually from the official docs and re-run `npx crewbee@latest setup`.
+If global npm installation is not writable, install OpenCode manually from the official docs and re-run `npx aiyou-team@latest setup`.
 
 ## What `setup` Does
 
 ```text
 Detect runtime and OpenCode
 → install OpenCode if missing and --with-opencode is set
-→ install crewbee@latest into the OpenCode user-level workspace
+→ install @aiyou-dev/team@latest into the OpenCode user-level workspace
 → back up OpenCode config before writing
-→ write OpenCode plugin entry: "crewbee"
-→ create or repair CrewBee's user-level crewbee.json
-→ run crewbee doctor
+→ write OpenCode plugin entry: "@aiyou-dev/team"
+→ create or repair aiyou-team's user-level aiyou-team.json
+→ run aiyou-team doctor
 → show how to start OpenCode and select coding-leader
 ```
 
@@ -76,20 +76,20 @@ On Windows, OpenCode works best in WSL. Native Windows is supported when OpenCod
 Use this copy for the homepage installation card:
 
 ```text
-Install CrewBee
+Install aiyou-team
 
-Set up CrewBee for OpenCode in one command.
+Set up aiyou-team for OpenCode in one command.
 No project-local node_modules. No manual config editing.
 ```
 
 ```bash
-npx crewbee@latest setup --with-opencode
+npx aiyou-team@latest setup --with-opencode
 ```
 
 Three-step section:
 
 ```text
-1. Setup CrewBee for OpenCode
+1. Setup aiyou-team for OpenCode
 2. Open your project with opencode
 3. Select coding-leader and run a real task
 ```
@@ -99,15 +99,15 @@ Three-step section:
 ### Recommended
 
 ```bash
-npx crewbee@latest setup --with-opencode
+npx aiyou-team@latest setup --with-opencode
 ```
 
-Best for first-time users. Installs OpenCode if missing, installs CrewBee, writes the OpenCode plugin entry, and runs doctor.
+Best for first-time users. Installs OpenCode if missing, installs aiyou-team, writes the OpenCode plugin entry, and runs doctor.
 
 ### Already have OpenCode
 
 ```bash
-npx crewbee@latest setup
+npx aiyou-team@latest setup
 ```
 
 Use this if OpenCode is already installed and available in your terminal.
@@ -115,17 +115,17 @@ Use this if OpenCode is already installed and available in your terminal.
 ### For LLM Agents
 
 ```bash
-npx crewbee@latest setup --with-opencode --yes
-npx crewbee@latest doctor
+npx aiyou-team@latest setup --with-opencode --yes
+npx aiyou-team@latest doctor
 ```
 
 Important:
 
 ```text
-Do not install CrewBee into this project's node_modules.
+Do not install aiyou-team into this project's node_modules.
 Do not manually edit business project files.
-CrewBee should be installed into the OpenCode user-level workspace.
-The OpenCode plugin entry should be "crewbee".
+aiyou-team should be installed into the OpenCode user-level workspace.
+The OpenCode plugin entry should be "@aiyou-dev/team".
 After installation, tell the user to open a project with `opencode` and select `coding-leader`.
 ```
 
@@ -134,7 +134,7 @@ After installation, tell the user to open a project with `opencode` and select `
 ### Setup
 
 ```bash
-npx crewbee@latest setup [options]
+npx aiyou-team@latest setup [options]
 ```
 
 Options:
@@ -145,7 +145,7 @@ Options:
 --doctor              Run doctor after setup, default true
 --no-doctor           Skip doctor
 --dry-run             Show the plan without changing files
---force               Reinstall CrewBee
+--force               Reinstall aiyou-team
 --channel stable      Install the stable npm dist-tag, default
 --channel next        Install the next npm dist-tag
 --config-path <path>  Use a custom OpenCode config file
@@ -156,7 +156,7 @@ Options:
 ### Verify
 
 ```bash
-npx crewbee@latest doctor
+npx aiyou-team@latest doctor
 ```
 
 Doctor checks the OpenCode config, user-level install workspace, package layout, plugin entry, plugin file, and built-in Team definitions.
@@ -164,7 +164,7 @@ Doctor checks the OpenCode config, user-level install workspace, package layout,
 ### Update
 
 ```bash
-npx crewbee@latest update
+npx aiyou-team@latest update
 ```
 
 Use `--channel next` to update to the next dist-tag.
@@ -172,28 +172,28 @@ Use `--channel next` to update to the next dist-tag.
 ### Uninstall
 
 ```bash
-npx crewbee@latest uninstall
+npx aiyou-team@latest uninstall
 ```
 
-This removes CrewBee entries from OpenCode config and removes CrewBee from the OpenCode user-level workspace. User Team configuration is preserved unless a future purge option is explicitly used.
+This removes aiyou-team entries from OpenCode config and removes aiyou-team from the OpenCode user-level workspace. User Team configuration is preserved unless a future purge option is explicitly used.
 
 ## Safety Model
 
-CrewBee setup is intentionally conservative:
+aiyou-team setup is intentionally conservative:
 
 ```text
 No project-local node_modules install
 No business repository file modifications
 OpenCode config backup before writes
 Rollback of OpenCode config on setup/uninstall failure
-Canonical plugin entry only: "crewbee"
+Canonical plugin entry only: "@aiyou-dev/team"
 Dry-run mode for transparent planning
 ```
 
 Dry-run example:
 
 ```bash
-npx crewbee@latest setup --with-opencode --dry-run
+npx aiyou-team@latest setup --with-opencode --dry-run
 ```
 
 ## Developer Local Install
@@ -210,15 +210,15 @@ npm run doctor
 The local tarball is written to:
 
 ```text
-.artifacts/local/crewbee-local.tgz
+.artifacts/local/aiyou-team-local.tgz
 ```
 
 ## Project-specific Teams
 
-CrewBee supports global Teams and project Teams. Project Teams are configured from the current OpenCode worktree:
+aiyou-team supports global Teams and project Teams. Project Teams are configured from the current OpenCode worktree:
 
 ```text
-<project-worktree>/.crewbee/crewbee.json
+<project-worktree>/.aiyou-team/aiyou-team.json
 ```
 
 For the full design and examples, see:

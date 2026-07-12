@@ -3,12 +3,12 @@ export { formatTeamValidationIssue, isBlockingTeamIssue, summarizeTeamDiagnostic
 export { resolveTeamDocumentation } from "./documentation";
 export { createEmbeddedCodingTeam } from "./embedded/coding-team";
 export {
-  createDefaultCrewBeeConfig,
-  ensureCrewBeeConfigFile,
+  createDefaultAiyouTeamConfig,
+  ensureAiyouTeamConfigFile,
   listTeamDirectories,
   loadTeamDefinitionFromDirectory,
   resolveTeamConfigRoot,
-  resolveCrewBeeConfigPath,
+  resolveAiyouTeamConfigPath,
 } from "./filesystem";
 export { findTeam, loadDefaultTeamLibrary, loadTeamLibraryFromDirectory } from "./library";
 export { mapAgentProfile, mapTeamManifest } from "./parsers";

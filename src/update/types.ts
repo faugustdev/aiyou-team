@@ -1,4 +1,4 @@
-export interface CrewBeeReleaseIntent {
+export interface AiyouTeamReleaseIntent {
   configPath: string;
   entry: string;
   packageName: string;
@@ -8,7 +8,7 @@ export interface CrewBeeReleaseIntent {
   workspaceRoot: string;
 }
 
-export interface CrewBeeReleaseCheckResult {
+export interface AiyouTeamReleaseCheckResult {
   currentVersion?: string;
   latestVersion?: string;
   needsRefresh: boolean;
@@ -20,7 +20,7 @@ export interface CrewBeeReleaseCheckResult {
     | "refresh-required";
 }
 
-export interface CrewBeeReleaseRefreshDependencies {
+export interface AiyouTeamReleaseRefreshDependencies {
   fetchJson(url: string): Promise<unknown>;
   runInstall(workspaceRoot: string): Promise<boolean>;
 }

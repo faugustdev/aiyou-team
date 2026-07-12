@@ -5,7 +5,7 @@ import { loadDefaultTeamLibrary, summarizeTeamDiagnostics, validateTeamLibrary }
 import { createOpenCodeBootstrap } from "../adapters/opencode/bootstrap";
 import { DEFAULT_OPENCODE_EXECUTION_MODE } from "../adapters/opencode/defaults";
 
-import { findCrewBeePluginEntries, readOpenCodeConfig } from "./opencode-config-file";
+import { findAiyouTeamPluginEntries, readOpenCodeConfig } from "./opencode-config-file";
 import { resolveOpenCodeConfigPath, resolveInstallRoot } from "./install-root";
 import { detectOpenCodeCli } from "./opencode-cli";
 import {
@@ -17,7 +17,7 @@ import {
 } from "./plugin-entry";
 import type { DoctorOptions, DoctorResult } from "./types";
 
-function isValidCrewBeeConfigEntry(entry: string, expectedPluginEntry: string): boolean {
+function isValidAiyouTeamConfigEntry(entry: string, expectedPluginEntry: string): boolean {
   return entry === expectedPluginEntry || entry === `${expectedPluginEntry}@latest`;
 }
 
@@ -30,8 +30,8 @@ export async function runDoctor(options: DoctorOptions): Promise<DoctorResult> {
   const opencode = detectOpenCodeCli();
   const packageWorkspaceRoot = resolvePackageWorkspaceRoot(installRoot);
   const hasLegacyInstalledPackage = existsSync(path.join(resolveLegacyInstalledPackageRoot(installRoot), "package.json"));
-  const currentPluginEntries = findCrewBeePluginEntries(readOpenCodeConfig(configPath).config);
-  const teamLibrary = loadDefaultTeamLibrary({
+  const currentPluginEntries = findAiyouTeamPluginEntries(readOpenCodeConfig(configPath).config);
+  const teamLibrary = await loadDefaultTeamLibrary({
     globalConfigRoot: path.dirname(configPath),
     projectWorktree,
   });
@@ -42,7 +42,7 @@ export async function runDoctor(options: DoctorOptions): Promise<DoctorResult> {
     defaults: { defaultMode: DEFAULT_OPENCODE_EXECUTION_MODE },
   });
   const hasWorkspaceManifest = existsSync(path.join(packageWorkspaceRoot, "package.json"));
-  const configMatchesCanonical = currentPluginEntries.length === 1 && isValidCrewBeeConfigEntry(currentPluginEntries[0] ?? "", expectedPluginEntry);
+  const configMatchesCanonical = currentPluginEntries.length === 1 && isValidAiyouTeamConfigEntry(currentPluginEntries[0] ?? "", expectedPluginEntry);
   const hasInstalledPackage = existsSync(path.join(installedPackageRoot, "package.json"));
   const hasPluginFile = existsSync(detectInstalledPluginPath(installRoot));
   const teamHealthy = teamDiagnostics.healthy;

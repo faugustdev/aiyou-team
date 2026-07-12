@@ -23,9 +23,9 @@ export interface InstallResult {
   backupPath?: string;
   configChanged: boolean;
   configPath: string;
-  crewbeeConfigChanged: boolean;
-  crewbeeConfigPath: string;
-  crewbeeConfigReason: "created-default" | "repaired-invalid" | "added-default-coding-team" | "migrated-config-version" | "unchanged";
+  aiyouTeamConfigChanged: boolean;
+  aiyouTeamConfigPath: string;
+  aiyouTeamConfigReason: "created-default" | "repaired-invalid" | "added-default-coding-team" | "migrated-config-version" | "unchanged";
   dryRun: boolean;
   installRoot: string;
   packageWorkspaceRoot: string;

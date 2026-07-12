@@ -30,7 +30,7 @@ export function createDelegationEnvelope(input: {
   prompt: string;
 }): string {
   return [
-    `You are continuing work as CrewBee team member: ${input.agent}.`,
+    `You are continuing work as aiyou-team member: ${input.agent}.`,
     "",
     `Parent session: ${input.parentSessionID}`,
     `Delegated session: ${input.sessionID}`,

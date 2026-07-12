@@ -1,10 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-import type { CrewBeeReleaseIntent } from "./types";
+import type { AiyouTeamReleaseIntent } from "./types";
 
 export function readInstalledWorkspaceVersion(workspaceRoot: string): string | undefined {
-  const manifestPath = path.join(workspaceRoot, "node_modules", "crewbee", "package.json");
+  const manifestPath = path.join(workspaceRoot, "node_modules", "@aiyou-dev/team", "package.json");
   if (!existsSync(manifestPath)) {
     return undefined;
   }
@@ -17,7 +17,7 @@ export function readInstalledWorkspaceVersion(workspaceRoot: string): string | u
   }
 }
 
-export function syncWorkspaceDependencyIntent(intent: CrewBeeReleaseIntent, targetVersion: string): { changed: boolean } {
+export function syncWorkspaceDependencyIntent(intent: AiyouTeamReleaseIntent, targetVersion: string): { changed: boolean } {
   const packageJsonPath = path.join(intent.workspaceRoot, "package.json");
   const desiredVersion = intent.isPinned ? intent.requestedVersion : targetVersion;
   const current = readWorkspacePackageJson(packageJsonPath);
@@ -42,7 +42,7 @@ export function syncWorkspaceDependencyIntent(intent: CrewBeeReleaseIntent, targ
   return { changed };
 }
 
-export function invalidateWorkspacePackage(intent: CrewBeeReleaseIntent): boolean {
+export function invalidateWorkspacePackage(intent: AiyouTeamReleaseIntent): boolean {
   const packageRoot = path.join(intent.workspaceRoot, "node_modules", intent.packageName);
   const lockPath = path.join(intent.workspaceRoot, "package-lock.json");
   let changed = false;

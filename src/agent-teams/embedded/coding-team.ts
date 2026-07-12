@@ -3,12 +3,16 @@ import type {
   TeamManifest,
   TeamPolicySpec,
 } from "../../core";
+import type { AiyouTeamLanguage } from "../constants";
+import type { ManifestTranslationOverride } from "./coding-team/translations/types";
 import {
   BUILTIN_CODING_TEAM_AGENT_MODELS,
   BUILTIN_CODING_TEAM_FALLBACK_TO_HOST_DEFAULT,
 } from "../constants";
 
 import { createCodingTeamAgents } from "./coding-team/agents";
+import { codingTeamManifestEn } from "./coding-team/translations/en/manifest.js";
+import { codingTeamManifestEs } from "./coding-team/translations/es/manifest.js";
 
 const CODING_TEAM_RUNTIME_PROFILES: Record<string, { temperature: number; topP: number; variant?: string }> = {
   "coding-leader": { temperature: 0.2, topP: 0.85, variant: "long-context" },
@@ -21,7 +25,38 @@ const CODING_TEAM_RUNTIME_PROFILES: Record<string, { temperature: number; topP: 
   "multimodal-looker": { temperature: 0.2, topP: 0.85 },
 };
 
-export function createEmbeddedCodingTeam(): AgentTeamDefinition {
+const manifestTranslations: Record<AiyouTeamLanguage, ManifestTranslationOverride | undefined> = {
+  en: codingTeamManifestEn,
+  es: codingTeamManifestEs,
+};
+
+function loadManifestTranslation(lang: AiyouTeamLanguage): ManifestTranslationOverride | undefined {
+  return manifestTranslations[lang];
+}
+
+function deepMerge(target: unknown, source: unknown): unknown {
+  if (!isRecord(target) || !isRecord(source)) return source;
+  const result: Record<string, unknown> = { ...target };
+  for (const key of Object.keys(source)) {
+    const targetVal = result[key];
+    const sourceVal = source[key];
+    if (Array.isArray(sourceVal) || typeof sourceVal !== "object" || sourceVal === null) {
+      result[key] = sourceVal;
+    } else if (isRecord(targetVal) && isRecord(sourceVal)) {
+      result[key] = deepMerge(targetVal, sourceVal);
+    } else {
+      result[key] = sourceVal;
+    }
+  }
+  return result;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function createEmbeddedCodingTeam(language?: AiyouTeamLanguage): AgentTeamDefinition {
+  const lang = language ?? "en";
   const runtime = Object.fromEntries(
     Object.entries(BUILTIN_CODING_TEAM_AGENT_MODELS).map(([agentId, model]) => [
       agentId,
@@ -144,20 +179,25 @@ export function createEmbeddedCodingTeam(): AgentTeamDefinition {
     tags: ["代码", "leader驱动", "上下文连续性", "主执行者中心", "评审中心", "证据驱动"],
   };
 
-  const agents = createCodingTeamAgents();
+  const manifestTranslation = loadManifestTranslation(lang);
+  const finalManifest = manifestTranslation
+    ? deepMerge(manifest, manifestTranslation) as TeamManifest
+    : manifest;
+
+  const agents = createCodingTeamAgents(lang);
   const policy: TeamPolicySpec = {
-    instructionPrecedence: manifest.governance.instructionPrecedence,
-    approvalPolicy: manifest.governance.approvalPolicy as unknown as TeamPolicySpec["approvalPolicy"],
-    forbiddenActions: manifest.governance.forbiddenActions,
-    qualityFloor: manifest.governance.qualityFloor as unknown as TeamPolicySpec["qualityFloor"],
-    workingRules: manifest.governance.workingRules,
+    instructionPrecedence: finalManifest.governance.instructionPrecedence,
+    approvalPolicy: finalManifest.governance.approvalPolicy as unknown as TeamPolicySpec["approvalPolicy"],
+    forbiddenActions: finalManifest.governance.forbiddenActions,
+    qualityFloor: finalManifest.governance.qualityFloor as unknown as TeamPolicySpec["qualityFloor"],
+    workingRules: finalManifest.governance.workingRules,
     promptProjection: {
       include: ["working_rules", "approval_safety"],
     },
   };
 
   return {
-    manifest,
+    manifest: finalManifest,
     policy,
     agents,
   };

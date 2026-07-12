@@ -9,8 +9,8 @@ test("install roots honor explicit overrides and XDG defaults", () => {
   const previousConfigHome = process.env.XDG_CONFIG_HOME;
   const previousCacheHome = process.env.XDG_CACHE_HOME;
 
-  process.env.XDG_CONFIG_HOME = path.join(os.tmpdir(), "crewbee-config-home");
-  process.env.XDG_CACHE_HOME = path.join(os.tmpdir(), "crewbee-cache-home");
+  process.env.XDG_CONFIG_HOME = path.join(os.tmpdir(), "aiyou-team-config-home");
+  process.env.XDG_CACHE_HOME = path.join(os.tmpdir(), "aiyou-team-cache-home");
 
   try {
     assert.equal(resolveOpenCodeConfigRoot(), path.join(process.env.XDG_CONFIG_HOME, "opencode"));

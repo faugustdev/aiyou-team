@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { resolveInstallRoot } from "../install";
 
-export interface CrewBeeReleaseState {
+export interface AiyouTeamReleaseState {
   lastCheckedAt?: number;
   lastKnownVersion?: string;
   lastAttemptedVersion?: string;
@@ -12,7 +12,7 @@ export interface CrewBeeReleaseState {
   lastSucceededAt?: number;
 }
 
-export function readCrewBeeReleaseState(): CrewBeeReleaseState {
+export function readAiyouTeamReleaseState(): AiyouTeamReleaseState {
   const filePath = resolveReleaseStatePath();
   if (!existsSync(filePath)) {
     return {};
@@ -20,19 +20,19 @@ export function readCrewBeeReleaseState(): CrewBeeReleaseState {
 
   try {
     const parsed = JSON.parse(readFileSync(filePath, "utf8"));
-    return typeof parsed === "object" && parsed !== null ? parsed as CrewBeeReleaseState : {};
+    return typeof parsed === "object" && parsed !== null ? parsed as AiyouTeamReleaseState : {};
   } catch {
     return {};
   }
 }
 
-export function writeCrewBeeReleaseState(state: CrewBeeReleaseState): void {
+export function writeAiyouTeamReleaseState(state: AiyouTeamReleaseState): void {
   const filePath = resolveReleaseStatePath();
   mkdirSync(path.dirname(filePath), { recursive: true });
   writeFileSync(filePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
 }
 
-export function acquireCrewBeeReleaseLock(): boolean {
+export function acquireAiyouTeamReleaseLock(): boolean {
   const filePath = resolveReleaseLockPath();
   mkdirSync(path.dirname(filePath), { recursive: true });
   try {
@@ -43,7 +43,7 @@ export function acquireCrewBeeReleaseLock(): boolean {
   }
 }
 
-export function releaseCrewBeeReleaseLock(): void {
+export function releaseAiyouTeamReleaseLock(): void {
   const filePath = resolveReleaseLockPath();
   if (!existsSync(filePath)) {
     return;
@@ -56,9 +56,9 @@ export function releaseCrewBeeReleaseLock(): void {
 }
 
 function resolveReleaseStatePath(): string {
-  return path.join(resolveInstallRoot(), "crewbee-release-state.json");
+  return path.join(resolveInstallRoot(), "aiyou-team-release-state.json");
 }
 
 function resolveReleaseLockPath(): string {
-  return path.join(resolveInstallRoot(), "crewbee-release-refresh.lock");
+  return path.join(resolveInstallRoot(), "aiyou-team-release-refresh.lock");
 }

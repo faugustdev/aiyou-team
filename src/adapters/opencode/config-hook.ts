@@ -6,7 +6,7 @@ import type { TeamLibrary } from "../../core";
 import { createOpenCodeBootstrap, type OpenCodeBootstrapOutput } from "./bootstrap";
 import type { OpenCodeConfigLike } from "./config-merge";
 import { DEFAULT_OPENCODE_EXECUTION_MODE } from "./defaults";
-import { logCrewBee } from "./logging";
+import { logAiyouTeam } from "./logging";
 import { listOpenCodeAvailableModels } from "./model-availability";
 import { createProjectedAgentAliasIndex, type OpenCodeAgentAliasEntry } from "./projection";
 
@@ -36,7 +36,7 @@ export async function validateAndLogTeamLibrary(ctx: PluginInput, teamLibrary: T
   await Promise.all(
     issues.map((issue: TeamValidationIssue) => ctx.client.app.log({
       body: {
-        service: "crewbee",
+        service: "aiyou-team",
         level: issue.level === "warning" ? "warn" : "error",
         message: issue.message,
         extra: {
@@ -93,7 +93,7 @@ export function createConfigHook(input: {
     input.setBoot(next);
     input.setAliasIndex(createProjectedAgentAliasIndex(next.projectedAgents));
 
-    await logCrewBee(input.ctx, "CrewBee config hook rebuilding projected agents", {
+    await logAiyouTeam(input.ctx, "aiyou-team config hook rebuilding projected agents", {
       projectedAgentCount: next.projectedAgents.length,
       visibleAgentCount: next.projectedAgents.filter((agent) => !agent.hidden).length,
       defaultAgent: next.mergedConfig?.default_agent ?? next.configPatch.defaultAgent,
@@ -110,7 +110,7 @@ export function createConfigHook(input: {
       return;
     }
 
-    await logCrewBee(input.ctx, "CrewBee projected OpenCode agents into config", {
+    await logAiyouTeam(input.ctx, "aiyou-team projected OpenCode agents into config", {
       inserted: next.mergeResult.insertedAgentKeys,
       updated: next.mergeResult.updatedAgentKeys,
       skipped: next.mergeResult.skippedAgentKeys,

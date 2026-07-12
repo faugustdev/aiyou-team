@@ -1,10 +1,10 @@
-# CrewBee User Guides
+# aiyou-team User Guides
 
 Language: English | [中文](./README.zh-CN.md)
 
 Use this page to choose the right guide for your role.
 
-These guides are for people who want to install CrewBee, use it in OpenCode, or configure Agent Teams for their own projects.
+These guides are for people who want to install aiyou-team, use it in OpenCode, or configure Agent Teams for their own projects.
 
 - [Installation Guide](./installation.md)
 - [Custom Agent Team Guide](./custom-agent-team.en.md)

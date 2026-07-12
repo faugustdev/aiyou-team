@@ -5,7 +5,7 @@
     "moduleResolution": "NodeNext",
     "baseUrl": ".",
     "paths": {
-      "@crewbee/core": [
+      "@aiyou-team/core": [
         "src/core/index.ts"
       ]
     },

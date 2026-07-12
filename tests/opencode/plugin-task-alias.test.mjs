@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { createChatMessageHook, createOpenCodeBootstrap } from "../../dist/src/adapters/opencode/index.js";
-import { OpenCodeCrewBeePlugin } from "../../dist/src/adapters/opencode/plugin.js";
+import { OpenCodeAiyouTeamPlugin } from "../../dist/src/adapters/opencode/plugin.js";
 import { loadDefaultTeamLibrary } from "../../dist/src/agent-teams/index.js";
 
 function createPluginInput(options = {}) {
@@ -39,8 +39,8 @@ function createPluginInput(options = {}) {
   };
 }
 
-test("CrewBee accepts canonical task target ids directly", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput());
+test("AiyouTeam accepts canonical task target ids directly", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -73,8 +73,8 @@ test("CrewBee accepts canonical task target ids directly", async () => {
   assert.equal(output.args.subagent_type, "coding-executor");
 });
 
-test("CrewBee projects canonical config keys and display names", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput());
+test("AiyouTeam projects canonical config keys and display names", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -89,8 +89,8 @@ test("CrewBee projects canonical config keys and display names", async () => {
   assert.equal(config.agent["[CodingTeam]leader"], undefined);
 });
 
-test("CrewBee disables host built-in agents while Team agents own execution", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput());
+test("AiyouTeam disables host built-in agents while Team agents own execution", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -102,16 +102,16 @@ test("CrewBee disables host built-in agents while Team agents own execution", as
   assert.equal(config.agent.scout.disable, true);
 });
 
-test("CrewBee leaves task tool definition callable for CrewBee task override", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput());
+test("AiyouTeam leaves task tool definition callable for AiyouTeam task override", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const output = {
-    description: "CrewBee task tool",
+    description: "AiyouTeam task tool",
     parameters: {
       type: "object",
       properties: {
         subagent_type: {
           type: "string",
-          description: "CrewBee agent",
+          description: "AiyouTeam agent",
         },
       },
     },
@@ -119,12 +119,12 @@ test("CrewBee leaves task tool definition callable for CrewBee task override", a
 
   await plugin["tool.definition"]?.({ toolID: "task" }, output);
 
-  assert.equal(output.description, "CrewBee task tool");
-  assert.equal(output.parameters.properties.subagent_type.description, "CrewBee agent");
+  assert.equal(output.description, "AiyouTeam task tool");
+  assert.equal(output.parameters.properties.subagent_type.description, "AiyouTeam agent");
 });
 
-test("CrewBee config hook force-overwrites a foreign default agent", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput());
+test("AiyouTeam config hook force-overwrites a foreign default agent", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = {
     agent: {},
     default_agent: "foreign.plugin.agent",
@@ -135,8 +135,8 @@ test("CrewBee config hook force-overwrites a foreign default agent", async () =>
   assert.equal(config.default_agent, "coding-leader");
 });
 
-test("CrewBee projects CodingTeam executor edit/write permissions as allow by default", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput());
+test("AiyouTeam projects CodingTeam executor edit/write permissions as allow by default", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -148,8 +148,8 @@ test("CrewBee projects CodingTeam executor edit/write permissions as allow by de
   assert.equal(config.agent["coding-coordination-leader"].permission.bash["*"], "allow");
 });
 
-test("CrewBee reads OpenCode configured provider models before projecting agent models", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput({ availableModels: ["openai/gpt-5.4-mini"] }));
+test("AiyouTeam reads OpenCode configured provider models before projecting agent models", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput({ availableModels: ["openai/gpt-5.4-mini"] }));
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -159,7 +159,7 @@ test("CrewBee reads OpenCode configured provider models before projecting agent 
   assert.equal(config.agent["coding-multimodal-looker"].model, undefined);
 });
 
-test("CrewBee calls OpenCode provider registry with SDK receiver binding", async () => {
+test("AiyouTeam calls OpenCode provider registry with SDK receiver binding", async () => {
   let calledWithConfigReceiver = false;
   const configApi = {
     providerPayload: {
@@ -179,7 +179,7 @@ test("CrewBee calls OpenCode provider registry with SDK receiver binding", async
   };
   const input = createPluginInput();
   input.client.config = configApi;
-  const plugin = await OpenCodeCrewBeePlugin(input);
+  const plugin = await OpenCodeAiyouTeamPlugin(input);
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -188,8 +188,8 @@ test("CrewBee calls OpenCode provider registry with SDK receiver binding", async
   assert.equal(config.agent["coding-codebase-explorer"].model, "openai/gpt-5.4-mini");
 });
 
-test("CrewBee exposes task as the CrewBee delegation tool with Team-scoped targets", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput());
+test("AiyouTeam exposes task as the AiyouTeam delegation tool with Team-scoped targets", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -218,8 +218,8 @@ test("CrewBee exposes task as the CrewBee delegation tool with Team-scoped targe
   assert.equal(plugin.tool.task.args.session_id, undefined);
 });
 
-test("CrewBee upgrades web-researcher prompt and runtime for librarian-style research", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput());
+test("AiyouTeam upgrades web-researcher prompt and runtime for librarian-style research", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -233,12 +233,12 @@ test("CrewBee upgrades web-researcher prompt and runtime for librarian-style res
   assert.match(agent.prompt, /### Documentation Discovery/);
   assert.match(agent.prompt, /### Evidence Policy/);
   assert.match(agent.prompt, /### Output Policy/);
-  assert.match(agent.prompt, /\*\*版本 \/ 范围\*\*/);
-  assert.doesNotMatch(agent.prompt, /需要回答“如何使用某个库\/框架”“最佳实践是什么”这类概念性问题/);
+  assert.match(agent.prompt, /\*\*Version \/ Scope\*\*/);
+  assert.doesNotMatch(agent.prompt, /Answering conceptual questions like "How do I use library X\?" or "What are the best practices\?"/);
 });
 
-test("CrewBee upgrades reviewer prompt and runtime for blocker-oriented approval reviews", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput());
+test("AiyouTeam upgrades reviewer prompt and runtime for blocker-oriented approval reviews", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -252,12 +252,12 @@ test("CrewBee upgrades reviewer prompt and runtime for blocker-oriented approval
   assert.match(agent.prompt, /### Review Target Policy/);
   assert.match(agent.prompt, /### Approval Bias/);
   assert.match(agent.prompt, /### Blocking Threshold/);
-  assert.match(agent.prompt, /\*\*\[OKAY\]\*\* 或 \*\*\[REJECT\]\*\*/);
-  assert.doesNotMatch(agent.prompt, /计划生成后，需要判断该计划是否已经可以交给执行者推进/);
+  assert.match(agent.prompt, /\*\*\[OKAY\]\*\* or \*\*\[REJECT\]\*\*/);
+  assert.doesNotMatch(agent.prompt, /After a plan is generated, you need to determine whether it is ready to hand off to an executor/);
 });
 
-test("CrewBee upgrades principal-advisor prompt and runtime for oracle-style consulting", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput());
+test("AiyouTeam upgrades principal-advisor prompt and runtime for oracle-style consulting", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -275,13 +275,13 @@ test("CrewBee upgrades principal-advisor prompt and runtime for oracle-style con
   assert.match(agent.prompt, /### Recommendation Policy/);
   assert.match(agent.prompt, /### High Risk Self Check/);
   assert.match(agent.prompt, /### Tool Use Policy/);
-  assert.match(agent.prompt, /\*\*结论\*\*：<2-3 句主建议>/);
+  assert.match(agent.prompt, /\*\*Conclusion\*\*: <2-3 sentence primary recommendation>/);
   assert.doesNotMatch(agent.prompt, /### Metadata/);
   assert.doesNotMatch(agent.prompt, /Good fit/);
 });
 
-test("CrewBee leaves canonical task ids unchanged", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput());
+test("AiyouTeam leaves canonical task ids unchanged", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
   await plugin.config?.(config);
@@ -314,8 +314,8 @@ test("CrewBee leaves canonical task ids unchanged", async () => {
   assert.equal(output.args.subagent_type, "coding-executor");
 });
 
-test("CrewBee binds sessions selected by canonical agent ids", async () => {
-  const plugin = await OpenCodeCrewBeePlugin(createPluginInput());
+test("AiyouTeam binds sessions selected by canonical agent ids", async () => {
+  const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
   await plugin.config?.(config);

@@ -5,7 +5,7 @@ function readPackageManifest(packageRoot: string): { name: string; version: stri
   const manifestPath = path.join(packageRoot, "package.json");
   if (!existsSync(manifestPath)) {
     return {
-      name: path.basename(packageRoot) || "crewbee",
+      name: path.basename(packageRoot) || "aiyou-team",
       version: "unknown",
     };
   }
@@ -13,7 +13,7 @@ function readPackageManifest(packageRoot: string): { name: string; version: stri
   const raw = readFileSync(manifestPath, "utf8");
   const parsed = JSON.parse(raw) as { name?: unknown; version?: unknown };
   return {
-    name: typeof parsed.name === "string" ? parsed.name : "crewbee",
+    name: typeof parsed.name === "string" ? parsed.name : "aiyou-team",
     version: typeof parsed.version === "string" ? parsed.version : "unknown",
   };
 }

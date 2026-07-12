@@ -1,0 +1,110 @@
+id: wukong-team
+version: 1.0.0
+name: Wukong Team
+
+description: Equipo de avance para tareas de alta incertidumbre, exploratorias y de largo ciclo.
+
+mission:
+  objective: Avanzar tareas complejas mediante procesos de exploración, aprovechamiento, avance y revisión liderados por el líder.
+  success_definition:
+    - El equipo abre un camino viable hacia adelante.
+    - Los riesgos, lecciones aprendidas y opciones de siguiente paso están claramente documentados.
+    - Los resultados finales mantienen límites claros de propiedad y reutilización.
+
+scope:
+  in_scope:
+    - exploración
+    - planificación incierta
+    - investigación multi-paso
+  out_of_scope:
+    - tareas de ejecución simple que se ajustan mejor al Coding o General Team
+
+leader:
+  agent_ref: wukong-leader
+  responsibilities:
+    - Recibir tareas exploratorias complejas.
+    - Organizar delegación y aprovechamiento estilo avance.
+    - Resumir hitos de progreso, riesgos y recomendaciones de siguiente paso.
+
+members:
+  wukong-monk:
+    responsibility: Alineación con la misión
+    delegate_when: Los objetivos de la tarea son propensos a desviarse y requieren alineación repetida con la intención original o metas a largo plazo que no deben perderse.
+    delegate_mode: Delegación de calibración de misión; proporcionar situación actual y rutas candidatas, requerir evaluación de si el objetivo se está desviando y qué hilo principal debe mantenerse.
+  wukong-bajie:
+    responsibility: Restricciones del mundo real y presión de intercambios
+    delegate_when: La selección de ruta implica costo, recursos, resistencia del mundo real o intercambios obvios donde los costos necesitan exponerse.
+    delegate_mode: Delegación de evaluación de restricciones; proporcionar soluciones candidatas y restricciones, requerir identificación de obstáculos del mundo real, costos y recomendaciones de intercambio.
+  wukong-wujing:
+    responsibility: Ejecución estable
+    delegate_when: La ruta ya está determinada, pero se necesita progreso constante y disciplinado con entrega continua y varianza reducida.
+    delegate_mode: Delegación de ejecución estable; especificar pasos, límites y criterios de completitud, requerir progreso a ritmo constante con reporte de resultados.
+  wukong-dragon:
+    responsibility: Continuidad de contexto
+    delegate_when: Las tareas abarcan múltiples fases, pistas o rondas y existe preocupación por fragmentación de contexto o información dispersa.
+    delegate_mode: Delegación de mantenimiento de continuidad; proporcionar contexto existente y problema actual, requerir consolidación del hilo principal, puenteo de puntos de ruptura y mantenimiento de continuidad.
+
+workflow:
+  stages:
+    - make-vow
+    - explore
+    - borrow-strength
+    - break-through
+    - clear-gate
+    - review
+
+governance:
+  instruction_precedence:
+    - platform rules
+    - repository rules
+    - team rules
+    - agent rules
+    - task rules
+  approval_policy:
+    required_for:
+      - destructive actions
+      - external side effects
+      - commit
+    allow_assume_for:
+      - low-risk implementation details
+  forbidden_actions:
+    - fabricate evidence
+    - claim done without verification
+    - ignore hard constraints
+    - pretend to have read unread code
+  quality_floor:
+    required_checks:
+      - diagnostics
+      - build
+      - tests
+    evidence_required: true
+  working_rules:
+    - leader is the primary interface
+    - support agents report back to the leader or active owner
+    - final user-facing summary comes from the role holding closure responsibility
+
+agent_runtime:
+  wukong-leader:
+    provider: openai
+    model: gpt-5.5
+  wukong-monk:
+    provider: openai
+    model: gpt-5.5
+  wukong-bajie:
+    provider: openai
+    model: gpt-5.5
+  wukong-wujing:
+    provider: openai
+    model: gpt-5.5
+  wukong-dragon:
+    provider: openai
+    model: gpt-5.5
+
+tags:
+  - exploration
+  - uncertainty
+  - breakthrough
+prompt_projection:
+  include:
+    - mission
+    - governance

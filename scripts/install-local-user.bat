@@ -5,7 +5,7 @@ set "SCRIPT_DIR=%~dp0"
 for %%I in ("%SCRIPT_DIR%..") do set "REPO_ROOT=%%~fI"
 
 echo.
-echo === CrewBee local build ^& user-level install ===
+echo === aiyou-team local build ^& user-level install ===
 echo Repo root: %REPO_ROOT%
 echo.
 
@@ -27,7 +27,7 @@ call npm install
 if errorlevel 1 goto :fail
 
 echo.
-echo [2/3] Building and installing CrewBee into the OpenCode user-level workspace...
+echo [2/3] Building and installing aiyou-team into the OpenCode user-level workspace...
 call npm run install:local:user
 if errorlevel 1 goto :fail
 
@@ -37,8 +37,8 @@ call npm run doctor
 if errorlevel 1 goto :fail
 
 echo.
-echo [SUCCESS] CrewBee local user-level installation completed.
-echo You can now open OpenCode and select a CrewBee agent such as [CodingTeam]leader.
+echo [SUCCESS] aiyou-team local user-level installation completed.
+echo You can now open OpenCode and select an aiyou-team agent such as [CodingTeam]leader.
 popd >nul
 exit /b 0
 

@@ -77,7 +77,7 @@ export async function runValidateCommand(argv: string[], io: {
     const options = parseValidateOptions(argv);
     const projectWorktree = path.resolve(options.projectWorktree ?? process.cwd());
     const globalConfigRoot = resolveOpenCodeConfigRoot(options.configPath);
-    const library = loadDefaultTeamLibrary({ globalConfigRoot, projectWorktree });
+    const library = await loadDefaultTeamLibrary({ globalConfigRoot, projectWorktree });
     const issues = validateTeamLibrary(library);
     const diagnostics = summarizeTeamDiagnostics(issues);
 
@@ -95,7 +95,7 @@ export async function runValidateCommand(argv: string[], io: {
     }
 
     io.stdout.write([
-      diagnostics.healthy ? "CrewBee Team validation: healthy." : "CrewBee Team validation: issues found.",
+      diagnostics.healthy ? "aiyou-team Team validation: healthy." : "aiyou-team Team validation: issues found.",
       `Global config root: ${globalConfigRoot}`,
       `Project worktree: ${projectWorktree}`,
       `Loaded Teams: ${library.teams.length}`,

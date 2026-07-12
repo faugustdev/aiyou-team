@@ -4,9 +4,9 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { findConfiguredCrewBeeReleaseIntent } from "../../dist/src/update/intent.js";
-import { runBackgroundReleaseRefresh, shouldEnableCrewBeeReleaseRefresh, startBackgroundReleaseRefresh } from "../../dist/src/update/refresh.js";
-import { readCrewBeeReleaseState, writeCrewBeeReleaseState } from "../../dist/src/update/state.js";
+import { findConfiguredAiyouTeamReleaseIntent } from "../../dist/src/update/intent.js";
+import { runBackgroundReleaseRefresh, shouldEnableAiyouTeamReleaseRefresh, startBackgroundReleaseRefresh } from "../../dist/src/update/refresh.js";
+import { readAiyouTeamReleaseState, writeAiyouTeamReleaseState } from "../../dist/src/update/state.js";
 
 async function withEnv(overrides, fn) {
   const previous = new Map();
@@ -49,29 +49,29 @@ function createPluginInput() {
   };
 }
 
-test("findConfiguredCrewBeeReleaseIntent resolves plain crewbee to latest workspace", () => {
-  const workspace = path.join(os.tmpdir(), `crewbee-update-intent-${Date.now()}`);
+test("findConfiguredAiyouTeamReleaseIntent resolves plain aiyou-team to latest workspace", () => {
+  const workspace = path.join(os.tmpdir(), `aiyou-team-update-intent-${Date.now()}`);
   const configRoot = path.join(workspace, ".config", "opencode");
   const cacheRoot = path.join(workspace, ".cache");
 
   return withEnv({ OPENCODE_CONFIG_DIR: configRoot, XDG_CACHE_HOME: cacheRoot }, () => {
-    writeConfigRoot(configRoot, "crewbee");
-    const intent = findConfiguredCrewBeeReleaseIntent();
-    assert.equal(intent?.entry, "crewbee");
+    writeConfigRoot(configRoot, "aiyou-team");
+    const intent = findConfiguredAiyouTeamReleaseIntent();
+    assert.equal(intent?.entry, "aiyou-team");
     assert.equal(intent?.requestedVersion, "latest");
     assert.equal(intent?.isPinned, false);
-    assert.match(intent?.workspaceRoot ?? "", /packages[\\/]crewbee@latest$/);
+    assert.match(intent?.workspaceRoot ?? "", /packages[\\/]aiyou-team@latest$/);
   });
 });
 
 test("runBackgroundReleaseRefresh skips pinned versions", async () => {
-  const workspace = path.join(os.tmpdir(), `crewbee-update-pinned-${Date.now()}`);
+  const workspace = path.join(os.tmpdir(), `aiyou-team-update-pinned-${Date.now()}`);
   const configRoot = path.join(workspace, ".config", "opencode");
   const cacheRoot = path.join(workspace, ".cache");
   let installCalls = 0;
 
   await withEnv({ OPENCODE_CONFIG_DIR: configRoot, XDG_CACHE_HOME: cacheRoot }, async () => {
-    writeConfigRoot(configRoot, "crewbee@0.1.4");
+    writeConfigRoot(configRoot, "aiyou-team@0.1.4");
     const result = await runBackgroundReleaseRefresh(createPluginInput(), {
       async fetchJson() {
         return { "dist-tags": { latest: "0.1.5" } };
@@ -88,16 +88,16 @@ test("runBackgroundReleaseRefresh skips pinned versions", async () => {
 });
 
 test("runBackgroundReleaseRefresh syncs workspace dependency intent and records success", async () => {
-  const workspace = path.join(os.tmpdir(), `crewbee-update-refresh-${Date.now()}`);
+  const workspace = path.join(os.tmpdir(), `aiyou-team-update-refresh-${Date.now()}`);
   const configRoot = path.join(workspace, ".config", "opencode");
   const cacheRoot = path.join(workspace, ".cache");
 
   await withEnv({ OPENCODE_CONFIG_DIR: configRoot, XDG_CACHE_HOME: cacheRoot }, async () => {
-    writeConfigRoot(configRoot, "crewbee");
-    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "crewbee@latest");
-    const installedRoot = path.join(workspaceRoot, "node_modules", "crewbee");
+    writeConfigRoot(configRoot, "aiyou-team");
+    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "aiyou-team@latest");
+    const installedRoot = path.join(workspaceRoot, "node_modules", "aiyou-team");
     mkdirSync(installedRoot, { recursive: true });
-    writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "crewbee", version: "0.1.3" }, null, 2), "utf8");
+    writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "aiyou-team", version: "0.1.3" }, null, 2), "utf8");
 
     let installCalled = false;
     const result = await runBackgroundReleaseRefresh(createPluginInput(), {
@@ -107,14 +107,14 @@ test("runBackgroundReleaseRefresh syncs workspace dependency intent and records 
       async runInstall(dir) {
         installCalled = true;
         assert.equal(dir, workspaceRoot);
-        assert.equal(existsSync(path.join(workspaceRoot, "node_modules", "crewbee")), false);
+        assert.equal(existsSync(path.join(workspaceRoot, "node_modules", "aiyou-team")), false);
         const pkg = JSON.parse(readFileSync(path.join(workspaceRoot, "package.json"), "utf8"));
-        assert.equal(pkg.dependencies.crewbee, "0.1.5");
+        assert.equal(pkg.dependencies["aiyou-team"], "0.1.5");
         return true;
       },
     });
 
-    const state = readCrewBeeReleaseState();
+    const state = readAiyouTeamReleaseState();
     assert.equal(result.reason, "refresh-required");
     assert.equal(result.latestVersion, "0.1.5");
     assert.equal(installCalled, true);
@@ -123,16 +123,16 @@ test("runBackgroundReleaseRefresh syncs workspace dependency intent and records 
 });
 
 test("runBackgroundReleaseRefresh refreshes latest when installed version is unreadable", async () => {
-  const workspace = path.join(os.tmpdir(), `crewbee-update-unknown-installed-${Date.now()}`);
+  const workspace = path.join(os.tmpdir(), `aiyou-team-update-unknown-installed-${Date.now()}`);
   const configRoot = path.join(workspace, ".config", "opencode");
   const cacheRoot = path.join(workspace, ".cache");
 
   await withEnv({ OPENCODE_CONFIG_DIR: configRoot, XDG_CACHE_HOME: cacheRoot }, async () => {
-    writeConfigRoot(configRoot, "crewbee@latest");
-    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "crewbee@latest");
-    const installedRoot = path.join(workspaceRoot, "node_modules", "crewbee");
+    writeConfigRoot(configRoot, "aiyou-team@latest");
+    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "aiyou-team@latest");
+    const installedRoot = path.join(workspaceRoot, "node_modules", "aiyou-team");
     mkdirSync(installedRoot, { recursive: true });
-    writeCrewBeeReleaseState({
+    writeAiyouTeamReleaseState({
       lastCheckedAt: Date.now(),
       lastKnownVersion: "0.1.21",
       lastSucceededAt: Date.now(),
@@ -148,12 +148,12 @@ test("runBackgroundReleaseRefresh refreshes latest when installed version is unr
         assert.equal(dir, workspaceRoot);
         assert.equal(existsSync(installedRoot), false);
         const pkg = JSON.parse(readFileSync(path.join(workspaceRoot, "package.json"), "utf8"));
-        assert.equal(pkg.dependencies.crewbee, "0.1.21");
+        assert.equal(pkg.dependencies["aiyou-team"], "0.1.21");
         return true;
       },
     });
 
-    const state = readCrewBeeReleaseState();
+    const state = readAiyouTeamReleaseState();
     assert.equal(result.reason, "refresh-required");
     assert.equal(result.currentVersion, undefined);
     assert.equal(result.latestVersion, "0.1.21");
@@ -164,7 +164,7 @@ test("runBackgroundReleaseRefresh refreshes latest when installed version is unr
 
 test("startBackgroundReleaseRefresh is disabled unless explicitly enabled", async () => {
   let called = false;
-  await withEnv({ CREWBEE_AUTO_UPDATE: undefined, NODE_ENV: "test" }, async () => {
+  await withEnv({ AIYOU_TEAM_AUTO_UPDATE: undefined, NODE_ENV: "test" }, async () => {
     startBackgroundReleaseRefresh(createPluginInput(), {
       async fetchJson() {
         called = true;
@@ -180,32 +180,32 @@ test("startBackgroundReleaseRefresh is disabled unless explicitly enabled", asyn
   });
 });
 
-test("shouldEnableCrewBeeReleaseRefresh defaults to off in test and dev, on in installed env", async () => {
+test("shouldEnableAiyouTeamReleaseRefresh defaults to off in test and dev, on in installed env", async () => {
   const repoRoot = process.cwd();
-  const installedRoot = path.join(os.tmpdir(), `crewbee-installed-${Date.now()}`);
+  const installedRoot = path.join(os.tmpdir(), `aiyou-team-installed-${Date.now()}`);
   mkdirSync(installedRoot, { recursive: true });
 
-  await withEnv({ CREWBEE_AUTO_UPDATE: undefined, NODE_ENV: "test" }, async () => {
-    assert.equal(shouldEnableCrewBeeReleaseRefresh(repoRoot), false);
-    assert.equal(shouldEnableCrewBeeReleaseRefresh(installedRoot), false);
+  await withEnv({ AIYOU_TEAM_AUTO_UPDATE: undefined, NODE_ENV: "test" }, async () => {
+    assert.equal(shouldEnableAiyouTeamReleaseRefresh(repoRoot), false);
+    assert.equal(shouldEnableAiyouTeamReleaseRefresh(installedRoot), false);
   });
 
-  await withEnv({ CREWBEE_AUTO_UPDATE: undefined, NODE_ENV: "production" }, async () => {
-    assert.equal(shouldEnableCrewBeeReleaseRefresh(repoRoot), false);
-    assert.equal(shouldEnableCrewBeeReleaseRefresh(installedRoot), true);
+  await withEnv({ AIYOU_TEAM_AUTO_UPDATE: undefined, NODE_ENV: "production" }, async () => {
+    assert.equal(shouldEnableAiyouTeamReleaseRefresh(repoRoot), false);
+    assert.equal(shouldEnableAiyouTeamReleaseRefresh(installedRoot), true);
   });
 });
 
 test("runBackgroundReleaseRefresh respects failure cooldown", async () => {
-  const workspace = path.join(os.tmpdir(), `crewbee-update-cooldown-${Date.now()}`);
+  const workspace = path.join(os.tmpdir(), `aiyou-team-update-cooldown-${Date.now()}`);
   const configRoot = path.join(workspace, ".config", "opencode");
   const cacheRoot = path.join(workspace, ".cache");
 
   await withEnv({ OPENCODE_CONFIG_DIR: configRoot, XDG_CACHE_HOME: cacheRoot }, async () => {
-    writeConfigRoot(configRoot, "crewbee");
-    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "crewbee@latest");
-    mkdirSync(path.join(workspaceRoot, "node_modules", "crewbee"), { recursive: true });
-    writeFileSync(path.join(workspaceRoot, "node_modules", "crewbee", "package.json"), JSON.stringify({ name: "crewbee", version: "0.1.3" }, null, 2), "utf8");
+    writeConfigRoot(configRoot, "aiyou-team");
+    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "aiyou-team@latest");
+    mkdirSync(path.join(workspaceRoot, "node_modules", "aiyou-team"), { recursive: true });
+    writeFileSync(path.join(workspaceRoot, "node_modules", "aiyou-team", "package.json"), JSON.stringify({ name: "aiyou-team", version: "0.1.3" }, null, 2), "utf8");
 
     let installCalls = 0;
     let fetchCalls = 0;
@@ -232,16 +232,16 @@ test("runBackgroundReleaseRefresh respects failure cooldown", async () => {
 });
 
 test("runBackgroundReleaseRefresh bypasses stale success state when registry has a newer latest", async () => {
-  const workspace = path.join(os.tmpdir(), `crewbee-update-success-stale-${Date.now()}`);
+  const workspace = path.join(os.tmpdir(), `aiyou-team-update-success-stale-${Date.now()}`);
   const configRoot = path.join(workspace, ".config", "opencode");
   const cacheRoot = path.join(workspace, ".cache");
 
   await withEnv({ OPENCODE_CONFIG_DIR: configRoot, XDG_CACHE_HOME: cacheRoot }, async () => {
-    writeConfigRoot(configRoot, "crewbee@latest");
-    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "crewbee@latest");
-    mkdirSync(path.join(workspaceRoot, "node_modules", "crewbee"), { recursive: true });
-    writeFileSync(path.join(workspaceRoot, "node_modules", "crewbee", "package.json"), JSON.stringify({ name: "crewbee", version: "0.1.16" }, null, 2), "utf8");
-    writeCrewBeeReleaseState({
+    writeConfigRoot(configRoot, "aiyou-team@latest");
+    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "aiyou-team@latest");
+    mkdirSync(path.join(workspaceRoot, "node_modules", "aiyou-team"), { recursive: true });
+    writeFileSync(path.join(workspaceRoot, "node_modules", "aiyou-team", "package.json"), JSON.stringify({ name: "aiyou-team", version: "0.1.16" }, null, 2), "utf8");
+    writeAiyouTeamReleaseState({
       lastCheckedAt: Date.now(),
       lastKnownVersion: "0.1.16",
       lastSucceededAt: Date.now(),
@@ -265,16 +265,16 @@ test("runBackgroundReleaseRefresh bypasses stale success state when registry has
 });
 
 test("runBackgroundReleaseRefresh retries immediately when the latest target changes", async () => {
-  const workspace = path.join(os.tmpdir(), `crewbee-update-new-target-${Date.now()}`);
+  const workspace = path.join(os.tmpdir(), `aiyou-team-update-new-target-${Date.now()}`);
   const configRoot = path.join(workspace, ".config", "opencode");
   const cacheRoot = path.join(workspace, ".cache");
 
   await withEnv({ OPENCODE_CONFIG_DIR: configRoot, XDG_CACHE_HOME: cacheRoot }, async () => {
-    writeConfigRoot(configRoot, "crewbee@latest");
-    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "crewbee@latest");
-    mkdirSync(path.join(workspaceRoot, "node_modules", "crewbee"), { recursive: true });
-    writeFileSync(path.join(workspaceRoot, "node_modules", "crewbee", "package.json"), JSON.stringify({ name: "crewbee", version: "0.1.3" }, null, 2), "utf8");
-    writeCrewBeeReleaseState({
+    writeConfigRoot(configRoot, "aiyou-team@latest");
+    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "aiyou-team@latest");
+    mkdirSync(path.join(workspaceRoot, "node_modules", "aiyou-team"), { recursive: true });
+    writeFileSync(path.join(workspaceRoot, "node_modules", "aiyou-team", "package.json"), JSON.stringify({ name: "aiyou-team", version: "0.1.3" }, null, 2), "utf8");
+    writeAiyouTeamReleaseState({
       lastCheckedAt: Date.now(),
       lastAttemptedVersion: "0.1.5",
       lastFailure: "Failed to install 0.1.5",

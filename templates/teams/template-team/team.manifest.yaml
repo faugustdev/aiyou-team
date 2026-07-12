@@ -2,7 +2,7 @@ id: agent-team-template
 version: 1.0.0
 name: General Task Team
 
-description: A ready-to-use CrewBee Team for general knowledge work, assistance, summarization, note organization, research, retrieval, analysis, and data-oriented tasks.
+description: A ready-to-use aiyou-team for general knowledge work, assistance, summarization, note organization, research, retrieval, analysis, and data-oriented tasks.
 
 mission:
   objective: Complete general-purpose user tasks with a leader-led workflow that can answer directly, research facts, organize information, analyze materials, and produce practical deliverables without requiring user customization.

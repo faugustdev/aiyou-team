@@ -1,9 +1,9 @@
-import { installCrewBee } from "./install";
+import { installAiyouTeam } from "./install";
 import { detectOpenCodeCli, installOpenCodeCli } from "./opencode-cli";
 import { runDoctor } from "./doctor";
 import type { InstallCommandContext, SetupOptions, SetupResult } from "./types";
 
-export async function setupCrewBee(input: {
+export async function setupAiyouTeam(input: {
   context: InstallCommandContext;
   options: SetupOptions;
 }): Promise<SetupResult> {
@@ -17,10 +17,10 @@ export async function setupCrewBee(input: {
         "OpenCode was not found in PATH.",
         "",
         "Run:",
-        "  npx crewbee@latest setup --with-opencode",
+        "  npx aiyou-team@latest setup --with-opencode",
         "",
         "Or install OpenCode manually, then re-run:",
-        "  npx crewbee@latest setup",
+        "  npx aiyou-team@latest setup",
       ].join("\n"));
     }
 
@@ -36,14 +36,14 @@ export async function setupCrewBee(input: {
             "OpenCode install completed, but `opencode` is still not available in PATH.",
             "",
             "Open a new terminal, verify `opencode --version`, then re-run:",
-            "  npx crewbee@latest setup",
+            "  npx aiyou-team@latest setup",
           ].join("\n"));
         }
       }
     }
   }
 
-  const installResult = await installCrewBee({
+  const installResult = await installAiyouTeam({
     context: input.context,
     options: {
       channel: input.options.channel,

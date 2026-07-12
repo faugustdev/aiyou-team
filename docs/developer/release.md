@@ -2,28 +2,28 @@
 
 Language: English | [中文](./release.zh-CN.md)
 
-Audience: **developers and maintainers** working on the CrewBee repository. If you only want to install or use CrewBee, start with the [Installation Guide](../guide/installation.md).
+Audience: **developers and maintainers** working on the aiyou-team repository. If you only want to install or use aiyou-team, start with the [Installation Guide](../guide/installation.md).
 
 ## Scope
 
-This guide covers local maintainer workflows, GitHub Actions CI/CD, official releases, npm publishing, and post-release verification. It is not required for normal CrewBee users.
+This guide covers local maintainer workflows, GitHub Actions CI/CD, official releases, npm publishing, and post-release verification. It is not required for normal aiyou-team users.
 
 ## Goals
 
-CrewBee now supports two parallel flows:
+aiyou-team now supports two parallel flows:
 
 1. **Keep the existing local development pack/install flow** for day-to-day development.
-2. **Add a registry publish flow** so OpenCode can load CrewBee from the package name `crewbee`.
+2. **Add a registry publish flow** so OpenCode can load aiyou-team from the package name `aiyou-team`.
 
-This aligns CrewBee with the same **package-name-first** model used by `oh-my-openagent`:
+This aligns aiyou-team with the same **package-name-first** model used by `oh-my-openagent`:
 
 ```json
 {
-  "plugin": ["crewbee"]
+  "plugin": ["@aiyou-dev/team"]
 }
 ```
 
-When OpenCode supports package-name plugin resolution, that config lets it pull CrewBee from the published npm package automatically.
+When OpenCode supports package-name plugin resolution, that config lets it pull aiyou-team from the published npm package automatically.
 
 ---
 
@@ -42,8 +42,8 @@ npm run doctor
 
 Artifacts:
 
-- stable local tarball: `.artifacts/local/crewbee-local.tgz`
-- OpenCode plugin config entry: `crewbee`
+- stable local tarball: `.artifacts/local/aiyou-team-local.tgz`
+- OpenCode plugin config entry: `@aiyou-dev/team`
 
 Use this when you are iterating locally and want to test the package before publishing.
 
@@ -51,8 +51,8 @@ Use this when you are iterating locally and want to test the package before publ
 
 For official online distribution:
 
-- npm package name: `crewbee`
-- OpenCode config plugin entry: `crewbee`
+- npm package name: `@aiyou-dev/team`
+- OpenCode config plugin entry: `@aiyou-dev/team`
 - publish target: npm registry
 - release automation: **both local script and GitHub Actions are supported**
 
@@ -156,7 +156,7 @@ This keeps the local manual path explicit and safe.
 
 This is the recommended **official** release path. Humans merge normal feature/fix PRs into `main`, then manually run `release-ci` when a release should happen. After `release-ci` passes, the version bump, tag, npm publish, and GitHub Release happen automatically.
 
-This flow requires `CREWBEE_AUTOMATION_TOKEN` to be configured as a repository secret. The token must be allowed to push to `main` and push tags; using the default `GITHUB_TOKEN` is not enough because GitHub suppresses downstream workflows triggered by `GITHUB_TOKEN` pushes.
+This flow requires `AIYOU_TEAM_AUTOMATION_TOKEN` to be configured as a repository secret. The token must be allowed to push to `main` and push tags; using the default `GITHUB_TOKEN` is not enough because GitHub suppresses downstream workflows triggered by `GITHUB_TOKEN` pushes.
 
 ### CI workflow
 
@@ -247,7 +247,7 @@ Trigger:
 Behavior:
 
 - if the push to `main` changed `package.json` or `package-lock.json`, validate that both files contain the same release version `X.Y.Z`
-- refuse to tag if `crewbee@X.Y.Z` already exists on npm
+- refuse to tag if `@aiyou-dev/team@X.Y.Z` already exists on npm
 - create and push tag `vX.Y.Z` when it does not already exist
 - pushes that do not change package version files are ignored
 
@@ -273,7 +273,7 @@ Trigger:
    - stable releases first publish to `next`
    - prereleases publish to their prerelease tag, for example `beta`
 6. Fetches the just-published package back from npm and smoke-tests it.
-7. For stable releases, promotes `crewbee@X.Y.Z` to `latest`.
+7. For stable releases, promotes `@aiyou-dev/team@X.Y.Z` to `latest`.
 8. For stable releases, installs from the registry and reruns OpenCode smoke.
 9. Creates a GitHub release with generated notes.
 
@@ -287,7 +287,7 @@ Trigger:
 6. `release-tag.yml` detects the package version bump on `main` and creates `vX.Y.Z` automatically.
 7. `publish.yml` publishes the tag automatically.
 8. After success, verify:
-   - npm has `crewbee@<version>`
+   - npm has `@aiyou-dev/team@<version>`
    - `latest` points to the released stable version
    - tag `v<version>` exists
    - GitHub release exists
@@ -309,17 +309,17 @@ GitHub UI steps:
 If an Agent should execute the release, give it the version directly, for example:
 
 ```text
-Please release CrewBee 0.2.0
+Please release aiyou-team 0.2.0
 ```
 
 The Agent should run this procedure:
 
-1. Confirm the worktree has no uncommitted release-related changes; do not read or commit `.crewbee/`, `.crewbeectxt/`, or `.local/`.
+1. Confirm the worktree has no uncommitted release-related changes; do not read or commit `.aiyou-team/`, `.aiyou-teamctxt/`, or `.local/`.
 2. Trigger `release-ci` with `workflow_dispatch`, using `version=<target version>` and `bump=patch`.
 3. Wait for `release-ci` to create the `Release v<target version>` commit.
 4. Wait for `release-tag.yml` to create the `v<target version>` tag.
 5. Wait for `publish.yml` to complete npm publish, `latest` promotion, and GitHub Release creation.
-6. Verify `npm view crewbee version`, `npm view crewbee dist-tags --json`, and the GitHub Release.
+6. Verify `npm view @aiyou-dev/team version`, `npm view @aiyou-dev/team dist-tags --json`, and the GitHub Release.
 
 Failure handling rules:
 
@@ -331,20 +331,20 @@ Failure handling rules:
 
 ## OpenCode Auto-Install Model
 
-After CrewBee is published, the target OpenCode config should reference the package name directly:
+After aiyou-team is published, the target OpenCode config should reference the package name directly:
 
 ```json
 {
-  "plugin": ["crewbee"]
+  "plugin": ["@aiyou-dev/team"]
 }
 ```
 
 ### Why this works
 
-CrewBee now writes and validates the canonical plugin entry as:
+aiyou-team now writes and validates the canonical plugin entry as:
 
 ```text
-crewbee
+@aiyou-dev/team
 ```
 
 instead of a `file://.../opencode-plugin.mjs` path.
@@ -363,7 +363,7 @@ That still installs a local tarball into the OpenCode user-level workspace, but 
 
 ```json
 {
-  "plugin": ["crewbee"]
+  "plugin": ["@aiyou-dev/team"]
 }
 ```
 
@@ -413,7 +413,7 @@ Before release:
 
 After release:
 
-- npm shows `crewbee@<version>`
-- OpenCode config can use `"crewbee"`
+- npm shows `@aiyou-dev/team@<version>`
+- OpenCode config can use `"@aiyou-dev/team"`
 - `npm run install:registry:user` succeeds
 - `npm run doctor` is healthy

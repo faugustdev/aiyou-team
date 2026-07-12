@@ -24,7 +24,7 @@ export function resolveLocalTarballPath(input: {
 
   for (const root of uniqueRoots) {
     const localArtifactsRoot = path.join(root, ".artifacts", "local");
-    const stableTarball = path.join(localArtifactsRoot, "crewbee-local.tgz");
+    const stableTarball = path.join(localArtifactsRoot, "aiyou-team-local.tgz");
 
     if (existsSync(stableTarball)) {
       return stableTarball;
@@ -35,7 +35,7 @@ export function resolveLocalTarballPath(input: {
     }
 
     for (const entry of readdirSync(localArtifactsRoot)) {
-      if (!/^crewbee-.*\.tgz$/i.test(entry)) {
+      if (!/^aiyou-team-.*\.tgz$/i.test(entry)) {
         continue;
       }
 
@@ -53,5 +53,5 @@ export function resolveLocalTarballPath(input: {
     return candidates[0].path;
   }
 
-  throw new Error("No local CrewBee tarball was found. Run 'npm run pack:local' or pass --local-tarball.");
+  throw new Error("No local aiyou-team tarball was found. Run 'npm run pack:local' or pass --local-tarball.");
 }

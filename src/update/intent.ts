@@ -2,12 +2,12 @@ import path from "node:path";
 
 import { readOpenCodeConfig, resolveInstallRoot, resolveOpenCodeConfigPath } from "../install";
 
-import type { CrewBeeReleaseIntent } from "./types";
+import type { AiyouTeamReleaseIntent } from "./types";
 
 const EXACT_SEMVER_REGEX = /^\d+\.\d+\.\d+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$/;
-const CREWBEE_PACKAGE_NAME = "crewbee";
+const AIYOU_TEAM_PACKAGE_NAME = "aiyou-team";
 
-export function findConfiguredCrewBeeReleaseIntent(): CrewBeeReleaseIntent | undefined {
+export function findConfiguredAiyouTeamReleaseIntent(): AiyouTeamReleaseIntent | undefined {
   const configPath = resolveOpenCodeConfigPath();
   const config = readOpenCodeConfig(configPath).config;
   const plugins = Array.isArray(config.plugin) ? config.plugin : [];
@@ -17,11 +17,11 @@ export function findConfiguredCrewBeeReleaseIntent(): CrewBeeReleaseIntent | und
       continue;
     }
 
-    if (entry === CREWBEE_PACKAGE_NAME) {
+    if (entry === AIYOU_TEAM_PACKAGE_NAME) {
       return {
         configPath,
         entry,
-        packageName: CREWBEE_PACKAGE_NAME,
+        packageName: AIYOU_TEAM_PACKAGE_NAME,
         requestedVersion: "latest",
         channel: "latest",
         isPinned: false,
@@ -29,8 +29,8 @@ export function findConfiguredCrewBeeReleaseIntent(): CrewBeeReleaseIntent | und
       };
     }
 
-    if (entry.startsWith(`${CREWBEE_PACKAGE_NAME}@`)) {
-      const requestedVersion = entry.slice(CREWBEE_PACKAGE_NAME.length + 1).trim();
+    if (entry.startsWith(`${AIYOU_TEAM_PACKAGE_NAME}@`)) {
+      const requestedVersion = entry.slice(AIYOU_TEAM_PACKAGE_NAME.length + 1).trim();
       if (!requestedVersion) {
         continue;
       }
@@ -38,7 +38,7 @@ export function findConfiguredCrewBeeReleaseIntent(): CrewBeeReleaseIntent | und
       return {
         configPath,
         entry,
-        packageName: CREWBEE_PACKAGE_NAME,
+        packageName: AIYOU_TEAM_PACKAGE_NAME,
         requestedVersion,
         channel: EXACT_SEMVER_REGEX.test(requestedVersion) ? "latest" : requestedVersion,
         isPinned: EXACT_SEMVER_REGEX.test(requestedVersion),
@@ -51,7 +51,7 @@ export function findConfiguredCrewBeeReleaseIntent(): CrewBeeReleaseIntent | und
 }
 
 function resolveReleaseWorkspaceRoot(entry: string): string {
-  return path.join(resolveInstallRoot(), "packages", sanitizePackageSpec(entry === CREWBEE_PACKAGE_NAME ? "crewbee@latest" : entry));
+  return path.join(resolveInstallRoot(), "packages", sanitizePackageSpec(entry === AIYOU_TEAM_PACKAGE_NAME ? "aiyou-team@latest" : entry));
 }
 
 function sanitizePackageSpec(value: string): string {

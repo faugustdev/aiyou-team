@@ -1,13 +1,13 @@
-import { backupOpenCodeConfig, readOpenCodeConfig, removeCrewBeePluginEntries, restoreOpenCodeConfigBackup, writeOpenCodeConfig } from "./opencode-config-file";
+import { backupOpenCodeConfig, readOpenCodeConfig, removeAiyouTeamPluginEntries, restoreOpenCodeConfigBackup, writeOpenCodeConfig } from "./opencode-config-file";
 import { resolveOpenCodeConfigPath, resolveInstallRoot } from "./install-root";
-import { uninstallCrewBeePackage } from "./package-installation";
+import { uninstallAiyouTeamPackage } from "./package-installation";
 import type { UninstallOptions, UninstallResult } from "./types";
 
-export async function uninstallCrewBee(options: UninstallOptions): Promise<UninstallResult> {
+export async function uninstallAiyouTeam(options: UninstallOptions): Promise<UninstallResult> {
   const configPath = resolveOpenCodeConfigPath(options.configPath);
   const installRoot = resolveInstallRoot(options.installRoot);
   const configDocument = readOpenCodeConfig(configPath);
-  const removal = removeCrewBeePluginEntries(configDocument.config);
+  const removal = removeAiyouTeamPluginEntries(configDocument.config);
   const configBackup = !options.dryRun && removal.changed
     ? backupOpenCodeConfig(configPath)
     : undefined;
@@ -17,7 +17,7 @@ export async function uninstallCrewBee(options: UninstallOptions): Promise<Unins
       writeOpenCodeConfig(configPath, configDocument.config);
     }
 
-    const packageRemoved = uninstallCrewBeePackage({
+    const packageRemoved = uninstallAiyouTeamPackage({
       dryRun: options.dryRun,
       installRoot,
     });

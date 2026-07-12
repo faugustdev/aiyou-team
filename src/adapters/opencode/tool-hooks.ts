@@ -12,13 +12,13 @@ function buildRetryGuidance(result: DelegateTaskResult): string | undefined {
   }
 
   const fixes: Record<string, string> = {
-    missing_agent: 'Fix: include `subagent_type="reviewer"` or another CrewBee member id.',
-    unknown_agent: 'Fix: use a valid CrewBee member id or projected alias as `subagent_type`.',
+    missing_agent: 'Fix: include `subagent_type="reviewer"` or another aiyou-team member id.',
+    unknown_agent: 'Fix: use a valid aiyou-team member id or projected alias as `subagent_type`.',
     invalid_session_id: 'Fix: use a delegated `task_id` previously returned by `task`.',
     agent_session_mismatch: 'Fix: resume with the same agent that created the delegated session.',
     unsupported_mode: 'Fix: use `mode="foreground"` or `mode="background"`.',
     nested_delegate_forbidden: 'Fix: return the result to the parent session instead of delegating again from a delegated subagent.',
-    self_delegate_forbidden: 'Fix: delegate to another CrewBee member instead of the current active agent.',
+    self_delegate_forbidden: 'Fix: delegate to another aiyou-team member instead of the current active agent.',
   };
   const fix = fixes[result.error_code];
   if (!fix) {
@@ -113,7 +113,7 @@ export function createToolExecuteAfterHook() {
     output.output = stringifyDelegateTaskResult(result);
 
     if (result.status !== "failed" && result.session_id) {
-      output.title = output.title || "CrewBee task";
+      output.title = output.title || "aiyou-team task";
       output.metadata = {
         ...output.metadata,
         sessionId: result.session_id,

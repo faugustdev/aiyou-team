@@ -25,7 +25,7 @@ import {
   resolveProjectedAgentSelection,
   type OpenCodeAgentConfigPatch,
 } from "./projection";
-import { isManagedCrewBeeAgentDefinition } from "./ownership";
+import { isManagedAiyouTeamAgentDefinition } from "./ownership";
 import { createOpenCodeToolDomainPlan, type OpenCodeToolDomainPlan } from "./tool-domain";
 
 export interface OpenCodeBootstrapDefaults {
@@ -167,7 +167,7 @@ function getForeignCollisionInputs(input: {
   const foreignKeys = (fallbackKeys ?? []).filter((key) => {
     const definition = input.existingConfig?.agent?.[key];
 
-    if (isManagedCrewBeeAgentDefinition(definition)) {
+    if (isManagedAiyouTeamAgentDefinition(definition)) {
       return false;
     }
 

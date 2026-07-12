@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   update:
-    if: github.repository == 'CrewBeeLab/CrewBee'
+    if: github.repository == 'faugustdev/aiyou-team'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -62,7 +62,7 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         run: npm install -g opencode-ai@latest
 
-      - name: Install local CrewBee package
+      - name: Install local aiyou-team package
         if: steps.diff.outputs.changed == 'true'
         run: npm run install:local:user
 
@@ -75,7 +75,7 @@ jobs:
         run: |
           set -euo pipefail
           npm run pack:release
-          TARBALL=$(find .artifacts/release -name 'crewbee-*.tgz' -print -quit)
+          TARBALL=$(find .artifacts/release -name 'aiyou-team-*.tgz' -print -quit)
           if [ -z "$TARBALL" ]; then
             echo "::error::release tarball was not generated."
             exit 1
@@ -86,7 +86,7 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.CREWBEE_AUTOMATION_TOKEN || github.token }}
+          token: ${{ secrets.AIYOU_TEAM_AUTOMATION_TOKEN || github.token }}
           branch: chore/update-opencode-plugin
           delete-branch: true
           title: "Update @opencode-ai/plugin to latest"

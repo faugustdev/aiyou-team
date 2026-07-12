@@ -50,6 +50,7 @@ runtime_config:
     - write
     - bash
     - lsp_diagnostics
+    - question
   permission:
     - permission: read
       pattern: "*"
@@ -72,9 +73,12 @@ runtime_config:
     - permission: lsp_diagnostics
       pattern: "*"
       action: allow
+    - permission: question
+      pattern: "*"
+      action: allow
   instructions:
     - repo-core
-    - crewbee-team-framework
+    - aiyou-team-framework
 
 output_contract:
   tone: concise-bold

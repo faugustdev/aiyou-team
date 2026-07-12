@@ -1,6 +1,6 @@
 import type { Writable } from "node:stream";
 
-import { setupCrewBee, type InstallCommandContext } from "../install";
+import { setupAiyouTeam, type InstallCommandContext } from "../install";
 
 import { parseSetupOptions } from "./parse-setup-options";
 
@@ -19,13 +19,13 @@ export async function runSetupCommand(argv: string[], io: {
   }
 
   try {
-    const result = await setupCrewBee({
+    const result = await setupAiyouTeam({
       context,
       options,
     });
 
     io.stdout.write([
-      result.dryRun ? "CrewBee setup plan generated." : "CrewBee setup completed.",
+      result.dryRun ? "aiyou-team setup plan generated." : "aiyou-team setup completed.",
       "",
       result.opencodeFound
         ? `✓ OpenCode found${result.opencodePath ? `: ${result.opencodePath}` : ""}${result.opencodeVersion ? ` (${result.opencodeVersion})` : ""}`
@@ -48,9 +48,9 @@ export async function runSetupCommand(argv: string[], io: {
       result.installResult.configChanged
         ? (result.dryRun ? "• OpenCode plugin config would be updated." : "✓ OpenCode plugin config updated.")
         : "✓ OpenCode plugin config already up to date.",
-      result.installResult.crewbeeConfigChanged
-        ? (result.dryRun ? `• crewbee.json would be updated (${result.installResult.crewbeeConfigReason}).` : `✓ crewbee.json updated (${result.installResult.crewbeeConfigReason}).`)
-        : "✓ crewbee.json already usable.",
+      result.installResult.aiyouTeamConfigChanged
+        ? (result.dryRun ? `• aiyou-team.json would be updated (${result.installResult.aiyouTeamConfigReason}).` : `✓ aiyou-team.json updated (${result.installResult.aiyouTeamConfigReason}).`)
+        : "✓ aiyou-team.json already usable.",
       result.installResult.migratedEntries.length > 0
         ? `✓ Migrated old entries: ${result.installResult.migratedEntries.join(", ")}`
         : undefined,

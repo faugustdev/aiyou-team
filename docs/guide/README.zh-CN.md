@@ -1,10 +1,10 @@
-# CrewBee 用户指南
+# aiyou-team 用户指南
 
 语言：[English](./README.md) | 中文
 
 这个页面用于按角色选择正确的指南。
 
-这些指南面向希望安装 CrewBee、在 OpenCode 中使用 CrewBee，或为自己的项目配置 Agent Team 的用户。
+这些指南面向希望安装 aiyou-team、在 OpenCode 中使用 aiyou-team，或为自己的项目配置 Agent Team 的用户。
 
 - [安装指南](./installation.zh-CN.md)
 - [自定义 Agent Team 指南](./custom-agent-team.md)

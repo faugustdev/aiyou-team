@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 
 const packageRoot = process.cwd();
 const outputDir = path.join(packageRoot, ".artifacts", "local");
-const stableTarballPath = path.join(outputDir, "crewbee-local.tgz");
+const stableTarballPath = path.join(outputDir, "aiyou-team-local.tgz");
 
 rmSync(outputDir, { recursive: true, force: true });
 mkdirSync(outputDir, { recursive: true });
@@ -19,10 +19,10 @@ if (result.status !== 0) {
   process.exit(result.status ?? 1);
 }
 
-const generatedTarballName = readdirSync(outputDir).find((entry) => /^crewbee-.*\.tgz$/i.test(entry));
+const generatedTarballName = readdirSync(outputDir).find((entry) => /^aiyou-team-.*\.tgz$/i.test(entry));
 
 if (!generatedTarballName) {
-  console.error(`\nNo CrewBee tarball was generated in ${outputDir}`);
+  console.error(`\nNo aiyou-team tarball was generated in ${outputDir}`);
   process.exit(1);
 }
 
@@ -32,4 +32,4 @@ if (generatedTarballPath !== stableTarballPath) {
   renameSync(generatedTarballPath, stableTarballPath);
 }
 
-console.log(`\nLocal CrewBee package written to ${stableTarballPath}`);
+console.log(`\nLocal aiyou-team package written to ${stableTarballPath}`);

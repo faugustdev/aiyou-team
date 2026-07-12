@@ -127,7 +127,7 @@ governance:
 
 ## 配置
 
-团队配置在 `crewbee.json`（或 `aiyou-team.json`）：
+团队配置在 `aiyou-team.json`：
 
 ```json
 {

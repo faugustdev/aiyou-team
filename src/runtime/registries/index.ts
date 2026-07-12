@@ -6,10 +6,10 @@ export {
   type AvailableToolDefinition,
 } from "./available-tools";
 export {
-  getCrewBeePluginTool,
-  listCrewBeePluginTools,
-  listImplementedCrewBeePluginTools,
-  type CrewBeePluginToolDefinition,
-  type CrewBeePluginToolStatus,
-  type CrewBeePluginToolVisibility,
+  getAiyouTeamPluginTool,
+  listAiyouTeamPluginTools,
+  listImplementedAiyouTeamPluginTools,
+  type AiyouTeamPluginToolDefinition,
+  type AiyouTeamPluginToolStatus,
+  type AiyouTeamPluginToolVisibility,
 } from "./plugin-tools";

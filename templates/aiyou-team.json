@@ -1,5 +1,6 @@
 {
-  "config_version": 2,
+  "config_version": 3,
+  "language": "en",
   "teams": [
     {
       "id": "coding-team",

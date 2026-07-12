@@ -6,7 +6,7 @@
 
 这个 simulator 只用于本地测试和理解机制。
 
-它用于模拟 CrewBee 当前的 OpenCode runtime path：
+它用于模拟 aiyou-team 当前的 OpenCode runtime path：
 
 - plugin module loading
 - plugin initialization
@@ -16,7 +16,7 @@
 
 它不是生产 runtime 的一部分，也不会包含在已发布的 package files 中。
 
-重要说明：simulator 只记录 OpenCode 可见的一侧。它不会暴露 CrewBee 内部结构，例如 projected TeamLibrary data 或 bootstrap internals。
+重要说明：simulator 只记录 OpenCode 可见的一侧。它不会暴露 aiyou-team 内部结构，例如 projected TeamLibrary data 或 bootstrap internals。
 
 ---
 
@@ -70,9 +70,9 @@ simulator 遵循当前实现边界，而不是完整 OpenCode 产品。
 - tool execution hooks
 - 真实 LLM requests
 - session persistence
-- 当前 CrewBee hooks 之外的完整 host runloop
+- 当前 aiyou-team hooks 之外的完整 host runloop
 
-这是有意为之。目标是测试和理解 CrewBee 当前 implementation surface，而不是重建 OpenCode。
+这是有意为之。目标是测试和理解 aiyou-team 当前 implementation surface，而不是重建 OpenCode。
 
 ---
 
@@ -115,7 +115,7 @@ npm run simulate:opencode -- --worktree E:/path/to/worktree
 使用自定义 output root：
 
 ```bash
-npm run simulate:opencode -- --outdir E:/tmp/crewbee-sim-runs
+npm run simulate:opencode -- --outdir E:/tmp/aiyou-team-sim-runs
 ```
 
 Windows 一键运行：

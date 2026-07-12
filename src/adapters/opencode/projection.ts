@@ -13,7 +13,7 @@ import {
   type OpenCodePermissionConfig,
   type OpenCodePermissionRule,
 } from "./permission-mapper";
-import { createManagedCrewBeeAgentOptions } from "./ownership";
+import { createManagedAiyouTeamAgentOptions } from "./ownership";
 import { createOpenCodeAgentPrompt } from "./prompt-builder";
 import { resolveAgentModel, type ModelResolutionTrace } from "./model-resolution";
 
@@ -36,7 +36,7 @@ export interface OpenCodeResolvedModelConfig {
   topP?: number;
   variant?: string;
   options?: Record<string, unknown>;
-  source: "crewbee-json" | "team-manifest" | "team-manifest-default" | "builtin-role-chain";
+  source: "aiyou-team-json" | "team-manifest" | "team-manifest-default" | "builtin-role-chain";
   strict?: boolean;
 }
 
@@ -44,7 +44,7 @@ export interface OpenCodeResolvedToolConfig {
   requestedTools: string[];
   availableTools: string[];
   missingTools: string[];
-  availabilitySource: "host-provided" | "crewbee-plugin" | "merged" | "default-placeholder";
+  availabilitySource: "host-provided" | "aiyou-team-plugin" | "merged" | "default-placeholder";
   availabilityIsExplicit: boolean;
 }
 
@@ -265,7 +265,7 @@ export function createOpenCodeAgentDefinition(agent: OpenCodeAgentConfig): OpenC
     variant: agent.resolvedModel?.variant,
     prompt: agent.prompt,
     permission: createOpenCodePermissionConfig(agent.permission),
-    options: createManagedCrewBeeAgentOptions({
+    options: createManagedAiyouTeamAgentOptions({
       teamId: agent.teamId,
       canonicalAgentId: agent.canonicalAgentId,
       existingOptions: agent.resolvedModel?.options,
@@ -286,7 +286,7 @@ export function createOpenCodeAgentConfigPatch(input: {
   const disabledHostAgents: Record<string, OpenCodeAgentDefinition> = {
     build: {
       name: "build",
-      description: "Disabled by CrewBee while a CrewBee Agent Team owns the session.",
+      description: "Disabled by aiyou-team while an aiyou-team Agent Team owns the session.",
       mode: "subagent",
       disable: true,
       tools: {},
@@ -295,7 +295,7 @@ export function createOpenCodeAgentConfigPatch(input: {
     },
     plan: {
       name: "plan",
-      description: "Disabled by CrewBee while a CrewBee Agent Team owns the session.",
+      description: "Disabled by aiyou-team while an aiyou-team Agent Team owns the session.",
       mode: "subagent",
       disable: true,
       tools: {},
@@ -304,7 +304,7 @@ export function createOpenCodeAgentConfigPatch(input: {
     },
     general: {
       name: "general",
-      description: "Disabled by CrewBee while a CrewBee Agent Team owns the session.",
+      description: "Disabled by aiyou-team while an aiyou-team Agent Team owns the session.",
       mode: "subagent",
       disable: true,
       tools: {},
@@ -313,7 +313,7 @@ export function createOpenCodeAgentConfigPatch(input: {
     },
     explore: {
       name: "explore",
-      description: "Disabled by CrewBee while a CrewBee Agent Team owns the session.",
+      description: "Disabled by aiyou-team while an aiyou-team Agent Team owns the session.",
       mode: "subagent",
       disable: true,
       tools: {},
@@ -322,7 +322,7 @@ export function createOpenCodeAgentConfigPatch(input: {
     },
     scout: {
       name: "scout",
-      description: "Disabled by CrewBee while a CrewBee Agent Team owns the session.",
+      description: "Disabled by aiyou-team while an aiyou-team Agent Team owns the session.",
       mode: "subagent",
       disable: true,
       tools: {},

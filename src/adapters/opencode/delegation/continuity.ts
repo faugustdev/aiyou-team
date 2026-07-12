@@ -55,7 +55,7 @@ export async function captureTodoSnapshot(ctx: PluginInput, store: DelegateState
 
 export function buildCompactionContext(store: DelegateStateStore, sessionID: string): string {
   return [
-    "[CrewBee Continuity Context]",
+    "[aiyou-team Continuity Context]",
     "",
     "When summarizing this session, preserve the sections below in the compacted summary.",
     "",

@@ -4,24 +4,24 @@ import path from "node:path";
 
 import type { PluginInput } from "@opencode-ai/plugin";
 
-import { logCrewBee } from "../adapters/opencode/logging";
+import { logAiyouTeam } from "../adapters/opencode/logging";
 
-import { findConfiguredCrewBeeReleaseIntent } from "./intent";
+import { findConfiguredAiyouTeamReleaseIntent } from "./intent";
 import { fetchTargetVersion } from "./registry";
 import {
-  acquireCrewBeeReleaseLock,
-  readCrewBeeReleaseState,
-  releaseCrewBeeReleaseLock,
-  writeCrewBeeReleaseState,
+  acquireAiyouTeamReleaseLock,
+  readAiyouTeamReleaseState,
+  releaseAiyouTeamReleaseLock,
+  writeAiyouTeamReleaseState,
 } from "./state";
 import { invalidateWorkspacePackage, readInstalledWorkspaceVersion, syncWorkspaceDependencyIntent } from "./workspace";
 
-import type { CrewBeeReleaseCheckResult, CrewBeeReleaseRefreshDependencies } from "./types";
+import type { AiyouTeamReleaseCheckResult, AiyouTeamReleaseRefreshDependencies } from "./types";
 
 const FAILURE_RECHECK_MS = 30 * 60 * 1000;
 
-export function startBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBeeReleaseRefreshDependencies = createDefaultDependencies()): void {
-  if (!shouldEnableCrewBeeReleaseRefresh()) {
+export function startBackgroundReleaseRefresh(ctx: PluginInput, deps: AiyouTeamReleaseRefreshDependencies = createDefaultDependencies()): void {
+  if (!shouldEnableAiyouTeamReleaseRefresh()) {
     return;
   }
 
@@ -30,22 +30,22 @@ export function startBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBeeRel
   });
 }
 
-export async function runBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBeeReleaseRefreshDependencies): Promise<CrewBeeReleaseCheckResult> {
-  if (!acquireCrewBeeReleaseLock()) {
-    await logCrewBee(ctx, "CrewBee release refresh skipped because another refresh is already running", undefined, "debug");
+export async function runBackgroundReleaseRefresh(ctx: PluginInput, deps: AiyouTeamReleaseRefreshDependencies): Promise<AiyouTeamReleaseCheckResult> {
+  if (!acquireAiyouTeamReleaseLock()) {
+    await logAiyouTeam(ctx, "aiyou-team release refresh skipped because another refresh is already running", undefined, "debug");
     return { needsRefresh: false, reason: "up-to-date" };
   }
 
   try {
-  const intent = findConfiguredCrewBeeReleaseIntent();
+  const intent = findConfiguredAiyouTeamReleaseIntent();
   if (!intent) {
-    await logCrewBee(ctx, "CrewBee release refresh skipped because plugin is not configured", undefined, "debug");
+    await logAiyouTeam(ctx, "aiyou-team release refresh skipped because plugin is not configured", undefined, "debug");
     return { needsRefresh: false, reason: "plugin-not-configured" };
   }
 
   if (intent.isPinned) {
     const currentVersion = readInstalledWorkspaceVersion(intent.workspaceRoot);
-    await logCrewBee(ctx, "CrewBee release refresh skipped for pinned version", {
+    await logAiyouTeam(ctx, "aiyou-team release refresh skipped for pinned version", {
       entry: intent.entry,
       pinnedVersion: intent.requestedVersion,
       currentVersion,
@@ -53,17 +53,17 @@ export async function runBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBe
     return { currentVersion, latestVersion: intent.requestedVersion, needsRefresh: false, reason: "pinned-version" };
   }
 
-  const state = readCrewBeeReleaseState();
+  const state = readAiyouTeamReleaseState();
   const now = Date.now();
   const currentVersion = readInstalledWorkspaceVersion(intent.workspaceRoot);
 
   const latestVersion = await fetchTargetVersion({ intent, fetchJson: deps.fetchJson });
   if (!latestVersion) {
-    writeCrewBeeReleaseState({
+    writeAiyouTeamReleaseState({
       ...state,
       lastCheckedAt: now,
     });
-    await logCrewBee(ctx, "CrewBee release refresh could not resolve latest version", {
+    await logAiyouTeam(ctx, "aiyou-team release refresh could not resolve latest version", {
       entry: intent.entry,
       channel: intent.channel,
       currentVersion,
@@ -72,7 +72,7 @@ export async function runBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBe
   }
 
   if (currentVersion === latestVersion) {
-    writeCrewBeeReleaseState({
+    writeAiyouTeamReleaseState({
       ...state,
       lastCheckedAt: now,
       lastKnownVersion: currentVersion,
@@ -80,7 +80,7 @@ export async function runBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBe
       lastFailureAt: undefined,
       lastSucceededAt: now,
     });
-    await logCrewBee(ctx, "CrewBee release refresh found current version already up to date", {
+    await logAiyouTeam(ctx, "aiyou-team release refresh found current version already up to date", {
       currentVersion,
       latestVersion,
       workspaceRoot: intent.workspaceRoot,
@@ -89,7 +89,7 @@ export async function runBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBe
   }
 
   if (shouldSkipFailedTargetByCooldown(state, now, latestVersion)) {
-    await logCrewBee(ctx, "CrewBee release refresh skipped by failure cooldown", {
+    await logAiyouTeam(ctx, "aiyou-team release refresh skipped by failure cooldown", {
       currentVersion,
       latestVersion,
       lastCheckedAt: state.lastCheckedAt,
@@ -98,7 +98,7 @@ export async function runBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBe
     return { currentVersion, latestVersion, needsRefresh: true, reason: "refresh-required" };
   }
 
-  await logCrewBee(ctx, "CrewBee release refresh found newer version", {
+  await logAiyouTeam(ctx, "aiyou-team release refresh found newer version", {
     currentVersion,
     latestVersion,
     workspaceRoot: intent.workspaceRoot,
@@ -110,7 +110,7 @@ export async function runBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBe
   const installed = await deps.runInstall(intent.workspaceRoot);
 
   if (!installed) {
-    writeCrewBeeReleaseState({
+    writeAiyouTeamReleaseState({
       ...state,
       lastCheckedAt: now,
       lastAttemptedVersion: latestVersion,
@@ -118,7 +118,7 @@ export async function runBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBe
       lastFailureAt: now,
       lastKnownVersion: currentVersion,
     });
-    await logCrewBee(ctx, "CrewBee release refresh failed to install latest version", {
+    await logAiyouTeam(ctx, "aiyou-team release refresh failed to install latest version", {
       currentVersion,
       latestVersion,
       workspaceRoot: intent.workspaceRoot,
@@ -126,7 +126,7 @@ export async function runBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBe
     return { currentVersion, latestVersion, needsRefresh: true, reason: "refresh-required" };
   }
 
-  writeCrewBeeReleaseState({
+  writeAiyouTeamReleaseState({
     lastCheckedAt: now,
     lastAttemptedVersion: latestVersion,
     lastKnownVersion: latestVersion,
@@ -134,7 +134,7 @@ export async function runBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBe
     lastFailureAt: undefined,
     lastSucceededAt: now,
   });
-  await logCrewBee(ctx, "CrewBee release refresh installed newer version", {
+  await logAiyouTeam(ctx, "aiyou-team release refresh installed newer version", {
     currentVersion,
     latestVersion,
     workspaceRoot: intent.workspaceRoot,
@@ -142,12 +142,12 @@ export async function runBackgroundReleaseRefresh(ctx: PluginInput, deps: CrewBe
 
   return { currentVersion, latestVersion, needsRefresh: true, reason: "refresh-required" };
   } finally {
-    releaseCrewBeeReleaseLock();
+    releaseAiyouTeamReleaseLock();
   }
 }
 
-export function shouldEnableCrewBeeReleaseRefresh(currentPackageRoot: string = resolveCurrentPackageRoot()): boolean {
-  const override = process.env.CREWBEE_AUTO_UPDATE?.trim().toLowerCase();
+export function shouldEnableAiyouTeamReleaseRefresh(currentPackageRoot: string = resolveCurrentPackageRoot()): boolean {
+  const override = process.env.AIYOU_TEAM_AUTO_UPDATE?.trim().toLowerCase();
   if (override === "1" || override === "true" || override === "on") {
     return true;
   }
@@ -160,7 +160,7 @@ export function shouldEnableCrewBeeReleaseRefresh(currentPackageRoot: string = r
   return !existsSync(path.join(currentPackageRoot, ".git"));
 }
 
-function shouldSkipFailedTargetByCooldown(state: ReturnType<typeof readCrewBeeReleaseState>, now: number, latestVersion: string): boolean {
+function shouldSkipFailedTargetByCooldown(state: ReturnType<typeof readAiyouTeamReleaseState>, now: number, latestVersion: string): boolean {
   return Boolean(
     state.lastFailureAt
     && state.lastAttemptedVersion === latestVersion
@@ -172,7 +172,7 @@ function resolveCurrentPackageRoot(): string {
   return path.resolve(__dirname, "../..");
 }
 
-function createDefaultDependencies(): CrewBeeReleaseRefreshDependencies {
+function createDefaultDependencies(): AiyouTeamReleaseRefreshDependencies {
   return {
     async fetchJson(url: string) {
       const response = await fetch(url);

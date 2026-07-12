@@ -60,10 +60,10 @@ export async function runDoctorCommand(argv: string[], io: {
     const status = result.healthy ? "healthy" : "issues found";
 
     io.stdout.write([
-      "CrewBee Doctor",
+      "aiyou-team Doctor",
       "",
       `Status: ${status}`,
-      result.healthy ? "CrewBee doctor: healthy." : "CrewBee doctor: issues found.",
+      result.healthy ? "aiyou-team doctor: healthy." : "aiyou-team doctor: issues found.",
       `${result.opencodeFound ? "✓" : "•"} OpenCode: ${result.opencodeFound ? (result.opencodePath ?? "found") : "not found in PATH"}${result.opencodeVersion ? ` (${result.opencodeVersion})` : ""}`,
       `✓ Config root file: ${result.configPath}`,
       `✓ Install root: ${result.installRoot}`,
@@ -74,8 +74,8 @@ export async function runDoctorCommand(argv: string[], io: {
       `${result.hasLegacyInstalledPackage ? "✕" : "✓"} Legacy top-level package: ${result.hasLegacyInstalledPackage ? "yes" : "no"}`,
       `${result.configMatchesCanonical ? "✓" : "✕"} Canonical config entry: ${result.configMatchesCanonical ? "yes" : "no"}`,
       result.currentPluginEntries.length > 0
-        ? `Current CrewBee entries: ${result.currentPluginEntries.join(", ")}`
-        : "Current CrewBee entries: none",
+        ? `Current aiyou-team entries: ${result.currentPluginEntries.join(", ")}`
+        : "Current aiyou-team entries: none",
       `Expected entry: ${result.expectedPluginEntry}`,
       `Project worktree: ${result.projectWorktree}`,
       `${result.teamHealthy ? "✓" : "✕"} Team definitions: ${result.teamHealthy ? "healthy" : "issues found"}`,

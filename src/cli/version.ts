@@ -64,7 +64,7 @@ export async function runVersionCommand(argv: string[], io: {
     }
 
     io.stdout.write([
-      "CrewBee version",
+      "aiyou-team version",
       "",
       `Current package: ${current.packageName}`,
       `Current version: ${current.version}`,

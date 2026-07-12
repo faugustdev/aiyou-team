@@ -7,7 +7,7 @@ export interface ModelResolutionTrace {
   agentId: string;
   configuredModel?: string;
   resolvedModel: string | "host-default";
-  source: "crewbee-json" | "team-manifest" | "team-manifest-default" | "builtin-role-chain" | "host-default";
+  source: "aiyou-team-json" | "team-manifest" | "team-manifest-default" | "builtin-role-chain" | "host-default";
   fallback: string;
   fallbackToHostDefault: boolean;
   candidates: string[];
@@ -24,7 +24,7 @@ export interface ResolvedModelSelection {
   topP?: number;
   variant?: string;
   options?: Record<string, unknown>;
-  source: "crewbee-json" | "team-manifest" | "team-manifest-default" | "builtin-role-chain";
+  source: "aiyou-team-json" | "team-manifest" | "team-manifest-default" | "builtin-role-chain";
   strict?: boolean;
 }
 
@@ -180,7 +180,7 @@ function appendConfiguredModelCandidate(input: {
   if (input.agentOverride?.model) {
     appendUniqueCandidate(input.candidates, {
       model: input.agentOverride.model,
-      source: "crewbee-json",
+      source: "aiyou-team-json",
       runtime: applyAgentModelOverride(input.runtime ?? input.defaultRuntime, input.agentOverride),
       strict: input.agentOverride.strict === true,
       allowWhenAvailabilityUnknown: input.allowWhenAvailabilityUnknown ?? true,

@@ -13,7 +13,7 @@ permissions:
 jobs:
   auto-merge:
     if: >-
-      github.repository == 'CrewBeeLab/CrewBee' &&
+      github.repository == 'faugustdev/aiyou-team' &&
       github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest

@@ -11,20 +11,24 @@ import {
   BUILTIN_CODING_TEAM_ID,
   BUILTIN_CODING_TEAM_MODEL_FALLBACK,
   BUILTIN_CODING_TEAM_MODEL_PRESET,
-  CREWBEE_CONFIG_FILE,
-  CREWBEE_CONFIG_VERSION,
+  AIYOU_TEAM_CONFIG_FILE,
+  AIYOU_TEAM_CONFIG_VERSION,
   DEFAULT_EMBEDDED_TEAM_PRIORITY,
   DEFAULT_FILE_TEAM_PRIORITY,
+  DEFAULT_LANGUAGE,
+  SUPPORTED_LANGUAGES,
   TEAM_CONFIG_ROOT,
 } from "./constants";
+import type { AiyouTeamLanguage } from "./constants";
 import { resolveTeamDocumentation } from "./documentation";
 import { mapAgentProfile, mapTeamManifest, mapTeamPolicy } from "./parsers";
 
 const TEAM_MANIFEST_FILE = "team.manifest.yaml";
 const TEAM_POLICY_FILE = "team.policy.yaml";
 
-interface RawCrewBeeTeamConfig {
+interface RawAiyouTeamConfig {
   teams?: unknown;
+  language?: unknown;
 }
 
 interface RawConfiguredTeamEntry {
@@ -84,18 +88,32 @@ interface TeamConfigSourceDescriptor {
   missingIsWarning: boolean;
 }
 
-export interface CrewBeeConfigFile {
+export interface AiyouTeamConfigFile {
   config_version?: number;
+  language?: AiyouTeamLanguage;
   teams: Array<Record<string, unknown>>;
 }
 
-export type CrewBeeConfigEnsureReason = "created-default" | "repaired-invalid" | "added-default-coding-team" | "migrated-config-version" | "unchanged";
+export type AiyouTeamConfigEnsureReason = "created-default" | "repaired-invalid" | "added-default-coding-team" | "migrated-config-version" | "unchanged";
 
-export interface CrewBeeConfigEnsureResult {
+export interface AiyouTeamConfigEnsureResult {
   changed: boolean;
   backupPath?: string;
   configPath: string;
-  reason: CrewBeeConfigEnsureReason;
+  reason: AiyouTeamConfigEnsureReason;
+}
+
+function normalizeLanguage(value: unknown): AiyouTeamLanguage {
+  if (typeof value === "string" && (SUPPORTED_LANGUAGES as readonly string[]).includes(value)) {
+    return value as AiyouTeamLanguage;
+  }
+  return DEFAULT_LANGUAGE;
+}
+
+export interface ConfiguredTeamSourceResult {
+  sources: ConfiguredTeamSource[];
+  issues: TeamValidationIssue[];
+  language: AiyouTeamLanguage;
 }
 
 function createConfigIssue(input: {
@@ -246,9 +264,9 @@ function getPackagedTemplateRootPath(): string | undefined {
   return candidates.find((candidate) => existsSync(candidate));
 }
 
-function getPackagedCrewBeeConfigTemplatePath(): string | undefined {
+function getPackagedAiyouTeamConfigTemplatePath(): string | undefined {
   const templateRoot = getPackagedTemplateRootPath();
-  return templateRoot ? path.join(templateRoot, CREWBEE_CONFIG_FILE) : undefined;
+  return templateRoot ? path.join(templateRoot, AIYOU_TEAM_CONFIG_FILE) : undefined;
 }
 
 function ensurePackagedTeamTemplates(configRoot: string, dryRun?: boolean): void {
@@ -269,17 +287,17 @@ function ensurePackagedTeamTemplates(configRoot: string, dryRun?: boolean): void
   });
 }
 
-function isCrewBeeConfigFile(value: unknown): value is CrewBeeConfigFile {
+function isAiyouTeamConfigFile(value: unknown): value is AiyouTeamConfigFile {
   return isRecord(value) && Array.isArray(value.teams);
 }
 
-export function createDefaultCrewBeeConfig(): CrewBeeConfigFile {
-  const templatePath = getPackagedCrewBeeConfigTemplatePath();
+export function createDefaultAiyouTeamConfig(): AiyouTeamConfigFile {
+  const templatePath = getPackagedAiyouTeamConfigTemplatePath();
 
   if (templatePath) {
     try {
       const parsed = JSON.parse(readFileSync(templatePath, "utf8"));
-      if (isCrewBeeConfigFile(parsed)) {
+      if (isAiyouTeamConfigFile(parsed)) {
         return parsed;
       }
     } catch (error) {
@@ -290,17 +308,17 @@ export function createDefaultCrewBeeConfig(): CrewBeeConfigFile {
   }
 
   return {
-    config_version: CREWBEE_CONFIG_VERSION,
+    config_version: AIYOU_TEAM_CONFIG_VERSION,
     teams: [createDefaultCodingTeamConfigEntry()],
   };
 }
 
-function writeCrewBeeConfig(configPath: string, config: CrewBeeConfigFile): void {
+function writeAiyouTeamConfig(configPath: string, config: AiyouTeamConfigFile): void {
   mkdirSync(path.dirname(configPath), { recursive: true });
   writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
 }
 
-function resolveCrewBeeConfigBackupPath(configPath: string): string {
+function resolveAiyouTeamConfigBackupPath(configPath: string): string {
   const basePath = `${configPath}.bak`;
   if (!existsSync(basePath)) {
     return basePath;
@@ -317,14 +335,14 @@ function resolveCrewBeeConfigBackupPath(configPath: string): string {
   }
 }
 
-function backupCrewBeeConfig(configPath: string, rawText: string): string {
-  const backupPath = resolveCrewBeeConfigBackupPath(configPath);
+function backupAiyouTeamConfig(configPath: string, rawText: string): string {
+  const backupPath = resolveAiyouTeamConfigBackupPath(configPath);
   mkdirSync(path.dirname(backupPath), { recursive: true });
   writeFileSync(backupPath, rawText, "utf8");
   return backupPath;
 }
 
-function parseCrewBeeConfigForEnsure(configPath: string): {
+function parseAiyouTeamConfigForEnsure(configPath: string): {
   config?: Record<string, unknown>;
   rawText?: string;
   valid: boolean;
@@ -350,9 +368,9 @@ function parseCrewBeeConfigForEnsure(configPath: string): {
   }
 }
 
-function createUpdatedCrewBeeConfigWithDefaultTeam(config: Record<string, unknown>): {
+function createUpdatedAiyouTeamConfigWithDefaultTeam(config: Record<string, unknown>): {
   changed: boolean;
-  next: CrewBeeConfigFile;
+  next: AiyouTeamConfigFile;
 } {
   const rawTeams = config.teams;
   const teams = Array.isArray(rawTeams)
@@ -374,24 +392,24 @@ function createUpdatedCrewBeeConfigWithDefaultTeam(config: Record<string, unknow
  * fields while preserving all user-configured values. Returns whether any
  * changes were made and the resulting config.
  */
-function migrateCrewBeeConfig(existing: Record<string, unknown>): {
+function migrateAiyouTeamConfig(existing: Record<string, unknown>): {
   changed: boolean;
-  config: CrewBeeConfigFile;
+  config: AiyouTeamConfigFile;
 } {
   const currentVersion = typeof existing.config_version === "number" ? existing.config_version : 1;
 
-  if (currentVersion >= CREWBEE_CONFIG_VERSION) {
+  if (currentVersion >= AIYOU_TEAM_CONFIG_VERSION) {
     // Already up-to-date; cast and return as-is.
-    return { changed: false, config: existing as unknown as CrewBeeConfigFile };
+    return { changed: false, config: existing as unknown as AiyouTeamConfigFile };
   }
 
-  const defaults = createDefaultCrewBeeConfig();
+  const defaults = createDefaultAiyouTeamConfig();
 
   // Start with a shallow copy of the existing config so we preserve all user keys.
   const migrated: Record<string, unknown> = { ...existing };
 
   // Stamp the new version.
-  migrated.config_version = CREWBEE_CONFIG_VERSION;
+  migrated.config_version = AIYOU_TEAM_CONFIG_VERSION;
 
   // Merge top-level keys from defaults that are missing in the existing config.
   for (const key of Object.keys(defaults)) {
@@ -460,21 +478,21 @@ function migrateCrewBeeConfig(existing: Record<string, unknown>): {
 
   migrated.teams = mergedTeams;
 
-  return { changed: true, config: migrated as unknown as CrewBeeConfigFile };
+  return { changed: true, config: migrated as unknown as AiyouTeamConfigFile };
 }
 
-export function ensureCrewBeeConfigFile(input: {
+export function ensureAiyouTeamConfigFile(input: {
   configRoot?: string;
   dryRun?: boolean;
   mode: "install" | "startup";
-}): CrewBeeConfigEnsureResult {
+}): AiyouTeamConfigEnsureResult {
   const configRoot = input.configRoot ?? resolveOpenCodeConfigRoot();
-  const configPath = resolveCrewBeeConfigPath(configRoot);
+  const configPath = resolveAiyouTeamConfigPath(configRoot);
 
   if (!existsSync(configPath)) {
     if (!input.dryRun) {
       ensurePackagedTeamTemplates(configRoot);
-      writeCrewBeeConfig(configPath, createDefaultCrewBeeConfig());
+      writeAiyouTeamConfig(configPath, createDefaultAiyouTeamConfig());
     }
 
     return {
@@ -484,15 +502,15 @@ export function ensureCrewBeeConfigFile(input: {
     };
   }
 
-  const parsed = parseCrewBeeConfigForEnsure(configPath);
+  const parsed = parseAiyouTeamConfigForEnsure(configPath);
   if (!parsed.valid || !parsed.config) {
     const backupPath = !input.dryRun && parsed.rawText !== undefined
-      ? backupCrewBeeConfig(configPath, parsed.rawText)
+      ? backupAiyouTeamConfig(configPath, parsed.rawText)
       : undefined;
 
     if (!input.dryRun) {
       ensurePackagedTeamTemplates(configRoot);
-      writeCrewBeeConfig(configPath, createDefaultCrewBeeConfig());
+      writeAiyouTeamConfig(configPath, createDefaultAiyouTeamConfig());
     }
 
     return {
@@ -505,9 +523,9 @@ export function ensureCrewBeeConfigFile(input: {
 
   if (input.mode === "startup") {
     // Even in startup mode, migrate outdated configs to add new default fields.
-    const migration = migrateCrewBeeConfig(parsed.config);
+    const migration = migrateAiyouTeamConfig(parsed.config);
     if (migration.changed && !input.dryRun) {
-      writeCrewBeeConfig(configPath, migration.config);
+      writeAiyouTeamConfig(configPath, migration.config);
     }
 
     return {
@@ -517,10 +535,10 @@ export function ensureCrewBeeConfigFile(input: {
     };
   }
 
-  const updated = createUpdatedCrewBeeConfigWithDefaultTeam(parsed.config);
+  const updated = createUpdatedAiyouTeamConfigWithDefaultTeam(parsed.config);
   
   // After ensuring the coding team exists, also migrate to latest config version.
-  const migration = migrateCrewBeeConfig(updated.next as unknown as Record<string, unknown>);
+  const migration = migrateAiyouTeamConfig(updated.next as unknown as Record<string, unknown>);
   const finalConfig = migration.config;
   const changed = updated.changed || migration.changed;
 
@@ -533,7 +551,7 @@ export function ensureCrewBeeConfigFile(input: {
   }
 
   if (!input.dryRun) {
-    writeCrewBeeConfig(configPath, finalConfig);
+    writeAiyouTeamConfig(configPath, finalConfig);
   }
 
   return {
@@ -573,8 +591,8 @@ function normalizeConfiguredTeamEntry(input: {
     return {
       issues: [createConfigIssue({
         configPath: input.configPath,
-        message: `crewbee.json teams[${input.index}] must be an object.`,
-        code: "crewbee_config_team_entry_invalid",
+        message: `aiyou-team.json teams[${input.index}] must be an object.`,
+        code: "aiyou_team_config_team_entry_invalid",
         path: `teams[${input.index}]`,
         sourceScope: input.sourceScope,
         suggestion: "Replace this entry with an object containing either id or path.",
@@ -590,8 +608,8 @@ function normalizeConfiguredTeamEntry(input: {
     return {
       issues: [createConfigIssue({
         configPath: input.configPath,
-        message: `crewbee.json teams[${input.index}] cannot declare both id and path.`,
-        code: "crewbee_config_team_entry_conflict",
+        message: `aiyou-team.json teams[${input.index}] cannot declare both id and path.`,
+        code: "aiyou_team_config_team_entry_conflict",
         path: `teams[${input.index}]`,
         sourceScope: input.sourceScope,
         suggestion: "Keep id for embedded Teams or path for filesystem Teams, not both.",
@@ -603,8 +621,8 @@ function normalizeConfiguredTeamEntry(input: {
     return {
       issues: [createConfigIssue({
         configPath: input.configPath,
-        message: `crewbee.json teams[${input.index}] must declare either id or path.`,
-        code: "crewbee_config_team_entry_missing_source",
+        message: `aiyou-team.json teams[${input.index}] must declare either id or path.`,
+        code: "aiyou_team_config_team_entry_missing_source",
         path: `teams[${input.index}]`,
         sourceScope: input.sourceScope,
         suggestion: "Add an embedded Team id or a filesystem Team path.",
@@ -616,8 +634,8 @@ function normalizeConfiguredTeamEntry(input: {
     return {
       issues: [createConfigIssue({
         configPath: input.configPath,
-        message: `crewbee.json teams[${input.index}].enabled must be a boolean when provided.`,
-        code: "crewbee_config_team_entry_enabled_invalid",
+        message: `aiyou-team.json teams[${input.index}].enabled must be a boolean when provided.`,
+        code: "aiyou_team_config_team_entry_enabled_invalid",
         path: `teams[${input.index}].enabled`,
         sourceScope: input.sourceScope,
         suggestion: "Use true or false for enabled.",
@@ -629,8 +647,8 @@ function normalizeConfiguredTeamEntry(input: {
     return {
       issues: [createConfigIssue({
         configPath: input.configPath,
-        message: `crewbee.json teams[${input.index}].priority must be a finite number when provided.`,
-        code: "crewbee_config_team_entry_priority_invalid",
+        message: `aiyou-team.json teams[${input.index}].priority must be a finite number when provided.`,
+        code: "aiyou_team_config_team_entry_priority_invalid",
         path: `teams[${input.index}].priority`,
         sourceScope: input.sourceScope,
         suggestion: "Use a finite numeric priority; lower values load first.",
@@ -675,11 +693,11 @@ function normalizeConfiguredTeamEntry(input: {
     return {
       issues: [createConfigIssue({
         configPath: input.configPath,
-        message: `crewbee.json teams[${input.index}].path is invalid: ${message}`,
-        code: "crewbee_config_team_entry_path_invalid",
+        message: `aiyou-team.json teams[${input.index}].path is invalid: ${message}`,
+        code: "aiyou_team_config_team_entry_path_invalid",
         path: `teams[${input.index}].path`,
         sourceScope: input.sourceScope,
-        suggestion: "Use an absolute path, ~/path, or @path relative to the crewbee.json directory.",
+        suggestion: "Use an absolute path, ~/path, or @path relative to the aiyou-team.json directory.",
       })],
     };
   }
@@ -699,8 +717,8 @@ function dedupeConfiguredTeamSources(input: {
     if (seen.has(key)) {
       issues.push(createConfigIssue({
         configPath: input.configPath,
-        message: `crewbee.json contains a duplicate Team entry for '${key}'.`,
-        code: "crewbee_config_duplicate_team_entry",
+        message: `aiyou-team.json contains a duplicate Team entry for '${key}'.`,
+        code: "aiyou_team_config_duplicate_team_entry",
         suggestion: "Remove the duplicate Team entry; the first matching entry is used.",
       }));
       return false;
@@ -713,12 +731,12 @@ function dedupeConfiguredTeamSources(input: {
   return { sources, issues };
 }
 
-export function resolveCrewBeeConfigPath(configRoot: string = resolveOpenCodeConfigRoot()): string {
-  return path.join(configRoot, CREWBEE_CONFIG_FILE);
+export function resolveAiyouTeamConfigPath(configRoot: string = resolveOpenCodeConfigRoot()): string {
+  return path.join(configRoot, AIYOU_TEAM_CONFIG_FILE);
 }
 
-function resolveProjectCrewBeeConfigRoot(worktree: string): string {
-  return path.join(worktree, ".crewbee");
+function resolveProjectAiyouTeamConfigRoot(worktree: string): string {
+  return path.join(worktree, ".aiyou-team");
 }
 
 function createConfiguredTeamSourceDescriptors(input: {
@@ -728,11 +746,11 @@ function createConfiguredTeamSourceDescriptors(input: {
   const sources: TeamConfigSourceDescriptor[] = [];
 
   if (input.projectWorktree) {
-    const projectConfigRoot = resolveProjectCrewBeeConfigRoot(input.projectWorktree);
+    const projectConfigRoot = resolveProjectAiyouTeamConfigRoot(input.projectWorktree);
     sources.push({
       scope: "project",
       configRoot: projectConfigRoot,
-      configPath: resolveCrewBeeConfigPath(projectConfigRoot),
+      configPath: resolveAiyouTeamConfigPath(projectConfigRoot),
       precedence: 0,
       addDefaultCodingTeam: false,
       missingIsWarning: false,
@@ -742,7 +760,7 @@ function createConfiguredTeamSourceDescriptors(input: {
   sources.push({
     scope: "global",
     configRoot: input.globalConfigRoot,
-    configPath: resolveCrewBeeConfigPath(input.globalConfigRoot),
+    configPath: resolveAiyouTeamConfigPath(input.globalConfigRoot),
     precedence: 1,
     addDefaultCodingTeam: true,
     missingIsWarning: false,
@@ -751,10 +769,7 @@ function createConfiguredTeamSourceDescriptors(input: {
   return sources;
 }
 
-function listConfiguredTeamSourcesFromDescriptor(descriptor: TeamConfigSourceDescriptor): {
-  sources: ConfiguredTeamSource[];
-  issues: TeamValidationIssue[];
-} {
+function listConfiguredTeamSourcesFromDescriptor(descriptor: TeamConfigSourceDescriptor): ConfiguredTeamSourceResult {
   const configPath = descriptor.configPath;
 
   if (!existsSync(configPath)) {
@@ -768,14 +783,15 @@ function listConfiguredTeamSourcesFromDescriptor(descriptor: TeamConfigSourceDes
         : [],
       issues: descriptor.missingIsWarning ? [createConfigIssue({
         configPath,
-        message: `crewbee.json source '${descriptor.scope}' does not exist.`,
-        code: "crewbee_config_missing",
+        message: `aiyou-team.json source '${descriptor.scope}' does not exist.`,
+        code: "aiyou_team_config_missing",
         sourceScope: descriptor.scope,
       })] : [],
+      language: DEFAULT_LANGUAGE,
     };
   }
 
-  let parsed: RawCrewBeeTeamConfig;
+  let parsed: RawAiyouTeamConfig;
 
   try {
     const rawConfig = readFileSync(configPath, "utf8");
@@ -792,18 +808,19 @@ function listConfiguredTeamSourcesFromDescriptor(descriptor: TeamConfigSourceDes
           : [],
         issues: [createConfigIssue({
           configPath,
-          message: "crewbee.json must contain a top-level object.",
-          code: "crewbee_config_root_invalid",
+          message: "aiyou-team.json must contain a top-level object.",
+          code: "aiyou_team_config_root_invalid",
           sourceScope: descriptor.scope,
           fixable: descriptor.addDefaultCodingTeam,
           suggestion: descriptor.addDefaultCodingTeam
-            ? "Run crewbee install to rewrite the global crewbee.json from the packaged template."
-            : "Replace project crewbee.json with an object containing a teams array.",
+            ? "Run aiyou-team install to rewrite the global aiyou-team.json from the packaged template."
+            : "Replace project aiyou-team.json with an object containing a teams array.",
         })],
+        language: DEFAULT_LANGUAGE,
       };
     }
 
-    parsed = value as RawCrewBeeTeamConfig;
+    parsed = value as RawAiyouTeamConfig;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return {
@@ -816,14 +833,15 @@ function listConfiguredTeamSourcesFromDescriptor(descriptor: TeamConfigSourceDes
         : [],
       issues: [createConfigIssue({
         configPath,
-        message: `Failed to parse crewbee.json: ${message}`,
-        code: "crewbee_config_parse_failed",
+        message: `Failed to parse aiyou-team.json: ${message}`,
+        code: "aiyou_team_config_parse_failed",
         sourceScope: descriptor.scope,
         fixable: descriptor.addDefaultCodingTeam,
         suggestion: descriptor.addDefaultCodingTeam
           ? "The global config can be safely repaired from the packaged template on install or plugin startup."
           : "Fix the JSON syntax; project configs are reported but not auto-rewritten.",
       })],
+      language: DEFAULT_LANGUAGE,
     };
   }
 
@@ -838,15 +856,16 @@ function listConfiguredTeamSourcesFromDescriptor(descriptor: TeamConfigSourceDes
         : [],
       issues: [createConfigIssue({
         configPath,
-        message: "crewbee.json teams must be an array when provided.",
-        code: "crewbee_config_teams_invalid",
+        message: "aiyou-team.json teams must be an array when provided.",
+        code: "aiyou_team_config_teams_invalid",
         path: "teams",
         sourceScope: descriptor.scope,
         fixable: descriptor.addDefaultCodingTeam,
         suggestion: descriptor.addDefaultCodingTeam
           ? "The global config can be safely repaired from the packaged template on install or plugin startup."
-          : "Use teams: [] or a list of Team entries in project crewbee.json.",
+          : "Use teams: [] or a list of Team entries in project aiyou-team.json.",
       })],
+      language: DEFAULT_LANGUAGE,
     };
   }
 
@@ -875,9 +894,12 @@ function listConfiguredTeamSourcesFromDescriptor(descriptor: TeamConfigSourceDes
     configPath,
   });
 
+  const language = normalizeLanguage(parsed.language);
+
   return {
     sources: deduped.sources,
     issues: [...issues, ...deduped.issues],
+    language,
   };
 }
 
@@ -887,6 +909,7 @@ export function listConfiguredTeamSources(input?: string | {
 }): {
   sources: ConfiguredTeamSource[];
   issues: TeamValidationIssue[];
+  language: AiyouTeamLanguage;
 } {
   const globalConfigRoot = typeof input === "string"
     ? input
@@ -895,9 +918,15 @@ export function listConfiguredTeamSources(input?: string | {
   const descriptors = createConfiguredTeamSourceDescriptors({ globalConfigRoot, projectWorktree });
   const resolved = descriptors.map((descriptor) => listConfiguredTeamSourcesFromDescriptor(descriptor));
 
+  // Use the highest-precedence config's language (project > global)
+  const language = resolved.reduce<AiyouTeamLanguage>((lang, entry) => {
+    return entry.language !== DEFAULT_LANGUAGE ? entry.language : lang;
+  }, DEFAULT_LANGUAGE);
+
   return {
     sources: resolved.flatMap((entry) => entry.sources),
     issues: resolved.flatMap((entry) => entry.issues),
+    language,
   };
 }
 
@@ -920,8 +949,9 @@ export function listTeamDirectories(teamRoot: string = resolveTeamConfigRoot()):
 export function loadTeamDefinitionFromDirectory(
   teamDir: string,
   workspaceRoot: string = process.cwd(),
+  language?: AiyouTeamLanguage,
 ): AgentTeamDefinition {
-  return loadTeamDefinitionFromDirectoryWithIssues(teamDir, workspaceRoot).team;
+  return loadTeamDefinitionFromDirectoryWithIssues(teamDir, workspaceRoot, language).team;
 }
 
 function createSkippedAgentIssue(filePath: string, message: string): TeamValidationIssue {
@@ -935,19 +965,42 @@ function createSkippedAgentIssue(filePath: string, message: string): TeamValidat
   };
 }
 
+function resolveLanguageFile(dir: string, baseName: string, lang: AiyouTeamLanguage, ext: string): string {
+  if (lang !== DEFAULT_LANGUAGE) {
+    const langPath = path.join(dir, `${baseName.replace(ext, `.${lang}${ext}`)}`);
+    if (existsSync(langPath)) return langPath;
+  }
+  return path.join(dir, baseName);
+}
+
 export function loadTeamDefinitionFromDirectoryWithIssues(
   teamDir: string,
   workspaceRoot: string = process.cwd(),
+  language?: AiyouTeamLanguage,
 ): { team: AgentTeamDefinition; issues: TeamValidationIssue[] } {
-  const manifest = mapTeamManifest(path.join(teamDir, TEAM_MANIFEST_FILE));
+  const lang = language ?? DEFAULT_LANGUAGE;
+
+  const manifestPath = resolveLanguageFile(teamDir, TEAM_MANIFEST_FILE, lang, ".yaml");
+  const manifest = mapTeamManifest(manifestPath);
   const policyPath = path.join(teamDir, TEAM_POLICY_FILE);
 
   if (!existsSync(policyPath)) {
     throw new Error(`${teamDir} is missing ${TEAM_POLICY_FILE}.`);
   }
 
-  const agentFiles = readdirSync(teamDir)
-    .filter((entry) => entry.endsWith(".agent.md"))
+  const allFiles = readdirSync(teamDir).sort();
+  const langSuffix = lang !== DEFAULT_LANGUAGE ? `.${lang}` : "";
+
+  const agentFiles = allFiles
+    .filter((entry) => {
+      if (!entry.endsWith(".agent.md")) return false;
+      if (langSuffix && entry.includes(langSuffix)) return true;
+      if (langSuffix) {
+        const langVersion = entry.replace(".agent.md", `${langSuffix}.agent.md`);
+        return !allFiles.includes(langVersion);
+      }
+      return true;
+    })
     .sort();
 
   const issues: TeamValidationIssue[] = [];

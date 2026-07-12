@@ -6,7 +6,7 @@ Language: English | [中文](./opencode-runtime-simulator.zh-CN.md)
 
 This simulator exists only for local testing and understanding.
 
-It is used to emulate the current OpenCode runtime path of CrewBee:
+It is used to emulate the current OpenCode runtime path of aiyou-team:
 
 - plugin module loading
 - plugin initialization
@@ -17,7 +17,7 @@ It is used to emulate the current OpenCode runtime path of CrewBee:
 It is not part of the production runtime and is not included in published package files.
 
 Important: the simulator records only the OpenCode-visible side of the run.
-It does not expose CrewBee-internal structures such as projected TeamLibrary data or bootstrap internals.
+It does not expose aiyou-team-internal structures such as projected TeamLibrary data or bootstrap internals.
 
 ---
 
@@ -71,9 +71,9 @@ It does not simulate:
 - tool execution hooks
 - real LLM requests
 - session persistence
-- a full host runloop beyond the currently implemented CrewBee hooks
+- a full host runloop beyond the currently implemented aiyou-team hooks
 
-This is intentional. The goal is to test and understand CrewBee's current implementation surface, not to rebuild OpenCode.
+This is intentional. The goal is to test and understand aiyou-team's current implementation surface, not to rebuild OpenCode.
 
 ---
 
@@ -116,7 +116,7 @@ npm run simulate:opencode -- --worktree E:/path/to/worktree
 Use a custom output root:
 
 ```bash
-npm run simulate:opencode -- --outdir E:/tmp/crewbee-sim-runs
+npm run simulate:opencode -- --outdir E:/tmp/aiyou-team-sim-runs
 ```
 
 Windows one-click run:

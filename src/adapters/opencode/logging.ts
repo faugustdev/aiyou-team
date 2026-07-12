@@ -1,19 +1,19 @@
 import type { Plugin, PluginInput } from "@opencode-ai/plugin";
-import { shouldEmitCrewBeeLog, type CrewBeeLogLevel } from "../../runtime/logging";
+import { shouldEmitAiyouTeamLog, type AiyouTeamLogLevel } from "../../runtime/logging";
 
-export async function logCrewBee(
+export async function logAiyouTeam(
   ctx: PluginInput | Parameters<Plugin>[0],
   message: string,
   extra?: Record<string, unknown>,
-  level: CrewBeeLogLevel = "info",
+  level: AiyouTeamLogLevel = "info",
 ): Promise<void> {
-  if (!shouldEmitCrewBeeLog(level)) {
+  if (!shouldEmitAiyouTeamLog(level)) {
     return;
   }
 
   await ctx.client.app.log({
     body: {
-      service: "crewbee",
+      service: "aiyou-team",
       level,
       message,
       extra,

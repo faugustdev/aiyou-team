@@ -1,13 +1,13 @@
-import { listImplementedCrewBeePluginTools } from "./plugin-tools";
+import { listImplementedAiyouTeamPluginTools } from "./plugin-tools";
 
 export interface AvailableToolDefinition {
   id: string;
-  source: "host-provided" | "crewbee-plugin" | "default-placeholder";
+  source: "host-provided" | "aiyou-team-plugin" | "default-placeholder";
 }
 
 export interface AvailableToolContext {
   tools: AvailableToolDefinition[];
-  source: "host-provided" | "crewbee-plugin" | "merged" | "default-placeholder";
+  source: "host-provided" | "aiyou-team-plugin" | "merged" | "default-placeholder";
   hasExplicitTools: boolean;
 }
 
@@ -23,7 +23,7 @@ export function createAvailableToolContext(
   tools?: readonly (string | AvailableToolDefinition)[],
 ): AvailableToolContext {
   const hostTools = tools?.map(normalizeTool) ?? [];
-  const pluginTools = listImplementedCrewBeePluginTools().map((tool) => ({
+  const pluginTools = listImplementedAiyouTeamPluginTools().map((tool) => ({
     id: tool.id,
     source: tool.source,
   }));
@@ -51,7 +51,7 @@ export function createAvailableToolContext(
     ? "merged"
     : hostTools.length > 0
       ? "host-provided"
-      : "crewbee-plugin";
+      : "aiyou-team-plugin";
 
   return {
     tools: mergedTools,

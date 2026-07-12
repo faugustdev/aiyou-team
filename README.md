@@ -15,6 +15,20 @@ aiyou-team provides structured agent teams that work with aiyou-dev and OpenCode
 
 ## Quick Start
 
+### Via aiyoucli (recommended)
+
+```bash
+# Initialize with OpenCode + agent teams
+aiyoucli init --tool opencode
+
+# This will:
+#   1. Generate opencode.json with aiyou-team plugin
+#   2. Install @aiyou-dev/team globally (if not present)
+#   3. Run aiyou-team setup to configure teams
+```
+
+### Standalone
+
 ```bash
 # Install
 npm install -g @aiyou-dev/team
@@ -127,7 +141,7 @@ governance:
 
 ## Configuration
 
-Teams are configured in `crewbee.json` (or `aiyou-team.json`):
+Teams are configured in `aiyou-team.json`:
 
 ```json
 {

@@ -21,7 +21,7 @@ const args = parseArgs({
 })
 
 const asJson = Boolean(args.values.json)
-const worktree = args.values.worktree ? path.resolve(args.values.worktree) : fs.mkdtempSync(path.join(os.tmpdir(), "crewbee-compact-check-"))
+const worktree = args.values.worktree ? path.resolve(args.values.worktree) : fs.mkdtempSync(path.join(os.tmpdir(), "aiyou-team-compact-check-"))
 const outroot = args.values.outdir ? path.resolve(args.values.outdir) : path.join(root, "simulators", "runs")
 const pluginEntry = pathToFileURL(path.join(root, "dist", "src", "adapters", "opencode", "plugin.js")).href
 
@@ -159,7 +159,7 @@ function evaluate(summary) {
 
 function createTextSummary(run) {
   const lines = [
-    "CrewBee OpenCode Compact Check",
+    "aiyou-team OpenCode Compact Check",
     "==============================",
     `Plugin Entry: ${run.pluginEntry}`,
     `Worktree: ${run.worktree}`,
@@ -193,7 +193,7 @@ function createTextSummary(run) {
 
 const fixture = createFixture()
 const mod = await import(pluginEntry)
-const plugin = await mod.OpenCodeCrewBeePlugin(fixture.input)
+const plugin = await mod.OpenCodeAiyouTeamPlugin(fixture.input)
 const config = { agent: {} }
 
 await plugin.config?.(config)

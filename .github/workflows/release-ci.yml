@@ -64,9 +64,9 @@ jobs:
             fi
           fi
 
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/crewbee/${VERSION}")
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/aiyou-team/${VERSION}")
           if [ "$STATUS" = "200" ]; then
-            echo "::error::crewbee@${VERSION} is already published."
+            echo "::error::aiyou-team@${VERSION} is already published."
             exit 1
           fi
 
@@ -105,7 +105,7 @@ jobs:
       - name: Install OpenCode CLI
         run: npm install -g opencode-ai@latest
 
-      - name: Install local CrewBee package
+      - name: Install local aiyou-team package
         run: npm run install:local:user
 
       - name: Run doctor
@@ -117,7 +117,7 @@ jobs:
       - name: Smoke test packed package
         run: |
           set -euo pipefail
-          TARBALL=$(find .artifacts/release -name 'crewbee-*.tgz' -print -quit)
+          TARBALL=$(find .artifacts/release -name 'aiyou-team-*.tgz' -print -quit)
           if [ -z "$TARBALL" ]; then
             echo "::error::release tarball was not generated."
             exit 1
@@ -132,16 +132,16 @@ jobs:
           opencode agent list --print-logs --log-level DEBUG
 
   prepare-release:
-    if: github.repository == 'CrewBeeLab/CrewBee' && github.event_name == 'workflow_dispatch'
+    if: github.repository == 'faugustdev/aiyou-team' && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Require automation token
         env:
-          CREWBEE_AUTOMATION_TOKEN: ${{ secrets.CREWBEE_AUTOMATION_TOKEN }}
+          AIYOU_TEAM_AUTOMATION_TOKEN: ${{ secrets.AIYOU_TEAM_AUTOMATION_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -z "$CREWBEE_AUTOMATION_TOKEN" ]; then
-            echo "::error::CREWBEE_AUTOMATION_TOKEN is required so the release commit can trigger release-tag.yml."
+          if [ -z "$AIYOU_TEAM_AUTOMATION_TOKEN" ]; then
+            echo "::error::AIYOU_TEAM_AUTOMATION_TOKEN is required so the release commit can trigger release-tag.yml."
             exit 1
           fi
 
@@ -149,7 +149,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ secrets.CREWBEE_AUTOMATION_TOKEN }}
+          token: ${{ secrets.AIYOU_TEAM_AUTOMATION_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -177,7 +177,7 @@ jobs:
       - name: Install OpenCode CLI
         run: npm install -g opencode-ai@latest
 
-      - name: Install local CrewBee package
+      - name: Install local aiyou-team package
         run: npm run install:local:user
 
       - name: Run doctor
@@ -189,7 +189,7 @@ jobs:
       - name: Smoke test packed package
         run: |
           set -euo pipefail
-          TARBALL=$(find .artifacts/release -name 'crewbee-*.tgz' -print -quit)
+          TARBALL=$(find .artifacts/release -name 'aiyou-team-*.tgz' -print -quit)
           if [ -z "$TARBALL" ]; then
             echo "::error::release tarball was not generated."
             exit 1
@@ -212,9 +212,9 @@ jobs:
           set -euo pipefail
 
           export LOCAL_VERSION=$(node -p "require('./package.json').version")
-          export REGISTRY_VERSION=$(npm view crewbee version --silent 2>/dev/null || true)
+          export REGISTRY_VERSION=$(npm view aiyou-team version --silent 2>/dev/null || true)
 
-          node <<'NODE' > /tmp/crewbee-release-version.env
+          node <<'NODE' > /tmp/aiyou-team-release-version.env
           const fs = require('node:fs');
 
           const localVersion = process.env.LOCAL_VERSION;
@@ -261,18 +261,18 @@ jobs:
             throw new Error(`Release version ${nextVersion} must be greater than base version ${baseVersion}.`);
           }
 
-          fs.writeFileSync('/tmp/crewbee-release-version.env', `NEXT_VERSION=${nextVersion}\nBASE_VERSION=${baseVersion}\nLOCAL_VERSION=${localVersion}\nREGISTRY_VERSION=${registryVersion || ''}\n`);
+          fs.writeFileSync('/tmp/aiyou-team-release-version.env', `NEXT_VERSION=${nextVersion}\nBASE_VERSION=${baseVersion}\nLOCAL_VERSION=${localVersion}\nREGISTRY_VERSION=${registryVersion || ''}\n`);
           NODE
 
-          cat /tmp/crewbee-release-version.env >> "$GITHUB_ENV"
-          cat /tmp/crewbee-release-version.env >> "$GITHUB_OUTPUT"
+          cat /tmp/aiyou-team-release-version.env >> "$GITHUB_ENV"
+          cat /tmp/aiyou-team-release-version.env >> "$GITHUB_OUTPUT"
 
       - name: Reject already published version
         run: |
           set -euo pipefail
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/crewbee/${NEXT_VERSION}")
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/aiyou-team/${NEXT_VERSION}")
           if [ "$STATUS" = "200" ]; then
-            echo "::error::crewbee@${NEXT_VERSION} is already published."
+            echo "::error::aiyou-team@${NEXT_VERSION} is already published."
             exit 1
           fi
 

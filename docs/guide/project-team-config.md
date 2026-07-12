@@ -1,14 +1,14 @@
-# CrewBee 项目级 Team 配置方案
+# aiyou-team 项目级 Team 配置方案
 
 语言：中文 | [English](./project-team-config.en.md)
 
 适用对象：配置全局 Team 和项目级 Team 的**用户与 Team 作者**。仓库发布和 CI/CD 流程见[发布与 CI/CD 指南](../developer/release.zh-CN.md)。
 
-> Status: implemented and published in `crewbee@0.1.9`. This document describes the current project/global Team configuration model and the architectural constraints that keep both sources on the same assembly path.
+> Status: implemented and published in `aiyou-team@0.1.9`. This document describes the current project/global Team configuration model and the architectural constraints that keep both sources on the same assembly path.
 
 ## 1. 设计结论
 
-P0 目标是让 CrewBee 同时支持 **全局 Team** 和 **项目 Team**，并让项目 Team 在当前项目中天然优先于全局 Team。
+P0 目标是让 aiyou-team 同时支持 **全局 Team** 和 **项目 Team**，并让项目 Team 在当前项目中天然优先于全局 Team。
 
 新的配置方案不引入第二套项目 Team 机制：
 
@@ -18,8 +18,8 @@ P0 目标是让 CrewBee 同时支持 **全局 Team** 和 **项目 Team**，并�
 
 | 维度 | 全局 Team | 项目 Team |
 | --- | --- | --- |
-| 配置文件位置 | OpenCode config root 下的 `crewbee.json` | 项目工作空间下的 `.crewbee/crewbee.json` |
-| 路径解析基准 | OpenCode config root | 项目 `.crewbee` 目录 |
+| 配置文件位置 | OpenCode config root 下的 `aiyou-team.json` | 项目工作空间下的 `.aiyou-team/aiyou-team.json` |
+| 路径解析基准 | OpenCode config root | 项目 `.aiyou-team` 目录 |
 | scope 语义 | `global` | `project` |
 | source 优先级 | 低于 project | 高于 global |
 | `teams` schema | 相同 | 相同 |
@@ -29,7 +29,7 @@ P0 目标是让 CrewBee 同时支持 **全局 Team** 和 **项目 Team**，并�
 
 核心原则：
 
-> **CrewBee 在 OpenCode bootstrap / config 阶段统一收集所有 `crewbee.json`，把其中的 `teams` 配置项统一归一化为 Team Registration，再进入同一套 Team 发现、解析、校验、装配、投影、默认 Agent 选择流程。项目配置不是新流程，只是更高优先级的配置来源。**
+> **aiyou-team 在 OpenCode bootstrap / config 阶段统一收集所有 `aiyou-team.json`，把其中的 `teams` 配置项统一归一化为 Team Registration，再进入同一套 Team 发现、解析、校验、装配、投影、默认 Agent 选择流程。项目配置不是新流程，只是更高优先级的配置来源。**
 
 ---
 
@@ -39,7 +39,7 @@ P0 目标是让 CrewBee 同时支持 **全局 Team** 和 **项目 Team**，并�
 
 ```text
 templates/
-  crewbee.json
+  aiyou-team.json
   teams/
     general-team/
     template-team/
@@ -50,7 +50,7 @@ templates/
 
 ```text
 <OpenCodeConfigRoot>/
-  crewbee.json
+  aiyou-team.json
   teams/
     general-team/
     template-team/
@@ -59,10 +59,10 @@ templates/
 
 本方案在这个机制之上迭代：
 
-1. 全局配置继续使用安装后的 `<OpenCodeConfigRoot>/crewbee.json`。
-2. 项目配置新增 `<worktree>/.crewbee/crewbee.json`。
+1. 全局配置继续使用安装后的 `<OpenCodeConfigRoot>/aiyou-team.json`。
+2. 项目配置新增 `<worktree>/.aiyou-team/aiyou-team.json`。
 3. 两者使用完全相同的 `teams` schema。
-4. `@teams/...` 的语义统一为：去掉 `@` 后，相对于当前 `crewbee.json` 所在目录。
+4. `@teams/...` 的语义统一为：去掉 `@` 后，相对于当前 `aiyou-team.json` 所在目录。
 
 因此：
 
@@ -71,7 +71,7 @@ global  @teams/general-team
   -> <OpenCodeConfigRoot>/teams/general-team
 
 project @teams/project-coding-team
-  -> <worktree>/.crewbee/teams/project-coding-team
+  -> <worktree>/.aiyou-team/teams/project-coding-team
 ```
 
 项目级 Team 不需要新的目录结构、模板格式、loader、validator、projection 或 prompt builder。
@@ -85,13 +85,13 @@ project @teams/project-coding-team
 全局配置位于 OpenCode 配置目录：
 
 ```text
-~/.config/opencode/crewbee.json
+~/.config/opencode/aiyou-team.json
 ```
 
 Windows 通常是：
 
 ```text
-C:\Users\<你的用户名>\.config\opencode\crewbee.json
+C:\Users\<你的用户名>\.config\opencode\aiyou-team.json
 ```
 
 示例：
@@ -107,10 +107,10 @@ C:\Users\<你的用户名>\.config\opencode\crewbee.json
 
 ### 3.2 项目配置
 
-项目配置位于当前 OpenCode 工作项目的 `.crewbee` 目录：
+项目配置位于当前 OpenCode 工作项目的 `.aiyou-team` 目录：
 
 ```text
-<project-worktree>/.crewbee/crewbee.json
+<project-worktree>/.aiyou-team/aiyou-team.json
 ```
 
 示例：
@@ -128,8 +128,8 @@ C:\Users\<你的用户名>\.config\opencode\crewbee.json
 
 ```text
 <project-worktree>/
-  .crewbee/
-    crewbee.json
+  .aiyou-team/
+    aiyou-team.json
     teams/
       project-coding-team/
         team.manifest.yaml
@@ -179,9 +179,9 @@ README.md
 
 ---
 
-## 5. `crewbee.json` Schema 保持同构
+## 5. `aiyou-team.json` Schema 保持同构
 
-全局 `crewbee.json` 和项目 `.crewbee/crewbee.json` 使用相同 schema。
+全局 `aiyou-team.json` 和项目 `.aiyou-team/aiyou-team.json` 使用相同 schema。
 
 ### 5.1 最小结构
 
@@ -209,20 +209,20 @@ README.md
 同一个 entry 只能写 id 或 path，不能同时写。
 ```
 
-P0 不新增 `scope`、`source`、`extends`、`include` 等配置字段。`scope` 是框架根据配置文件来源派生出来的运行时语义，不由用户在 `crewbee.json` 中手写。
+P0 不新增 `scope`、`source`、`extends`、`include` 等配置字段。`scope` 是框架根据配置文件来源派生出来的运行时语义，不由用户在 `aiyou-team.json` 中手写。
 
 ---
 
 ## 6. 路径解析规则保持一致
 
-`path` 的规则不变，但基准目录必须变为“当前 `crewbee.json` 所在目录”。
+`path` 的规则不变，但基准目录必须变为“当前 `aiyou-team.json` 所在目录”。
 
 ### 6.1 全局配置里的路径
 
 配置文件：
 
 ```text
-~/.config/opencode/crewbee.json
+~/.config/opencode/aiyou-team.json
 ```
 
 配置：
@@ -242,7 +242,7 @@ P0 不新增 `scope`、`source`、`extends`、`include` 等配置字段。`scope
 配置文件：
 
 ```text
-<project-worktree>/.crewbee/crewbee.json
+<project-worktree>/.aiyou-team/aiyou-team.json
 ```
 
 配置：
@@ -254,7 +254,7 @@ P0 不新增 `scope`、`source`、`extends`、`include` 等配置字段。`scope
 实际解析为：
 
 ```text
-<project-worktree>/.crewbee/teams/ProjectCodingTeam
+<project-worktree>/.aiyou-team/teams/ProjectCodingTeam
 ```
 
 ### 6.3 支持的路径形式
@@ -262,14 +262,14 @@ P0 不新增 `scope`、`source`、`extends`、`include` 等配置字段。`scope
 ```json
 { "path": "@teams/ProjectCodingTeam" }
 { "path": "teams/ProjectCodingTeam" }
-{ "path": "~/CrewBeeTeams/ProjectCodingTeam" }
-{ "path": "E:/CrewBeeTeams/ProjectCodingTeam" }
+{ "path": "~/aiyou-teamTeams/ProjectCodingTeam" }
+{ "path": "E:/aiyou-teamTeams/ProjectCodingTeam" }
 ```
 
 | 写法 | 含义 |
 | --- | --- |
-| `@teams/xxx` | 去掉 `@` 后，相对于当前 `crewbee.json` 所在目录 |
-| `teams/xxx` | 相对于当前 `crewbee.json` 所在目录 |
+| `@teams/xxx` | 去掉 `@` 后，相对于当前 `aiyou-team.json` 所在目录 |
+| `teams/xxx` | 相对于当前 `aiyou-team.json` 所在目录 |
 | `~/xxx` | 相对于用户 home 目录 |
 | 绝对路径 | 按原样使用 |
 
@@ -302,7 +302,7 @@ P0 不新增 `scope`、`source`、`extends`、`include` 等配置字段。`scope
 推荐概念模型：
 
 ```text
-crewbee.json
+aiyou-team.json
   -> Team Registration Source
   -> Team Registration
   -> Team Package
@@ -317,14 +317,14 @@ crewbee.json
 
 ## 8. Source 语义
 
-每个 `crewbee.json` 都会被视为一个配置来源。
+每个 `aiyou-team.json` 都会被视为一个配置来源。
 
 ### 8.1 全局 source
 
 ```text
 source scope: global
 source baseDir: OpenCode config root
-source configPath: <OpenCodeConfigRoot>/crewbee.json
+source configPath: <OpenCodeConfigRoot>/aiyou-team.json
 source precedence: lower than project
 ```
 
@@ -332,8 +332,8 @@ source precedence: lower than project
 
 ```text
 source scope: project
-source baseDir: <project-worktree>/.crewbee
-source configPath: <project-worktree>/.crewbee/crewbee.json
+source baseDir: <project-worktree>/.aiyou-team
+source configPath: <project-worktree>/.aiyou-team/aiyou-team.json
 source precedence: higher than global
 ```
 
@@ -363,7 +363,7 @@ source precedence: higher than global
 
 ### 9.1 同一 source 内
 
-同一个 `crewbee.json` 中：
+同一个 `aiyou-team.json` 中：
 
 ```json
 {
@@ -442,7 +442,7 @@ OpenCode 实例初始化时的默认 Agent
 新 session 的默认入口
 ```
 
-如果用户在 OpenCode 中手动切换 Agent，CrewBee 不应该在后续 `chat.message` 阶段强行切回项目默认 Agent。
+如果用户在 OpenCode 中手动切换 Agent，aiyou-team 不应该在后续 `chat.message` 阶段强行切回项目默认 Agent。
 
 ---
 
@@ -455,10 +455,10 @@ OpenCode 实例初始化时的默认 Agent
 例如：
 
 ```text
-global crewbee.json:
+global aiyou-team.json:
   coding-team
 
-project .crewbee/crewbee.json:
+project .aiyou-team/aiyou-team.json:
   coding-team
 ```
 
@@ -562,7 +562,7 @@ Team ID 冲突应在 TeamLibrary 层先解决。只有进入 Effective TeamLibra
 
 ```text
 ~/.config/opencode/
-  crewbee.json
+  aiyou-team.json
   teams/
     ResearchOpsTeam/
       team.manifest.yaml
@@ -588,8 +588,8 @@ Team ID 冲突应在 TeamLibrary 层先解决。只有进入 Effective TeamLibra
 
 ```text
 MyProject/
-  .crewbee/
-    crewbee.json
+  .aiyou-team/
+    aiyou-team.json
     teams/
       ProjectCodingTeam/
         team.manifest.yaml
@@ -642,8 +642,8 @@ ProjectCodingTeam 的 formal leader
 ```text
 OpenCode plugin config/bootstrap
   -> 读取 ctx.worktree
-  -> 收集 global crewbee.json
-  -> 收集 project .crewbee/crewbee.json
+  -> 收集 global aiyou-team.json
+  -> 收集 project .aiyou-team/aiyou-team.json
   -> 统一装配 Effective TeamLibrary
   -> 统一生成 OpenCode agent config
 ```
@@ -662,7 +662,7 @@ OpenCode plugin config/bootstrap
 `ctx.worktree` 只负责定位项目配置：
 
 ```text
-<ctx.worktree>/.crewbee/crewbee.json
+<ctx.worktree>/.aiyou-team/aiyou-team.json
 ```
 
 之后项目配置产生的 Team Registration 就和全局配置产生的 Team Registration 一样处理。
@@ -684,7 +684,7 @@ P0 可以不做热更新。
 当用户修改：
 
 ```text
-.crewbee/crewbee.json
+.aiyou-team/aiyou-team.json
 team.manifest.yaml
 team.policy.yaml
 *.agent.md
@@ -701,7 +701,7 @@ team.policy.yaml
 行为：
 
 ```text
-只加载全局 crewbee.json
+只加载全局 aiyou-team.json
 保持现有行为
 ```
 
@@ -716,7 +716,7 @@ team.policy.yaml
 OpenCode 不应启动失败
 ```
 
-项目配置错误不应触发全局 `crewbee.json` 自修复，也不应在项目目录自动创建默认配置。
+项目配置错误不应触发全局 `aiyou-team.json` 自修复，也不应在项目目录自动创建默认配置。
 
 ### 15.3 项目 Team 路径不存在
 
@@ -759,11 +759,11 @@ OpenCode 仍可用
 全局配置继续沿用当前安装 / 启动自修复策略：
 
 ```text
-缺失或无效时，用包内 templates/crewbee.json 生成 / 修复 <OpenCodeConfigRoot>/crewbee.json
+缺失或无效时，用包内 templates/aiyou-team.json 生成 / 修复 <OpenCodeConfigRoot>/aiyou-team.json
 必要时同步 templates/teams 到 <OpenCodeConfigRoot>/teams
 ```
 
-项目配置不自动创建，避免 CrewBee 在用户项目中产生隐藏文件副作用。
+项目配置不自动创建，避免 aiyou-team 在用户项目中产生隐藏文件副作用。
 
 ---
 
@@ -774,7 +774,7 @@ OpenCode 仍可用
 示例：
 
 ```text
-CrewBee Effective Team Configuration
+aiyou-team Effective Team Configuration
 
 OpenCode config root:
   ~/.config/opencode
@@ -783,14 +783,14 @@ Worktree:
   /Users/yong/work/MyProject
 
 Global config:
-  ~/.config/opencode/crewbee.json
+  ~/.config/opencode/aiyou-team.json
 
 Project config:
-  /Users/yong/work/MyProject/.crewbee/crewbee.json
+  /Users/yong/work/MyProject/.aiyou-team/aiyou-team.json
 
 Loaded sources:
-  [project] /Users/yong/work/MyProject/.crewbee/crewbee.json
-  [global]  ~/.config/opencode/crewbee.json
+  [project] /Users/yong/work/MyProject/.aiyou-team/aiyou-team.json
+  [global]  ~/.config/opencode/aiyou-team.json
 
 Effective teams:
   1. [project] project-coding-team priority=0
@@ -820,14 +820,14 @@ Warnings:
 新增项目检查模式：
 
 ```text
-crewbee doctor --project .
+aiyou-team doctor --project .
 ```
 
 输出重点：
 
 ```text
 1. 当前识别到的 worktree
-2. 是否存在 .crewbee/crewbee.json
+2. 是否存在 .aiyou-team/aiyou-team.json
 3. 项目配置 JSON 是否有效
 4. 项目 Team path 是否存在
 5. 项目 Team package 是否有效
@@ -852,13 +852,13 @@ crewbee doctor --project .
 ### 18.1 只有全局配置
 
 ```text
-~/.config/opencode/crewbee.json
+~/.config/opencode/aiyou-team.json
 ```
 
 项目没有：
 
 ```text
-<project>/.crewbee/crewbee.json
+<project>/.aiyou-team/aiyou-team.json
 ```
 
 结果：
@@ -964,7 +964,7 @@ OpenCode 中只出现一个 coding-team
 
 不需要修改。
 
-没有项目 `.crewbee/crewbee.json` 时，行为与当前版本一致。
+没有项目 `.aiyou-team/aiyou-team.json` 时，行为与当前版本一致。
 
 ### 19.2 Team 文件结构不变
 
@@ -1008,10 +1008,10 @@ project source 先于 global source
 按最小闭环实现：
 
 ```text
-1. 保持现有 crewbee.json teams schema 不变
+1. 保持现有 aiyou-team.json teams schema 不变
 2. 在 OpenCode bootstrap / config 阶段读取 ctx.worktree
-3. 增加项目配置候选路径：<worktree>/.crewbee/crewbee.json
-4. 将 global crewbee.json 和 project crewbee.json 都解析为统一 Team Registration
+3. 增加项目配置候选路径：<worktree>/.aiyou-team/aiyou-team.json
+4. 将 global aiyou-team.json 和 project aiyou-team.json 都解析为统一 Team Registration
 5. 每个 Registration 附加 source scope、source baseDir、source precedence、配置声明顺序
 6. 使用同一个 Team package loader 加载 id / path 对应的 Team
 7. 使用同一个 validator 校验 Team
@@ -1071,7 +1071,7 @@ EffectiveTeamLibrary
 
 ### 22.1 配置兼容
 
-- 旧全局 `crewbee.json` 不改也能继续工作
+- 旧全局 `aiyou-team.json` 不改也能继续工作
 - 没有项目配置时，行为不变
 - 项目配置使用同样的 `teams` schema
 
@@ -1099,7 +1099,7 @@ EffectiveTeamLibrary
 
 ### 22.5 用户体验清晰
 
-- 用户只需要学一套 `crewbee.json`
+- 用户只需要学一套 `aiyou-team.json`
 - 项目 Team 的目录结构和全局 Team 完全一致
 - doctor 能明确显示 effective Team 顺序和默认 Agent
 
@@ -1109,10 +1109,10 @@ EffectiveTeamLibrary
 
 P0 不做以下事情：
 
-- 项目 `.crewbee/crewbee.json` 自动创建
-- 项目 `.crewbee/teams` 自动同步包内模板
+- 项目 `.aiyou-team/aiyou-team.json` 自动创建
+- 项目 `.aiyou-team/teams` 自动同步包内模板
 - 配置热更新
-- 多层 workspace 向上查找 `.crewbee`
+- 多层 workspace 向上查找 `.aiyou-team`
 - Team 配置继承 / include / extends
 - project-only Team loader / validator / projection
 - 子目录 Agent 扫描
@@ -1125,13 +1125,13 @@ P0 不做以下事情：
 
 这个方案的本质是：
 
-> **把项目级 Team 支持实现为同构 `crewbee.json` 的第二个配置来源，而不是实现为另一套项目专属 Team 系统。**
+> **把项目级 Team 支持实现为同构 `aiyou-team.json` 的第二个配置来源，而不是实现为另一套项目专属 Team 系统。**
 
 最终效果：
 
 ```text
-global crewbee.json
-project .crewbee/crewbee.json
+global aiyou-team.json
+project .aiyou-team/aiyou-team.json
         ↓
 统一 Team Registration
         ↓

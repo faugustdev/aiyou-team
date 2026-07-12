@@ -12,7 +12,7 @@ import { DelegateStateStore } from "./store";
 import { createFailedResult, stringifyDelegateCancelResult, stringifyDelegateStatusResult, stringifyDelegateTaskResult } from "./tool-result";
 import type { DelegateCancelArgs, DelegatePromptModel, DelegateStatusArgs, DelegateTaskArgs, DelegateTaskRecord, DelegateTaskResult } from "./types";
 
-interface CrewBeeToolContext {
+interface AiyouTeamToolContext {
   sessionID: string;
   messageID: string;
   agent: string;
@@ -22,13 +22,13 @@ interface CrewBeeToolContext {
   metadata(input: { title?: string; metadata?: Record<string, unknown> }): void;
 }
 
-interface CrewBeeToolDefinition<Args extends z.ZodRawShape> {
+interface AiyouTeamToolDefinition<Args extends z.ZodRawShape> {
   description: string;
   args: Args;
-  execute(args: z.infer<z.ZodObject<Args>>, context: CrewBeeToolContext): Promise<string>;
+  execute(args: z.infer<z.ZodObject<Args>>, context: AiyouTeamToolContext): Promise<string>;
 }
 
-function createToolDefinition<Args extends z.ZodRawShape>(input: CrewBeeToolDefinition<Args>): CrewBeeToolDefinition<Args> {
+function createToolDefinition<Args extends z.ZodRawShape>(input: AiyouTeamToolDefinition<Args>): AiyouTeamToolDefinition<Args> {
   return input;
 }
 
@@ -145,7 +145,7 @@ async function resolveChildSession(input: {
 async function runForeground(input: {
   args: DelegateTaskArgs;
   client: ClientLike;
-  ctx: CrewBeeToolContext;
+  ctx: AiyouTeamToolContext;
   store: DelegateStateStore;
   target: OpenCodeAgentConfig;
   sessionID: string;
@@ -197,7 +197,7 @@ async function runForeground(input: {
 }
 
 function createBackgroundRecord(input: {
-  ctx: CrewBeeToolContext;
+  ctx: AiyouTeamToolContext;
   store: DelegateStateStore;
   target: OpenCodeAgentConfig;
   sessionID: string;
@@ -222,7 +222,7 @@ function createBackgroundRecord(input: {
 function launchBackground(input: {
   args: DelegateTaskArgs;
   client: ClientLike;
-  ctx: CrewBeeToolContext;
+  ctx: AiyouTeamToolContext;
   store: DelegateStateStore;
   target: OpenCodeAgentConfig;
   sessionID: string;
@@ -278,15 +278,15 @@ function findBoundSourceAgent(input: {
 
 export function createDelegateTools(input: CreateDelegateToolsInput) {
   const task = createToolDefinition({
-    description: "Delegate work to a CrewBee team member. This is CrewBee's OpenCode-compatible task implementation; use subagent_type to select an allowed Team member.",
+    description: "Delegate work to an aiyou-team team member. This is aiyou-team's OpenCode-compatible task implementation; use subagent_type to select an allowed Team member.",
     args: {
       description: z.string().optional().describe("A short (3-5 words) description of the task"),
-      prompt: z.string().describe("The task for the CrewBee agent to perform"),
-      subagent_type: z.string().describe("CrewBee agent id or alias listed in the current Agent Profile collaboration section"),
+      prompt: z.string().describe("The task for the aiyou-team agent to perform"),
+      subagent_type: z.string().describe("aiyou-team agent id or alias listed in the current Agent Profile collaboration section"),
       task_id: z.string().optional().describe("Existing delegated session to continue"),
       run_in_background: z.boolean().optional().describe("Launch the delegated task in background mode"),
     },
-    async execute(args: DelegateTaskArgs, ctx: CrewBeeToolContext) {
+    async execute(args: DelegateTaskArgs, ctx: AiyouTeamToolContext) {
       const requestedAgent = resolveRequestedAgent(args);
       if (!requestedAgent) {
         return stringifyDelegateTaskResult(createFailedResult(ctx.sessionID, "missing_agent", "Provide subagent_type when delegating work."));
@@ -294,7 +294,7 @@ export function createDelegateTools(input: CreateDelegateToolsInput) {
 
       if (input.store.getSession(ctx.sessionID)) {
         return stringifyDelegateTaskResult(
-          createFailedResult(ctx.sessionID, "nested_delegate_forbidden", "Nested CrewBee delegation is disabled for delegated subagent sessions."),
+          createFailedResult(ctx.sessionID, "nested_delegate_forbidden", "Nested aiyou-team delegation is disabled for delegated subagent sessions."),
         );
       }
 
@@ -313,11 +313,11 @@ export function createDelegateTools(input: CreateDelegateToolsInput) {
         sourceAgent,
       });
       if (!target) {
-        return stringifyDelegateTaskResult(createFailedResult(ctx.sessionID, "unknown_agent", `Unknown or disallowed CrewBee delegate target: ${requestedAgent}`));
+        return stringifyDelegateTaskResult(createFailedResult(ctx.sessionID, "unknown_agent", `Unknown or disallowed aiyou-team delegate target: ${requestedAgent}`));
       }
 
       if (isSelfDelegate(binding, target.canonicalAgentId)) {
-        return stringifyDelegateTaskResult(createFailedResult(ctx.sessionID, "self_delegate_forbidden", "Do not delegate a CrewBee session back to the same active agent."));
+        return stringifyDelegateTaskResult(createFailedResult(ctx.sessionID, "self_delegate_forbidden", "Do not delegate an aiyou-team session back to the same active agent."));
       }
 
       const title = args.description ?? createDelegatedTitle(target.canonicalAgentId, args.prompt);
@@ -387,9 +387,9 @@ export function createDelegateTools(input: CreateDelegateToolsInput) {
   });
 
   const delegate_status = createToolDefinition({
-    description: "Get the status of a CrewBee background delegation.",
+    description: "Get the status of an aiyou-team background delegation.",
     args: {
-      task_ref: z.string().describe("CrewBee background task reference"),
+      task_ref: z.string().describe("aiyou-team background task reference"),
     },
     async execute(args: DelegateStatusArgs) {
       let task = input.store.getTask(args.task_ref);
@@ -414,9 +414,9 @@ export function createDelegateTools(input: CreateDelegateToolsInput) {
   });
 
   const delegate_cancel = createToolDefinition({
-    description: "Cancel a CrewBee background delegation.",
+    description: "Cancel an aiyou-team background delegation.",
     args: {
-      task_ref: z.string().describe("CrewBee background task reference"),
+      task_ref: z.string().describe("aiyou-team background task reference"),
     },
     async execute(args: DelegateCancelArgs) {
       const task = input.store.getTask(args.task_ref);

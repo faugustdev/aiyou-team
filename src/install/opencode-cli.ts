@@ -64,7 +64,7 @@ export function installOpenCodeCli(input: { dryRun: boolean }): OpenCodeInstallR
       "Try one of these:",
       "- Use nvm / fnm / Volta to fix your global npm prefix.",
       "- Install OpenCode manually from https://opencode.ai/docs/.",
-      "- Re-run CrewBee setup after OpenCode is available in PATH.",
+      "- Re-run aiyou-team setup after OpenCode is available in PATH.",
     ].join("\n"));
   }
 

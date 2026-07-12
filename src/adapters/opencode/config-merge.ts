@@ -1,5 +1,5 @@
 import type { OpenCodeAgentConfigPatch } from "./projection";
-import { isManagedCrewBeeAgentDefinition } from "./ownership";
+import { isManagedAiyouTeamAgentDefinition } from "./ownership";
 
 export interface OpenCodeConfigLike {
   agent?: Record<string, unknown>;
@@ -21,7 +21,7 @@ export function applyOpenCodeAgentConfigPatch(
   const forceUpdateKeys = new Set(patch.forceUpdateAgentKeys ?? []);
   const nextAgents = Object.fromEntries(
     Object.entries(config.agent ?? {}).filter(([key, definition]) => {
-      if (isManagedCrewBeeAgentDefinition(definition) && !patchKeys.has(key)) {
+      if (isManagedAiyouTeamAgentDefinition(definition) && !patchKeys.has(key)) {
         return false;
       }
 
@@ -41,7 +41,7 @@ export function applyOpenCodeAgentConfigPatch(
 
     const existingDefinition = nextAgents[key];
 
-    if (forceUpdateKeys.has(key) || isManagedCrewBeeAgentDefinition(existingDefinition)) {
+    if (forceUpdateKeys.has(key) || isManagedAiyouTeamAgentDefinition(existingDefinition)) {
       nextAgents[key] = definition;
       updatedAgentKeys.push(key);
       continue;

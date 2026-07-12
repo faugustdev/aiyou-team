@@ -50,6 +50,7 @@ runtime_config:
     - write
     - bash
     - lsp_diagnostics
+    - question
   permission:
     - permission: read
       pattern: "*"
@@ -72,9 +73,18 @@ runtime_config:
     - permission: lsp_diagnostics
       pattern: "*"
       action: allow
+    - permission: question
+      pattern: "*"
+      action: allow
   instructions:
     - repo-core
-    - crewbee-team-framework
+    - aiyou-team-framework
+
+question_usage:
+  - Use the question tool when you face 2-4 clear options and cannot determine the right one from context.
+  - Before asking, check if the answer can be inferred from available files, documentation, or prior context.
+  - Keep options concise (1-5 words each) with a brief description if needed.
+  - Wait for the user's response before continuing; do not assume an answer.
 
 output_contract:
   tone: concise-helpful

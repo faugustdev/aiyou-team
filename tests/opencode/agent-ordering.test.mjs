@@ -13,7 +13,7 @@ function writeFile(filePath, content) {
   writeFileSync(filePath, content);
 }
 
-function createCrewBeeConfig(teams) {
+function createAiyouTeamConfig(teams) {
   return JSON.stringify({ teams }, null, 2);
 }
 
@@ -293,15 +293,15 @@ test("OpenCode bootstrap force-overwrites a foreign default agent", () => {
   assert.equal(bootstrap.mergedConfig?.default_agent, "coding-leader");
 });
 
-test("coding-team crewbee.json agents model override supports host-default", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-coding-model-host-default-"));
+test("coding-team aiyou-team.json agents model override supports host-default", () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-coding-model-host-default-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
     const configRoot = path.join(workspace, ".config", "opencode");
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    writeFile(path.join(configRoot, "crewbee.json"), createCrewBeeConfig([
+    writeFile(path.join(configRoot, "aiyou-team.json"), createAiyouTeamConfig([
       {
         id: "coding-team",
         enabled: true,
@@ -337,14 +337,14 @@ test("coding-team crewbee.json agents model override supports host-default", () 
 });
 
 test("builtin coding-team model recommendations fall back to host-default when availability is unknown", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-coding-model-unknown-"));
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-coding-model-unknown-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
     const configRoot = path.join(workspace, ".config", "opencode");
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    writeFile(path.join(configRoot, "crewbee.json"), createCrewBeeConfig([
+    writeFile(path.join(configRoot, "aiyou-team.json"), createAiyouTeamConfig([
       {
         id: "coding-team",
         enabled: true,
@@ -377,14 +377,14 @@ test("builtin coding-team model recommendations fall back to host-default when a
 });
 
 test("strict user model is projected even when availability check does not list it", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-coding-model-strict-"));
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-coding-model-strict-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
     const configRoot = path.join(workspace, ".config", "opencode");
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    writeFile(path.join(configRoot, "crewbee.json"), createCrewBeeConfig([
+    writeFile(path.join(configRoot, "aiyou-team.json"), createAiyouTeamConfig([
       {
         id: "coding-team",
         enabled: true,
@@ -421,14 +421,14 @@ test("strict user model is projected even when availability check does not list 
 });
 
 test("coding-team unavailable user model falls back through builtin role chain", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-coding-model-fallback-"));
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-coding-model-fallback-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
     const configRoot = path.join(workspace, ".config", "opencode");
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    writeFile(path.join(configRoot, "crewbee.json"), createCrewBeeConfig([
+    writeFile(path.join(configRoot, "aiyou-team.json"), createAiyouTeamConfig([
       {
         id: "coding-team",
         enabled: true,
@@ -463,15 +463,15 @@ test("coding-team unavailable user model falls back through builtin role chain",
   }
 });
 
-test("coding-team crewbee.json agents model override projects variant and provider options", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-coding-model-options-"));
+test("coding-team aiyou-team.json agents model override projects variant and provider options", () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-coding-model-options-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
     const configRoot = path.join(workspace, ".config", "opencode");
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    writeFile(path.join(configRoot, "crewbee.json"), createCrewBeeConfig([
+    writeFile(path.join(configRoot, "aiyou-team.json"), createAiyouTeamConfig([
       {
         id: "coding-team",
         enabled: true,
@@ -516,7 +516,7 @@ test("coding-team crewbee.json agents model override projects variant and provid
 });
 
 test("file-based team agent_runtime fallback_models resolve during projection", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-custom-model-fallback-"));
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-custom-model-fallback-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
@@ -524,7 +524,7 @@ test("file-based team agent_runtime fallback_models resolve during projection", 
     const teamDir = path.join(configRoot, "teams", "CustomModelTeam");
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    writeFile(path.join(configRoot, "crewbee.json"), createCrewBeeConfig([
+    writeFile(path.join(configRoot, "aiyou-team.json"), createAiyouTeamConfig([
       { path: "@teams/CustomModelTeam", enabled: true, priority: 0 },
     ]));
     writeFile(path.join(teamDir, "team.manifest.yaml"), `id: custom-model-team
@@ -606,7 +606,7 @@ tags:
 });
 
 test("file-based team agent_runtime projects variant and provider options", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-custom-model-options-"));
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-custom-model-options-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
@@ -614,7 +614,7 @@ test("file-based team agent_runtime projects variant and provider options", () =
     const teamDir = path.join(configRoot, "teams", "CustomOptionsTeam");
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    writeFile(path.join(configRoot, "crewbee.json"), createCrewBeeConfig([
+    writeFile(path.join(configRoot, "aiyou-team.json"), createAiyouTeamConfig([
       { path: "@teams/CustomOptionsTeam", enabled: true, priority: 0 },
     ]));
     writeFile(path.join(teamDir, "team.manifest.yaml"), `id: custom-options-team
@@ -719,7 +719,7 @@ test("OpenCode bootstrap refreshes managed canonical ids while preserving foreig
           prompt: "stale",
           permission: {},
           options: {
-            crewbee: {
+            aiyouTeam: {
               managed: true,
               teamId: "coding-team",
               canonicalAgentId: "coding-leader",
@@ -744,7 +744,7 @@ test("OpenCode bootstrap refreshes managed canonical ids while preserving foreig
 });
 
 test("team priority controls projected agent order and bootstrap default agent", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-agent-priority-"));
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-agent-priority-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
@@ -754,8 +754,8 @@ test("team priority controls projected agent order and bootstrap default agent",
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
     writeFile(
-      path.join(configRoot, "crewbee.json"),
-      createCrewBeeConfig([
+      path.join(configRoot, "aiyou-team.json"),
+      createAiyouTeamConfig([
         { id: "coding-team", enabled: true, priority: 5 },
         { path: "@custom/PriorityTeam", enabled: true, priority: 0 },
       ]),
@@ -801,26 +801,26 @@ test("team priority controls projected agent order and bootstrap default agent",
   }
 });
 
-test("project crewbee config takes precedence over global config", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-project-team-priority-"));
+test("project aiyou-team config takes precedence over global config", () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-project-team-priority-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
     const configRoot = path.join(workspace, ".config", "opencode");
-    const projectConfigRoot = path.join(workspace, ".crewbee");
+    const projectConfigRoot = path.join(workspace, ".aiyou-team");
     const projectTeamDir = path.join(projectConfigRoot, "teams", "ProjectTeam");
 
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
     writeFile(
-      path.join(configRoot, "crewbee.json"),
-      createCrewBeeConfig([
+      path.join(configRoot, "aiyou-team.json"),
+      createAiyouTeamConfig([
         { id: "coding-team", enabled: true, priority: 0 },
       ]),
     );
     writeFile(
-      path.join(projectConfigRoot, "crewbee.json"),
-      createCrewBeeConfig([
+      path.join(projectConfigRoot, "aiyou-team.json"),
+      createAiyouTeamConfig([
         { path: "@teams/ProjectTeam", enabled: true, priority: 99 },
       ]),
     );
@@ -859,22 +859,22 @@ test("project crewbee config takes precedence over global config", () => {
 });
 
 test("project team shadows global team with the same manifest id", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-project-team-shadow-"));
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-project-team-shadow-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
     const configRoot = path.join(workspace, ".config", "opencode");
-    const projectConfigRoot = path.join(workspace, ".crewbee");
+    const projectConfigRoot = path.join(workspace, ".aiyou-team");
     const globalTeamDir = path.join(configRoot, "teams", "SharedTeam");
     const projectTeamDir = path.join(projectConfigRoot, "teams", "SharedTeam");
 
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    writeFile(path.join(configRoot, "crewbee.json"), createCrewBeeConfig([
+    writeFile(path.join(configRoot, "aiyou-team.json"), createAiyouTeamConfig([
       { path: "@teams/SharedTeam", enabled: true, priority: 0 },
       { id: "coding-team", enabled: true, priority: 99 },
     ]));
-    writeFile(path.join(projectConfigRoot, "crewbee.json"), createCrewBeeConfig([{ path: "@teams/SharedTeam", enabled: true, priority: 10 }]));
+    writeFile(path.join(projectConfigRoot, "aiyou-team.json"), createAiyouTeamConfig([{ path: "@teams/SharedTeam", enabled: true, priority: 10 }]));
 
     writeFile(path.join(globalTeamDir, "team.manifest.yaml"), createTeamManifest("shared-team", "GlobalSharedTeam", "global-leader", "global-executor"));
     writeFile(path.join(globalTeamDir, "team.policy.yaml"), createTeamPolicy());
@@ -908,8 +908,8 @@ test("project team shadows global team with the same manifest id", () => {
   }
 });
 
-test("invalid project crewbee config falls back to global teams", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-project-config-invalid-"));
+test("invalid project aiyou-team config falls back to global teams", () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-project-config-invalid-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
@@ -917,8 +917,8 @@ test("invalid project crewbee config falls back to global teams", () => {
 
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    writeFile(path.join(configRoot, "crewbee.json"), createCrewBeeConfig([{ id: "coding-team", enabled: true, priority: 0 }]));
-    writeFile(path.join(workspace, ".crewbee", "crewbee.json"), "{broken json");
+    writeFile(path.join(configRoot, "aiyou-team.json"), createAiyouTeamConfig([{ id: "coding-team", enabled: true, priority: 0 }]));
+    writeFile(path.join(workspace, ".aiyou-team", "aiyou-team.json"), "{broken json");
 
     const library = loadDefaultTeamLibrary(workspace);
     const bootstrap = createOpenCodeBootstrap({
@@ -928,7 +928,7 @@ test("invalid project crewbee config falls back to global teams", () => {
 
     assert.deepEqual(library.teams.map((team) => team.manifest.id), ["coding-team"]);
     assert.equal(bootstrap.configPatch.defaultAgent, "coding-leader");
-    assert.ok(library.loadIssues?.some((issue) => issue.message.includes("Failed to parse crewbee.json")));
+    assert.ok(library.loadIssues?.some((issue) => issue.message.includes("Failed to parse aiyou-team.json")));
   } finally {
     if (previousConfigDir === undefined) {
       delete process.env.OPENCODE_CONFIG_DIR;
@@ -941,22 +941,22 @@ test("invalid project crewbee config falls back to global teams", () => {
 });
 
 test("invalid project team validation does not pollute global canonical agent ids", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "crewbee-project-invalid-team-fallback-"));
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-project-invalid-team-fallback-"));
   const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
 
   try {
     const configRoot = path.join(workspace, ".config", "opencode");
-    const projectConfigRoot = path.join(workspace, ".crewbee");
+    const projectConfigRoot = path.join(workspace, ".aiyou-team");
     const globalTeamDir = path.join(configRoot, "teams", "SharedTeam");
     const projectTeamDir = path.join(projectConfigRoot, "teams", "SharedTeam");
 
     process.env.OPENCODE_CONFIG_DIR = configRoot;
 
-    writeFile(path.join(configRoot, "crewbee.json"), createCrewBeeConfig([
+    writeFile(path.join(configRoot, "aiyou-team.json"), createAiyouTeamConfig([
       { path: "@teams/SharedTeam", enabled: true, priority: 0 },
       { id: "coding-team", enabled: true, priority: 99 },
     ]));
-    writeFile(path.join(projectConfigRoot, "crewbee.json"), createCrewBeeConfig([{ path: "@teams/SharedTeam", enabled: true, priority: 0 }]));
+    writeFile(path.join(projectConfigRoot, "aiyou-team.json"), createAiyouTeamConfig([{ path: "@teams/SharedTeam", enabled: true, priority: 0 }]));
 
     writeFile(path.join(projectTeamDir, "team.manifest.yaml"), createTeamManifest("shared-team", "InvalidProjectSharedTeam", "missing-leader", "shared-executor"));
     writeFile(path.join(projectTeamDir, "team.policy.yaml"), createTeamPolicy());

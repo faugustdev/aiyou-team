@@ -36,7 +36,7 @@ function findTarballFromArgs() {
   return { tarballPath: path.join(packageRoot, tarballName), generated: true };
 }
 
-const tempRoot = mkdtempSync(path.join(os.tmpdir(), "crewbee-package-smoke-"));
+const tempRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-package-smoke-"));
 let generatedTarballPath;
 
 try {
@@ -49,7 +49,7 @@ try {
   writeFileSync(path.join(tempRoot, "package.json"), `${JSON.stringify({ type: "module" }, null, 2)}\n`, "utf8");
   run("npm", ["install", "--silent", tarballPath], { cwd: tempRoot });
 
-  const packageRoot = path.join(tempRoot, "node_modules", "crewbee");
+  const packageRoot = path.join(tempRoot, "node_modules", "@aiyou-dev/team");
   const pluginEntry = path.join(packageRoot, "dist", "opencode-plugin.mjs");
   let providersCalledWithReceiver = false;
   const configApi = {
@@ -95,7 +95,7 @@ try {
   }
 
   if (!plugin.tool?.task) {
-    throw new Error("CrewBee task tool is missing from the packaged plugin");
+    throw new Error("aiyou-team task tool is missing from the packaged plugin");
   }
 
   if (plugin.tool.delegate_task !== undefined) {
@@ -106,7 +106,7 @@ try {
     throw new Error("Packaged plugin did not apply provider model availability during config projection");
   }
 
-  console.log("CrewBee packed package smoke passed");
+  console.log("aiyou-team packed package smoke passed");
 } finally {
   rmSync(tempRoot, { recursive: true, force: true });
   if (generatedTarballPath) {

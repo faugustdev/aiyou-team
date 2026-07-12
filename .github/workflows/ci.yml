@@ -105,7 +105,7 @@ jobs:
       - name: Install OpenCode CLI
         run: npm install -g opencode-ai@latest
 
-      - name: Install local CrewBee package
+      - name: Install local aiyou-team package
         run: npm run install:local:user
 
       - name: Run doctor
@@ -130,7 +130,7 @@ jobs:
       - name: Smoke test packed package
         run: |
           set -euo pipefail
-          TARBALL=$(find .artifacts/release -name 'crewbee-*.tgz' -print -quit)
+          TARBALL=$(find .artifacts/release -name 'aiyou-team-*.tgz' -print -quit)
           if [ -z "$TARBALL" ]; then
             echo "::error::release tarball was not generated."
             exit 1
