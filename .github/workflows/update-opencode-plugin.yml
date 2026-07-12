@@ -1,0 +1,107 @@
+name: update-opencode-plugin
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    if: github.repository == 'CrewBeeLab/CrewBee'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install current dependencies
+        run: npm ci
+
+      - name: Update OpenCode plugin dependency to latest
+        run: npm install @opencode-ai/plugin@latest --save-exact
+
+      - name: Detect dependency changes
+        id: diff
+        run: |
+          if git diff --quiet -- package.json package-lock.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Type check
+        if: steps.diff.outputs.changed == 'true'
+        run: npm run typecheck
+
+      - name: Build package
+        if: steps.diff.outputs.changed == 'true'
+        run: npm run build
+
+      - name: Run tests
+        if: steps.diff.outputs.changed == 'true'
+        run: npm test
+
+      - name: Run OpenCode simulator
+        if: steps.diff.outputs.changed == 'true'
+        run: npm run simulate:opencode
+
+      - name: Run compaction simulator
+        if: steps.diff.outputs.changed == 'true'
+        run: npm run simulate:compact
+
+      - name: Install OpenCode CLI
+        if: steps.diff.outputs.changed == 'true'
+        run: npm install -g opencode-ai@latest
+
+      - name: Install local CrewBee package
+        if: steps.diff.outputs.changed == 'true'
+        run: npm run install:local:user
+
+      - name: Run doctor
+        if: steps.diff.outputs.changed == 'true'
+        run: npm run doctor
+
+      - name: Pack and smoke test package
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          npm run pack:release
+          TARBALL=$(find .artifacts/release -name 'crewbee-*.tgz' -print -quit)
+          if [ -z "$TARBALL" ]; then
+            echo "::error::release tarball was not generated."
+            exit 1
+          fi
+          node ./scripts/smoke-packed-package.mjs "$TARBALL"
+
+      - name: Create pull request
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.CREWBEE_AUTOMATION_TOKEN || github.token }}
+          branch: chore/update-opencode-plugin
+          delete-branch: true
+          title: "Update @opencode-ai/plugin to latest"
+          commit-message: "Update @opencode-ai/plugin dependency"
+          body: |
+            ## Summary
+            - Updates `@opencode-ai/plugin` to the latest npm release.
+            - Refreshes `package-lock.json`, including the transitive `@opencode-ai/sdk` version.
+
+            ## Verification
+            - `npm run typecheck`
+            - `npm run build`
+            - `npm test`
+            - `npm run simulate:opencode`
+            - `npm run simulate:compact`
+            - `npm run doctor`
+            - `npm run pack:release`
+            - `node ./scripts/smoke-packed-package.mjs <tarball>`

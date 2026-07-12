@@ -1,0 +1,70 @@
+{
+  "name": "@aiyou-dev/team",
+  "version": "0.1.0",
+  "description": "AI agent teams for aiyou-dev — structured, file-based agent teams with role specialization and quality gates",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faugustdev/aiyou-team.git"
+  },
+  "bugs": {
+    "url": "https://github.com/faugustdev/aiyou-team/issues"
+  },
+  "homepage": "https://github.com/faugustdev/aiyou-team#readme",
+  "main": "./dist/opencode-plugin.mjs",
+  "types": "./dist/src/adapters/opencode/plugin.d.ts",
+  "bin": {
+    "aiyou-team": "bin/crewbee.js"
+  },
+  "exports": {
+    ".": "./dist/opencode-plugin.mjs",
+    "./server": "./dist/opencode-plugin.mjs"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "templates",
+    "opencode-plugin.mjs"
+  ],
+  "scripts": {
+    "build": "npm run clean && tsc -p tsconfig.json && npm run build:opencode-plugin",
+    "build:opencode-plugin": "node ./scripts/build-opencode-plugin.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "simulate:opencode": "npm run build && node ./simulators/opencode-runtime.mjs",
+    "simulate:compact": "npm run build && node ./simulators/opencode-compact-check.mjs",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run clean && npm run build",
+    "pack:local": "node ./scripts/pack-local.mjs",
+    "pack:release": "node ./scripts/pack-release.mjs",
+    "smoke:package": "node ./scripts/smoke-packed-package.mjs",
+    "release:registry:dry-run": "node ./scripts/release-registry.mjs --dryRun",
+    "setup": "node ./bin/crewbee.js setup --with-opencode",
+    "install:local:user": "npm run pack:local && node ./bin/crewbee.js install --source local --local-tarball ./.artifacts/local/crewbee-local.tgz",
+    "install:registry:user": "node ./bin/crewbee.js install --source registry",
+    "update": "node ./bin/crewbee.js update",
+    "uninstall": "node ./bin/crewbee.js uninstall",
+    "uninstall:user": "node ./bin/crewbee.js uninstall:user",
+    "doctor": "node ./bin/crewbee.js doctor",
+    "version": "node ./bin/crewbee.js version",
+    "test": "npm run build && node --test tests/**/*.test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.5",
+    "esbuild": "^0.25.9",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "1.15.10",
+    "yaml": "^2.8.2"
+  },
+  "keywords": [
+    "aiyou",
+    "ai",
+    "agents",
+    "teams",
+    "orchestration",
+    "opencode",
+    "mcp"
+  ]
+}
