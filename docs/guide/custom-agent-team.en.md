@@ -1,6 +1,6 @@
 # Designing a Custom Agent Team (Best Practices)
 
-Language: [中文](./custom-agent-team.md) | English
+Language: English | Español
 
 Audience: **users and Team authors** defining Agent Team assets. Repository release and CI/CD workflows are covered in the [Release And CI/CD Guide](../developer/release.md).
 

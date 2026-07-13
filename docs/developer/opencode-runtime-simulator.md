@@ -1,6 +1,6 @@
 # OpenCode Runtime Simulator
 
-Language: English | [中文](./opencode-runtime-simulator.zh-CN.md)
+Language: English | Español
 
 ## 1. Purpose
 

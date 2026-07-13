@@ -1,6 +1,6 @@
 # Installation
 
-Language: English | [中文](./installation.zh-CN.md)
+Language: English | Español
 
 Audience: **users** installing or operating aiyou-team with OpenCode. Maintainer-only CI/CD and release work is covered in the [Release And CI/CD Guide](../developer/release.md).
 

@@ -1,6 +1,6 @@
 # aiyou-team Project-Level Team Configuration
 
-Language: [中文](./project-team-config.md) | English
+Language: English | Español
 
 Audience: **users and Team authors** configuring global and project-level Teams. Repository release and CI/CD workflows are covered in the [Release And CI/CD Guide](../developer/release.md).
 

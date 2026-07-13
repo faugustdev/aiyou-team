@@ -1,6 +1,6 @@
 # aiyou-team User Guides
 
-Language: English | [中文](./README.zh-CN.md)
+Language: English | Español
 
 Use this page to choose the right guide for your role.
 

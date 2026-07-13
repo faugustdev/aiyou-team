@@ -1,6 +1,6 @@
 # aiyou-team Developer Guides
 
-Language: English | [中文](./README.zh-CN.md)
+Language: English | Español
 
 These guides are for contributors and maintainers working on the aiyou-team repository itself.
 

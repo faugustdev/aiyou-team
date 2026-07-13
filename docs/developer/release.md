@@ -1,6 +1,6 @@
 # Release And CI/CD Guide
 
-Language: English | [中文](./release.zh-CN.md)
+Language: English | Español
 
 Audience: **developers and maintainers** working on the aiyou-team repository. If you only want to install or use aiyou-team, start with the [Installation Guide](../guide/installation.md).
 

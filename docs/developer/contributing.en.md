@@ -1,6 +1,6 @@
 # Development Conventions
 
-Language: [中文](./contributing.md) | English
+Language: English | Español
 
 ## Basic Workflow
 
