@@ -51,7 +51,7 @@ jobs:
             exit 1
           fi
 
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/aiyou-team/${VERSION}")
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/@aiyou-dev%2Fteam/${VERSION}")
           if [ "$STATUS" = "200" ]; then
             echo "::error::aiyou-team@${VERSION} is already published; refusing to create a new release tag."
             exit 1

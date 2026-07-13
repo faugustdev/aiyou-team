@@ -50,7 +50,7 @@ jobs:
             exit 1
           fi
 
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/aiyou-team/${VERSION}")
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/@aiyou-dev%2Fteam/${VERSION}")
           ALREADY_PUBLISHED="false"
           if [ "$STATUS" = "200" ]; then
             ALREADY_PUBLISHED="true"

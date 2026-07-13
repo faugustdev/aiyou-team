@@ -64,9 +64,9 @@ jobs:
             fi
           fi
 
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/aiyou-team/${VERSION}")
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/@aiyou-dev%2Fteam/${VERSION}")
           if [ "$STATUS" = "200" ]; then
-            echo "::error::aiyou-team@${VERSION} is already published."
+            echo "::error::@aiyou-dev/team@${VERSION} is already published."
             exit 1
           fi
 
@@ -212,7 +212,7 @@ jobs:
           set -euo pipefail
 
           export LOCAL_VERSION=$(node -p "require('./package.json').version")
-          export REGISTRY_VERSION=$(npm view aiyou-team version --silent 2>/dev/null || true)
+          export REGISTRY_VERSION=$(npm view @aiyou-dev/team version --silent 2>/dev/null || true)
 
           node <<'NODE' > /tmp/aiyou-team-release-version.env
           const fs = require('node:fs');
@@ -270,9 +270,9 @@ jobs:
       - name: Reject already published version
         run: |
           set -euo pipefail
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/aiyou-team/${NEXT_VERSION}")
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/@aiyou-dev%2Fteam/${NEXT_VERSION}")
           if [ "$STATUS" = "200" ]; then
-            echo "::error::aiyou-team@${NEXT_VERSION} is already published."
+            echo "::error::@aiyou-dev/team@${NEXT_VERSION} is already published."
             exit 1
           fi
 
