@@ -26,3 +26,9 @@ INVESTIGATION_SUMMARY.md
 opencode_plugin_quick_reference.md
 opencode_plugin_stages.md
 .localconfig/
+
+# Rust / NAPI build artifacts
+target/
+aiyou-team-napi.*.node
+*.node
+Cargo.lock
