@@ -27,10 +27,12 @@
     "opencode-plugin.mjs"
   ],
   "scripts": {
-    "build": "npm run clean && tsc -p tsconfig.json && npm run build:opencode-plugin",
+    "build": "npm run build:rs && npm run build:ts && npm run build:opencode-plugin",
+    "build:ts": "tsc -p tsconfig.json",
+    "build:rs": "napi build --platform --release --package aiyou-team-napi -o .",
     "build:opencode-plugin": "node ./scripts/build-opencode-plugin.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true}); require('fs').rmSync('aiyou-team-napi.*.node',{recursive:false,force:true})\"",
     "simulate:opencode": "npm run build && node ./simulators/opencode-runtime.mjs",
     "simulate:compact": "npm run build && node ./simulators/opencode-compact-check.mjs",
     "prepack": "npm run build",
@@ -49,10 +51,20 @@
     "version": "node ./bin/aiyou-team.js version",
     "test": "npm run build && node --test tests/**/*.test.mjs"
   },
+  "napi": {
+    "binaryName": "aiyou-team-napi",
+    "targets": [
+      "aarch64-apple-darwin",
+      "x86_64-apple-darwin",
+      "x86_64-unknown-linux-gnu",
+      "aarch64-unknown-linux-gnu"
+    ]
+  },
   "devDependencies": {
-    "@types/node": "^25.3.5",
-    "esbuild": "^0.25.9",
-    "typescript": "^5.7.3"
+    "@napi-rs/cli": "^3.7.3",
+    "@types/node": "^25.9.5",
+    "esbuild": "^0.25.12",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "@opencode-ai/plugin": "1.15.10",

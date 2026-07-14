@@ -1,0 +1,23 @@
+[package]
+name = "aiyou-team-napi"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "NAPI bindings for aiyou-team — agent team parser, validator, and file loader"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+napi = { version = "2", default-features = false, features = ["napi9", "async", "serde-json"] }
+napi-derive = "2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+regex = "1"
+thiserror = "2"
+
+[build-dependencies]
+napi-build = "2"

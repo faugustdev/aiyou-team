@@ -22,6 +22,7 @@ import {
 import type { AiyouTeamLanguage } from "./constants";
 import { resolveTeamDocumentation } from "./documentation";
 import { mapAgentProfile, mapTeamManifest, mapTeamPolicy } from "./parsers";
+import { validateTeamManifestFile, validateTeamPolicyFile } from "../napi/index";
 
 const TEAM_MANIFEST_FILE = "team.manifest.yaml";
 const TEAM_POLICY_FILE = "team.policy.yaml";
@@ -1004,6 +1005,19 @@ export function loadTeamDefinitionFromDirectoryWithIssues(
     .sort();
 
   const issues: TeamValidationIssue[] = [];
+
+  // YAML structural validation from Rust
+  const manifestValidationIssues = validateTeamManifestFile(manifestPath);
+  for (const issue of manifestValidationIssues) {
+    issues.push({
+      level: (issue.level as string) === "error" ? "error" : "warning",
+      code: (issue.code as string) ?? "team_manifest_validation",
+      path: (issue.field as string) ?? "team.manifest.yaml",
+      message: issue.message as string,
+      suggestion: issue.suggestion as string | undefined,
+    });
+  }
+
   const agents = agentFiles.flatMap((entry) => {
     const agentPath = path.join(teamDir, entry);
 
@@ -1018,6 +1032,18 @@ export function loadTeamDefinitionFromDirectoryWithIssues(
 
   if (agents.length === 0) {
     throw new Error(`${teamDir} must contain at least one *.agent.md file at the team root.`);
+  }
+
+  // YAML structural validation from Rust
+  const policyValidationIssues = validateTeamPolicyFile(policyPath);
+  for (const issue of policyValidationIssues) {
+    issues.push({
+      level: (issue.level as string) === "error" ? "error" : "warning",
+      code: (issue.code as string) ?? "team_policy_validation",
+      path: (issue.field as string) ?? "team.policy.yaml",
+      message: issue.message as string,
+      suggestion: issue.suggestion as string | undefined,
+    });
   }
 
   return {
