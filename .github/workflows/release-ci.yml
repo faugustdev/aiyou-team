@@ -39,6 +39,8 @@ jobs:
           node-version: 24
           cache: npm
 
+      - uses: dtolnay/rust-toolchain@stable
+
       - name: Install dependencies
         run: npm ci
 
@@ -155,6 +157,8 @@ jobs:
         with:
           node-version: 24
           cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
 
       - name: Install dependencies
         run: npm ci
