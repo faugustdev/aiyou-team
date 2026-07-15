@@ -4,6 +4,7 @@ import { runDoctorCommand } from "./doctor";
 import { runInstallCommand } from "./install";
 import { renderCliHelp } from "./render-help";
 import { runSetupCommand } from "./setup";
+import { runSetupModelsCommand } from "./setup-models";
 import { runUninstallUserCommand } from "./uninstall-user";
 import { runValidateCommand } from "./validate";
 import { runVersionCommand } from "./version";
@@ -24,6 +25,16 @@ export async function runCli(argv: string[], context: RunCliContext): Promise<nu
 
   if (command === "setup") {
     return runSetupCommand(rest, {
+      stderr: context.stderr,
+      stdout: context.stdout,
+    }, {
+      cwd: process.cwd(),
+      packageRoot: context.packageRoot,
+    });
+  }
+
+  if (command === "setup-models") {
+    return runSetupModelsCommand(rest, {
       stderr: context.stderr,
       stdout: context.stdout,
     }, {

@@ -18,10 +18,41 @@ function getProviders(value: unknown): ProviderLike[] | undefined {
   return unwrapped.providers as ProviderLike[];
 }
 
-export async function listOpenCodeAvailableModels(input: {
+export interface AvailableModelInfo {
+  model: string;
+  providerID: string;
+  modelID: string;
+}
+
+export interface AvailableModelsResult {
+  models: AvailableModelInfo[];
+  raw: string[];
+}
+
+function extractModelsFromProviders(providerList: ProviderLike[]): AvailableModelInfo[] {
+  const models: AvailableModelInfo[] = [];
+
+  for (const provider of providerList) {
+    if (typeof provider.id !== "string" || !isRecord(provider.models)) {
+      continue;
+    }
+
+    for (const modelID of Object.keys(provider.models)) {
+      models.push({
+        model: `${provider.id}/${modelID}`,
+        providerID: provider.id,
+        modelID,
+      });
+    }
+  }
+
+  return models;
+}
+
+export async function listOpenCodeAvailableModelsWithInfo(input: {
   client: unknown;
   timeoutMs?: number;
-}): Promise<string[] | undefined> {
+}): Promise<AvailableModelsResult | undefined> {
   if (!isRecord(input.client) || !isRecord(input.client.config) || typeof input.client.config.providers !== "function") {
     return undefined;
   }
@@ -40,16 +71,16 @@ export async function listOpenCodeAvailableModels(input: {
     return undefined;
   }
 
-  const models: string[] = [];
-  for (const provider of providerList) {
-    if (typeof provider.id !== "string" || !isRecord(provider.models)) {
-      continue;
-    }
+  const models = extractModelsFromProviders(providerList);
+  const raw = [...new Set(models.map((m) => m.model))].sort();
 
-    for (const modelID of Object.keys(provider.models)) {
-      models.push(`${provider.id}/${modelID}`);
-    }
-  }
+  return { models, raw };
+}
 
-  return [...new Set(models)].sort();
+export async function listOpenCodeAvailableModels(input: {
+  client: unknown;
+  timeoutMs?: number;
+}): Promise<string[] | undefined> {
+  const result = await listOpenCodeAvailableModelsWithInfo(input);
+  return result?.raw;
 }

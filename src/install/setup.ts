@@ -51,7 +51,7 @@ export async function setupAiyouTeam(input: {
       dryRun: input.options.dryRun,
       force: input.options.force,
       installRoot: input.options.installRoot,
-      source: "registry",
+      source: input.options.source ?? "registry",
       yes: input.options.yes,
     },
   });

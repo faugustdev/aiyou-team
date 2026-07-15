@@ -36,7 +36,7 @@ export interface OpenCodeResolvedModelConfig {
   topP?: number;
   variant?: string;
   options?: Record<string, unknown>;
-  source: "aiyou-team-json" | "team-manifest" | "team-manifest-default" | "builtin-role-chain";
+  source: "aiyou-team-json" | "team-manifest" | "team-manifest-default" | "builtin-role-chain" | "auto-assigned";
   strict?: boolean;
 }
 

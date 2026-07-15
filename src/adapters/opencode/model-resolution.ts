@@ -1,13 +1,14 @@
 import type { AgentRuntimeModelConfig, TeamAgentModelOverride } from "../../core";
 import type { ProjectedAgent } from "../../runtime";
-import { BUILTIN_CODING_TEAM_AGENT_MODELS, BUILTIN_CODING_TEAM_ID, BUILTIN_CODING_TEAM_MODEL_FALLBACK } from "../../agent-teams/constants";
+import { AUTO_MODEL_MARKER, BUILTIN_CODING_TEAM_AGENT_MODELS, BUILTIN_CODING_TEAM_ID, BUILTIN_CODING_TEAM_MODEL_FALLBACK } from "../../agent-teams/constants";
+import { selectBestModelForAgent } from "./model-selector";
 
 export interface ModelResolutionTrace {
   teamId: string;
   agentId: string;
   configuredModel?: string;
   resolvedModel: string | "host-default";
-  source: "aiyou-team-json" | "team-manifest" | "team-manifest-default" | "builtin-role-chain" | "host-default";
+  source: "aiyou-team-json" | "team-manifest" | "team-manifest-default" | "builtin-role-chain" | "auto-assigned" | "host-default";
   fallback: string;
   fallbackToHostDefault: boolean;
   candidates: string[];
@@ -24,7 +25,7 @@ export interface ResolvedModelSelection {
   topP?: number;
   variant?: string;
   options?: Record<string, unknown>;
-  source: "aiyou-team-json" | "team-manifest" | "team-manifest-default" | "builtin-role-chain";
+  source: "aiyou-team-json" | "team-manifest" | "team-manifest-default" | "builtin-role-chain" | "auto-assigned";
   strict?: boolean;
 }
 
@@ -269,7 +270,10 @@ export function resolveAgentModel(input: {
     ?? true;
   const runtimeModel = resolveRuntimeModelId(runtime);
   const configuredModel = agentOverride?.model ?? runtimeModel ?? resolveRuntimeModelId(defaultRuntime);
-  const configuredIsBuiltinDefault = configuredModel
+  const configuredIsAuto = agentOverride?.model === AUTO_MODEL_MARKER
+    || runtime?.model === AUTO_MODEL_MARKER
+    || defaultRuntime?.model === AUTO_MODEL_MARKER;
+  const configuredIsBuiltinDefault = !configuredIsAuto && configuredModel
     ? isBuiltinCodingTeamDefaultModel({ agent, model: configuredModel })
     : false;
   const candidates: ModelCandidate[] = [];
@@ -277,13 +281,15 @@ export function resolveAgentModel(input: {
   const availability: ModelResolutionTrace["availability"] = availableModels ? "checked" : "unavailable";
   const skipped: ModelResolutionTrace["skipped"] = [];
 
-  appendConfiguredModelCandidate({
-    candidates,
-    agentOverride,
-    runtime: runtimeWithOverride,
-    defaultRuntime: defaultRuntimeWithOverride,
-    allowWhenAvailabilityUnknown: !configuredIsBuiltinDefault,
-  });
+  if (!configuredIsAuto) {
+    appendConfiguredModelCandidate({
+      candidates,
+      agentOverride,
+      runtime: runtimeWithOverride,
+      defaultRuntime: defaultRuntimeWithOverride,
+      allowWhenAvailabilityUnknown: !configuredIsBuiltinDefault,
+    });
+  }
 
   if (agentOverride?.model === HOST_DEFAULT_MODEL_ID || (!agentOverride?.model && runtimeModel === HOST_DEFAULT_MODEL_ID)) {
     return {
@@ -314,6 +320,22 @@ export function resolveAgentModel(input: {
         runtime: fallbackRuntime,
         strict: fallbackRuntime?.strict === true,
         allowWhenAvailabilityUnknown: fallbackRuntime?.strict === true,
+      });
+    }
+  }
+
+  if (configuredIsAuto && input.availableModels && input.availableModels.length > 0) {
+    const autoModel = selectBestModelForAgent({
+      agentId: sourceAgentId,
+      availableModels: input.availableModels,
+    });
+
+    if (autoModel) {
+      appendUniqueCandidate(candidates, {
+        model: autoModel,
+        source: "auto-assigned",
+        runtime: runtimeWithOverride,
+        allowWhenAvailabilityUnknown: false,
       });
     }
   }

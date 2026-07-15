@@ -7,7 +7,7 @@ import { ensureAiyouTeamConfigFile } from "../agent-teams";
 import { backupOpenCodeConfig, readOpenCodeConfig, restoreOpenCodeConfigBackup, upsertAiyouTeamPluginEntry, writeOpenCodeConfig } from "./opencode-config-file";
 import { resolveOpenCodeConfigPath, resolveInstallRoot } from "./install-root";
 import { resolveLocalTarballPath } from "./local-tarball";
-import { cleanupLegacyAiyouTeamPackage, installLocalTarball, installRegistryPackage } from "./package-installation";
+import { cleanupLegacyAiyouTeamPackage, installLocalTarball, installRegistryPackage, isPackageAlreadyAvailable } from "./package-installation";
 import { assertInstalledPluginExists, createCanonicalPluginEntry, resolvePackageWorkspaceRoot } from "./plugin-entry";
 import type { InstallCommandContext, InstallCommandOptions, InstallResult } from "./types";
 import { ensureInstallWorkspace } from "./workspace";
@@ -22,8 +22,12 @@ export async function installAiyouTeam(input: {
   const workspace = ensureInstallWorkspace(installRoot, input.options.dryRun);
   let tarballPath: string | undefined;
   let packageSpec: string | undefined;
+  const packageAvailableLocally = isPackageAlreadyAvailable();
 
-  if (input.options.source === "local") {
+  if (packageAvailableLocally) {
+    // Package is already available as a dependency (e.g., from aiyoucli)
+    // Skip workspace install
+  } else if (input.options.source === "local") {
     tarballPath = resolveLocalTarballPath({
       localTarballPath: input.options.localTarballPath,
       searchRoots: [input.context.cwd, input.context.packageRoot],
@@ -48,7 +52,7 @@ export async function installAiyouTeam(input: {
     installRoot,
   });
 
-  if (!input.options.dryRun) {
+  if (!input.options.dryRun && !packageAvailableLocally) {
     assertInstalledPluginExists(installRoot);
   }
 

@@ -1,6 +1,6 @@
 {
   "name": "@aiyou-dev/team",
-  "version": "0.1.0",
+  "version": "0.1.7",
   "description": "AI agent teams for aiyou-dev — structured, file-based agent teams with role specialization and quality gates",
   "license": "MIT",
   "repository": {
@@ -40,6 +40,7 @@
     "pack:local": "node ./scripts/pack-local.mjs",
     "pack:release": "node ./scripts/pack-release.mjs",
     "smoke:package": "node ./scripts/smoke-packed-package.mjs",
+    "release:registry": "node ./scripts/release-registry.mjs --publish",
     "release:registry:dry-run": "node ./scripts/release-registry.mjs --dryRun",
     "setup": "node ./bin/aiyou-team.js setup --with-opencode",
     "install:local:user": "npm run pack:local && node ./bin/aiyou-team.js install --source local --local-tarball ./.artifacts/local/aiyou-team-local.tgz",

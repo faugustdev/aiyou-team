@@ -25,6 +25,7 @@ export function parseSetupOptions(argv: string[]): SetupOptions {
   let dryRun = false;
   let force = false;
   let installRoot: string | undefined;
+  let source: "local" | "registry" = "registry";
   let verbose = false;
   let withOpenCode = false;
   let yes = false;
@@ -105,6 +106,24 @@ export function parseSetupOptions(argv: string[]): SetupOptions {
       continue;
     }
 
+    if (arg === "--source") {
+      const value = getOptionValue(argv, index, arg);
+      if (value !== "local" && value !== "registry") {
+        throw new Error(`Unsupported source '${value}'. Use 'local' or 'registry'.`);
+      }
+      source = value;
+      continue;
+    }
+
+    if (arg.startsWith("--source=")) {
+      const value = arg.slice("--source=".length);
+      if (value !== "local" && value !== "registry") {
+        throw new Error(`Unsupported source '${value}'. Use 'local' or 'registry'.`);
+      }
+      source = value;
+      continue;
+    }
+
     throw new Error(`Unknown setup option '${arg}'.`);
   }
 
@@ -115,6 +134,7 @@ export function parseSetupOptions(argv: string[]): SetupOptions {
     dryRun,
     force,
     installRoot,
+    source,
     verbose,
     withOpenCode,
     yes,

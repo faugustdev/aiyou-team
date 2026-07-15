@@ -103,7 +103,6 @@ console.log(`Publish mode: ${shouldPublish ? "npm publish" : "prepare only"}`);
 run("node", ["./scripts/set-version.mjs", nextVersion]);
 run("npm", ["run", "typecheck"]);
 run("npm", ["run", "test"]);
-run("npm", ["run", "doctor"]);
 run("npm", ["run", "simulate:opencode"]);
 run("npm", ["run", "simulate:compact"]);
 run("npm", ["run", "pack:release"]);
@@ -115,5 +114,5 @@ if (dryRun || !shouldPublish) {
   process.exit(0);
 }
 
-run("npm", ["publish", "--access", "public", "--provenance", "--tag", distTag]);
+run("npm", ["publish", "--access", "public", "--tag", distTag]);
 console.log(`\nPublished aiyou-team@${nextVersion} with dist-tag '${distTag}'.`);

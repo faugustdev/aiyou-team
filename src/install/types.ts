@@ -45,6 +45,7 @@ export interface SetupOptions {
   dryRun: boolean;
   force?: boolean;
   installRoot?: string;
+  source?: "local" | "registry";
   verbose?: boolean;
   withOpenCode: boolean;
   yes?: boolean;

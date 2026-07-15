@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, rmSync } from "node:fs";
+import path from "node:path";
 import { spawnSync } from "node:child_process";
 
 import {
@@ -20,12 +21,25 @@ function runNpmCommand(args: string[]): number {
   return result.status ?? 1;
 }
 
+export function isPackageAlreadyAvailable(): boolean {
+  const possiblePaths = [
+    path.join(process.cwd(), "node_modules", "@aiyou-dev", "team", "package.json"),
+    path.join(process.cwd(), "node_modules", "aiyou-team", "package.json"),
+  ];
+
+  return possiblePaths.some(p => existsSync(p));
+}
+
 function installPackageSpec(input: {
   dryRun: boolean;
   installRoot: string;
   packageSpec: string;
 }): void {
   if (input.dryRun) {
+    return;
+  }
+
+  if (isPackageAlreadyAvailable()) {
     return;
   }
 

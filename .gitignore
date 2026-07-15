@@ -32,3 +32,4 @@ target/
 aiyou-team-napi.*.node
 *.node
 Cargo.lock
+aiyou-dev-team-0.1.2.tgz
