@@ -14,34 +14,49 @@ interface NapiBindings {
   validateTeamPolicyFile(filePath: string): string;
 }
 
+function resolveBinaryNames(): string[] {
+  const base = "aiyou-team-napi." + process.platform + "-" + process.arch;
+
+  if (process.platform === "linux") {
+    return [`${base}-gnu.node`, `${base}.node`];
+  }
+
+  return [`${base}.node`];
+}
+
 function loadBindings(): NapiBindings {
   if (_napi) return _napi;
 
-  const binaryName = "aiyou-team-napi." + process.platform + "-" + process.arch + ".node";
+  const binaryNames = resolveBinaryNames();
 
   // __dirname is either src/napi/ (dev) or dist/src/napi/ (prod).
   // Walk up to find project root (contains package.json).
   let dir = __dirname;
   for (let i = 0; i < 4; i++) {
-    const candidate = path.resolve(dir, binaryName);
-    try {
-      const bindings = createRequire(candidate)(candidate) as NapiBindings;
-      _napi = bindings;
-      return bindings;
-    } catch {
-      dir = path.dirname(dir);
+    for (const binaryName of binaryNames) {
+      const candidate = path.resolve(dir, binaryName);
+      try {
+        const bindings = createRequire(candidate)(candidate) as NapiBindings;
+        _napi = bindings;
+        return bindings;
+      } catch {
+        // continue to next candidate
+      }
     }
+    dir = path.dirname(dir);
   }
 
   // Last resort: crate directory
   for (let i = 0; i < 4; i++) {
-    const candidate = path.resolve(__dirname, ...Array(i).fill(".."), "crates", "aiyou-team-napi", binaryName);
-    try {
-      const bindings = createRequire(candidate)(candidate) as NapiBindings;
-      _napi = bindings;
-      return bindings;
-    } catch {
-      continue;
+    for (const binaryName of binaryNames) {
+      const candidate = path.resolve(__dirname, ...Array(i).fill(".."), "crates", "aiyou-team-napi", binaryName);
+      try {
+        const bindings = createRequire(candidate)(candidate) as NapiBindings;
+        _napi = bindings;
+        return bindings;
+      } catch {
+        continue;
+      }
     }
   }
 
