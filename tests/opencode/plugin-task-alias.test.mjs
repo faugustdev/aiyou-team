@@ -1,9 +1,30 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync, rmSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
 import { createChatMessageHook, createOpenCodeBootstrap } from "../../dist/src/adapters/opencode/index.js";
 import { OpenCodeAiyouTeamPlugin } from "../../dist/src/adapters/opencode/plugin.js";
 import { loadDefaultTeamLibrary } from "../../dist/src/agent-teams/index.js";
+
+function withIsolatedConfig(fn) {
+  return async () => {
+    const previousConfigDir = process.env.OPENCODE_CONFIG_DIR;
+    const tmpDir = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-test-"));
+    process.env.OPENCODE_CONFIG_DIR = tmpDir;
+    try {
+      await fn();
+    } finally {
+      if (previousConfigDir === undefined) {
+        delete process.env.OPENCODE_CONFIG_DIR;
+      } else {
+        process.env.OPENCODE_CONFIG_DIR = previousConfigDir;
+      }
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  };
+}
 
 function createPluginInput(options = {}) {
   return {
@@ -39,7 +60,7 @@ function createPluginInput(options = {}) {
   };
 }
 
-test("AiyouTeam accepts canonical task target ids directly", async () => {
+test("AiyouTeam accepts canonical task target ids directly", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
@@ -71,9 +92,9 @@ test("AiyouTeam accepts canonical task target ids directly", async () => {
   );
 
   assert.equal(output.args.subagent_type, "coding-executor");
-});
+}));
 
-test("AiyouTeam projects canonical config keys and display names", async () => {
+test("AiyouTeam projects canonical config keys and display names", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
@@ -87,9 +108,9 @@ test("AiyouTeam projects canonical config keys and display names", async () => {
   assert.equal(config.agent["coding-executor"].name, "coding-executor");
   assert.equal(config.agent["coding-coordination-leader"].name, "coding-coordination-leader");
   assert.equal(config.agent["[CodingTeam]leader"], undefined);
-});
+}));
 
-test("AiyouTeam disables host built-in agents while Team agents own execution", async () => {
+test("AiyouTeam disables host built-in agents while Team agents own execution", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
@@ -100,9 +121,9 @@ test("AiyouTeam disables host built-in agents while Team agents own execution", 
   assert.equal(config.agent.general.disable, true);
   assert.equal(config.agent.explore.disable, true);
   assert.equal(config.agent.scout.disable, true);
-});
+}));
 
-test("AiyouTeam leaves task tool definition callable for AiyouTeam task override", async () => {
+test("AiyouTeam leaves task tool definition callable for AiyouTeam task override", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const output = {
     description: "AiyouTeam task tool",
@@ -121,9 +142,9 @@ test("AiyouTeam leaves task tool definition callable for AiyouTeam task override
 
   assert.equal(output.description, "AiyouTeam task tool");
   assert.equal(output.parameters.properties.subagent_type.description, "AiyouTeam agent");
-});
+}));
 
-test("AiyouTeam config hook force-overwrites a foreign default agent", async () => {
+test("AiyouTeam config hook force-overwrites a foreign default agent", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = {
     agent: {},
@@ -133,9 +154,9 @@ test("AiyouTeam config hook force-overwrites a foreign default agent", async () 
   await plugin.config?.(config);
 
   assert.equal(config.default_agent, "coding-leader");
-});
+}));
 
-test("AiyouTeam projects CodingTeam executor edit/write permissions as allow by default", async () => {
+test("AiyouTeam projects CodingTeam executor edit/write permissions as allow by default", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
@@ -146,20 +167,20 @@ test("AiyouTeam projects CodingTeam executor edit/write permissions as allow by 
   assert.equal(config.agent["coding-executor"].permission.edit["*"], "allow");
   assert.equal(config.agent["coding-executor"].permission.todowrite, "allow");
   assert.equal(config.agent["coding-coordination-leader"].permission.bash["*"], "allow");
-});
+}));
 
-test("AiyouTeam reads OpenCode configured provider models before projecting agent models", async () => {
+test("AiyouTeam reads OpenCode configured provider models before projecting agent models", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput({ availableModels: ["openai/gpt-5.4-mini"] }));
   const config = { agent: {} };
 
   await plugin.config?.(config);
 
   assert.equal(config.agent["coding-codebase-explorer"].model, "openai/gpt-5.4-mini");
-  assert.equal(config.agent["coding-reviewer"].model, undefined);
-  assert.equal(config.agent["coding-multimodal-looker"].model, undefined);
-});
+  assert.equal(config.agent["coding-reviewer"].model, "openai/gpt-5.4-mini");
+  assert.equal(config.agent["coding-multimodal-looker"].model, "openai/gpt-5.4-mini");
+}));
 
-test("AiyouTeam calls OpenCode provider registry with SDK receiver binding", async () => {
+test("AiyouTeam calls OpenCode provider registry with SDK receiver binding", withIsolatedConfig(async () => {
   let calledWithConfigReceiver = false;
   const configApi = {
     providerPayload: {
@@ -186,9 +207,9 @@ test("AiyouTeam calls OpenCode provider registry with SDK receiver binding", asy
 
   assert.equal(calledWithConfigReceiver, true);
   assert.equal(config.agent["coding-codebase-explorer"].model, "openai/gpt-5.4-mini");
-});
+}));
 
-test("AiyouTeam exposes task as the AiyouTeam delegation tool with Team-scoped targets", async () => {
+test("AiyouTeam exposes task as the AiyouTeam delegation tool with Team-scoped targets", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
@@ -216,9 +237,9 @@ test("AiyouTeam exposes task as the AiyouTeam delegation tool with Team-scoped t
   assert.ok(plugin.tool.task.args.run_in_background);
   assert.equal(plugin.tool.task.args.agent, undefined);
   assert.equal(plugin.tool.task.args.session_id, undefined);
-});
+}));
 
-test("AiyouTeam upgrades web-researcher prompt and runtime for librarian-style research", async () => {
+test("AiyouTeam upgrades web-researcher prompt and runtime for librarian-style research", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
@@ -235,9 +256,9 @@ test("AiyouTeam upgrades web-researcher prompt and runtime for librarian-style r
   assert.match(agent.prompt, /### Output Policy/);
   assert.match(agent.prompt, /\*\*Version \/ Scope\*\*/);
   assert.doesNotMatch(agent.prompt, /Answering conceptual questions like "How do I use library X\?" or "What are the best practices\?"/);
-});
+}));
 
-test("AiyouTeam upgrades reviewer prompt and runtime for blocker-oriented approval reviews", async () => {
+test("AiyouTeam upgrades reviewer prompt and runtime for blocker-oriented approval reviews", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
@@ -254,9 +275,9 @@ test("AiyouTeam upgrades reviewer prompt and runtime for blocker-oriented approv
   assert.match(agent.prompt, /### Blocking Threshold/);
   assert.match(agent.prompt, /\*\*\[OKAY\]\*\* or \*\*\[REJECT\]\*\*/);
   assert.doesNotMatch(agent.prompt, /After a plan is generated, you need to determine whether it is ready to hand off to an executor/);
-});
+}));
 
-test("AiyouTeam upgrades principal-advisor prompt and runtime for oracle-style consulting", async () => {
+test("AiyouTeam upgrades principal-advisor prompt and runtime for oracle-style consulting", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
@@ -278,9 +299,9 @@ test("AiyouTeam upgrades principal-advisor prompt and runtime for oracle-style c
   assert.match(agent.prompt, /\*\*Conclusion\*\*: <2-3 sentence primary recommendation>/);
   assert.doesNotMatch(agent.prompt, /### Metadata/);
   assert.doesNotMatch(agent.prompt, /Good fit/);
-});
+}));
 
-test("AiyouTeam leaves canonical task ids unchanged", async () => {
+test("AiyouTeam leaves canonical task ids unchanged", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
@@ -312,9 +333,9 @@ test("AiyouTeam leaves canonical task ids unchanged", async () => {
   );
 
   assert.equal(output.args.subagent_type, "coding-executor");
-});
+}));
 
-test("AiyouTeam binds sessions selected by canonical agent ids", async () => {
+test("AiyouTeam binds sessions selected by canonical agent ids", withIsolatedConfig(async () => {
   const plugin = await OpenCodeAiyouTeamPlugin(createPluginInput());
   const config = { agent: {} };
 
@@ -346,9 +367,9 @@ test("AiyouTeam binds sessions selected by canonical agent ids", async () => {
   );
 
   assert.equal(output.args.subagent_type, "coding-executor");
-});
+}));
 
-test("session explicit agent selection overrides the forced default agent", async () => {
+test("session explicit agent selection overrides the forced default agent", withIsolatedConfig(async () => {
   const bindings = new Map();
   const checkpoints = new Map();
   const boot = createOpenCodeBootstrap({
@@ -384,4 +405,4 @@ test("session explicit agent selection overrides the forced default agent", asyn
   assert.equal(bindings.get("ses-explicit-agent")?.selectedAgentId, "coding-executor");
   assert.equal(bindings.get("ses-explicit-agent")?.source, "host-agent-selection");
   assert.equal(checkpoints.get("ses-explicit-agent")?.agent, "coding-executor");
-});
+}));
