@@ -14,7 +14,7 @@ function writeFile(filePath, content) {
 }
 
 function createAiyouTeamConfig(teams) {
-  return JSON.stringify({ teams }, null, 2);
+  return JSON.stringify({ config_version: 4, teams }, null, 2);
 }
 
 function createTeamPolicy() {
