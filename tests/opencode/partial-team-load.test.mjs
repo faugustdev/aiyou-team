@@ -408,7 +408,11 @@ test("plugin startup auto-creates default aiyou-team.json when missing", async (
     const configPath = path.join(configRoot, "aiyou-team.json");
 
     assert.equal(existsSync(configPath), true);
-    assert.equal(existsSync(path.join(configRoot, "teams", "general-team", "team.manifest.yaml")), true);
+    // Legacy team templates were removed in 083f501 ("refactor: remove legacy
+    // team templates and initialize coming-soon directory"). Only the
+    // coming-soon placeholder remains under templates/teams/.
+    assert.equal(existsSync(path.join(configRoot, "teams", "coming-soon")), true);
+    assert.equal(existsSync(path.join(configRoot, "teams", "general-team")), false);
     assert.deepEqual(
       JSON.parse(readFileSync(configPath, "utf8")),
       JSON.parse(readFileSync(path.join(process.cwd(), "templates", "aiyou-team.json"), "utf8")),
@@ -448,7 +452,9 @@ test("bundled plugin startup creates aiyou-team.json from packaged template", as
       JSON.parse(readFileSync(configPath, "utf8")),
       JSON.parse(readFileSync(path.join(process.cwd(), "templates", "aiyou-team.json"), "utf8")),
     );
-    assert.equal(existsSync(path.join(configRoot, "teams", "general-team", "team.manifest.yaml")), true);
+    // Legacy teams removed in 083f501; only coming-soon placeholder ships.
+    assert.equal(existsSync(path.join(configRoot, "teams", "coming-soon")), true);
+    assert.equal(existsSync(path.join(configRoot, "teams", "general-team")), false);
     assert.ok(config.agent["coding-leader"]);
   } finally {
     if (previousConfigDir === undefined) {
@@ -523,7 +529,9 @@ test("plugin startup repairs invalid aiyou-team.json automatically", async () =>
       JSON.parse(readFileSync(configPath, "utf8")),
       JSON.parse(readFileSync(path.join(process.cwd(), "templates", "aiyou-team.json"), "utf8")),
     );
-    assert.equal(existsSync(path.join(configRoot, "teams", "general-team", "team.manifest.yaml")), true);
+    // Legacy teams removed in 083f501; only coming-soon placeholder ships.
+    assert.equal(existsSync(path.join(configRoot, "teams", "coming-soon")), true);
+    assert.equal(existsSync(path.join(configRoot, "teams", "general-team")), false);
     assert.equal(readFileSync(backupPath, "utf8"), invalidContent);
     assert.ok(config.agent["coding-leader"]);
     assert.ok(logs.some((entry) => entry.message.includes("aiyou-team auto-repaired Team config")));

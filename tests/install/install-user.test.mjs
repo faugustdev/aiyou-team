@@ -116,9 +116,14 @@ test("ensureAiyouTeamConfigFile creates aiyou-team.json from the packaged templa
   assert.equal(result.changed, true);
   assert.equal(result.reason, "created-default");
   assert.deepEqual(written, readExpectedAiyouTeamConfigTemplate());
-  assert.equal(existsSync(path.join(configRoot, "teams", "general-team", "team.manifest.yaml")), true);
-  assert.equal(existsSync(path.join(configRoot, "teams", "template-team", "team.manifest.yaml")), true);
-  assert.equal(existsSync(path.join(configRoot, "teams", "wukong-team", "team.manifest.yaml")), true);
+  // Legacy team templates (general-team / template-team / wukong-team) were
+  // removed in 083f501 ("refactor: remove legacy team templates and initialize
+  // coming-soon directory"). The only packaged team asset now is the
+  // coming-soon placeholder directory.
+  assert.equal(existsSync(path.join(configRoot, "teams", "coming-soon")), true);
+  assert.equal(existsSync(path.join(configRoot, "teams", "general-team")), false);
+  assert.equal(existsSync(path.join(configRoot, "teams", "template-team")), false);
+  assert.equal(existsSync(path.join(configRoot, "teams", "wukong-team")), false);
 });
 
 test("package manifest includes the aiyou-team.json template asset", () => {
@@ -146,9 +151,13 @@ test("npm pack dry-run includes packaged config and team templates", () => {
   const files = packInfo.files.map((entry) => entry.path);
 
   assert.ok(files.includes("templates/aiyou-team.json"));
-  assert.ok(files.includes("templates/teams/general-team/team.manifest.yaml"));
-  assert.ok(files.includes("templates/teams/template-team/team.manifest.yaml"));
-  assert.ok(files.includes("templates/teams/wukong-team/team.manifest.yaml"));
+  // The legacy team template directories were removed in commit 083f501
+  // ("refactor: remove legacy team templates and initialize coming-soon
+  // directory"). The packaged templates/ now only ships the coming-soon
+  // placeholder, so the npm pack dry-run must reflect that.
+  assert.equal(files.includes("templates/teams/general-team/team.manifest.yaml"), false);
+  assert.equal(files.includes("templates/teams/template-team/team.manifest.yaml"), false);
+  assert.equal(files.includes("templates/teams/wukong-team/team.manifest.yaml"), false);
 });
 
 test("ensureAiyouTeamConfigFile preserves existing non-object team entries while adding coding-team", () => {

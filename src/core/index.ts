@@ -292,6 +292,13 @@ export interface AgentProfileSpec {
   todoDiscipline?: PromptValue;
   completionGate?: PromptValue;
   failureRecovery?: PromptValue;
+  // Optional structured process definitions (Superpowers-style methodology)
+  // embedded inline in agent profiles. Typed as PromptValue for parity with
+  // the rest of the optional prompt-text fields.
+  brainstormingPhase?: PromptValue;
+  tddCycle?: PromptValue;
+  tddDiscipline?: PromptValue;
+  subagentDrivenDevelopment?: PromptValue;
   runtimeConfig: AgentRuntimeConfig;
   outputContract: OutputContract;
   executionPolicy?: ExecutionPolicySpec;
