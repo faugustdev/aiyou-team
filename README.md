@@ -2,8 +2,6 @@
 
 AI agent teams for [aiyou-dev](https://github.com/faugustdev/aiyou-dev) — structured, file-based agent teams with role specialization, quality gates, and OpenCode integration.
 
-> Fork of [CrewBee](https://github.com/CrewBeeLab/CrewBee) by CrewBeeLab, licensed under MIT.
-
 ## What is aiyou-team?
 
 aiyou-team provides structured agent teams that work with aiyou-dev and OpenCode. Each team has:
