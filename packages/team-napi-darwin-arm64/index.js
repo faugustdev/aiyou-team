@@ -1,0 +1,24 @@
+'use strict';
+
+const fs = require('node:fs');
+const path = require('node:path');
+
+// Resolve the native binary that napi-rs produces for darwin-arm64.
+// The artifact name follows the convention used by `napi build --platform`.
+const BINARY_CANDIDATES = [
+  path.join(__dirname, 'aiyou-team-napi.darwin-arm64.node'),
+  path.join(__dirname, 'aiyou-team-napi.node'),
+];
+
+const binaryPath = BINARY_CANDIDATES.find((candidate) => fs.existsSync(candidate));
+
+if (!binaryPath) {
+  throw new Error(
+    "Could not find @aiyou-dev/team-napi binary for darwin-arm64. " +
+      "Expected one of: " +
+      BINARY_CANDIDATES.join(', ') +
+      ". Reinstall @aiyou-dev/team to recover the prebuilt binary."
+  );
+}
+
+module.exports = require(binaryPath);

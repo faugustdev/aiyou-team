@@ -72,6 +72,17 @@ jobs:
             exit 1
           fi
 
+          # Each platform package listed under optionalDependencies must be
+          # available at the same version, otherwise the matrix publish job
+          # will leave users on missing platforms with a broken install.
+          for platform_pkg in $(node -p "Object.keys(require('./package.json').optionalDependencies ?? {})"); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.npmjs.org/$(echo "$platform_pkg" | sed 's|/|%2F|g')/${VERSION}")
+            if [ "$STATUS" = "200" ]; then
+              echo "::error::${platform_pkg}@${VERSION} is already published."
+              exit 1
+            fi
+          done
+
           git fetch origin main --depth=1
           CHANGED=$(git diff --name-only origin/main...HEAD)
           if [ -z "$CHANGED" ]; then
@@ -82,12 +93,30 @@ jobs:
           while IFS= read -r file; do
             case "$file" in
               package.json|package-lock.json) ;;
+              packages/*/package.json) ;;
               *)
                 echo "::error::release PRs must only change package.json and package-lock.json; found $file."
                 exit 1
                 ;;
             esac
           done <<< "$CHANGED"
+
+          # Confirm every platform package listed in optionalDependencies has
+          # a corresponding directory under packages/ and that its version
+          # matches the root package version.
+          for platform_pkg in $(node -p "Object.keys(require('./package.json').optionalDependencies ?? {})"); do
+            dir_name=$(echo "$platform_pkg" | sed 's|@aiyou-dev/||')
+            pkg_dir="packages/${dir_name}"
+            if [ ! -d "$pkg_dir" ]; then
+              echo "::error::missing platform package directory: $pkg_dir"
+              exit 1
+            fi
+            pkg_version=$(node -p "require('./${pkg_dir}/package.json').version")
+            if [ "$pkg_version" != "$VERSION" ]; then
+              echo "::error::${pkg_dir}/package.json version ($pkg_version) does not match root version ($VERSION)."
+              exit 1
+            fi
+          done
 
       - name: Type check
         run: npm run typecheck

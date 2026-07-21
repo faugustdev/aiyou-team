@@ -1,0 +1,27 @@
+{
+  "name": "@aiyou-dev/team-napi-darwin-arm64",
+  "version": "0.1.9",
+  "description": "Native NAPI binary for @aiyou-dev/team on darwin-arm64 (Apple Silicon)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faugustdev/aiyou-team.git"
+  },
+  "homepage": "https://github.com/faugustdev/aiyou-team#readme",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "aiyou-team-napi.darwin-arm64.node"
+  ],
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "libc": [],
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@aiyou-dev/team-napi-linux-arm64-gnu",
+  "version": "0.1.9",
+  "description": "Native NAPI binary for @aiyou-dev/team on linux-arm64-gnu",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faugustdev/aiyou-team.git"
+  },
+  "homepage": "https://github.com/faugustdev/aiyou-team#readme",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "aiyou-team-napi.linux-arm64-gnu.node"
+  ],
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "libc": [
+    "glibc"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

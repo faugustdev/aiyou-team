@@ -6,51 +6,216 @@ on:
     paths:
       - "package.json"
       - "package-lock.json"
+  workflow_dispatch:
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: read
 
 jobs:
-  publish:
+  # Step 1: validate the release locally on the cheapest runner. This catches
+  # broken typecheck/test/simulator regressions before we spend the cost of
+  # building native artifacts on macOS runners.
+  preflight:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run OpenCode simulator
+        run: npm run simulate:opencode
+
+      - name: Run compaction simulator
+        run: npm run simulate:compact
+
+  # Step 2: build the native .node artifact on each target platform. Each
+  # matrix entry uploads exactly one .node file as a named artifact so the
+  # publish job can collect them all.
+  #
+  # Targets mirror package.json#napi.targets. Keep them in sync if the
+  # optional platform packages list changes.
+  build-native:
+    name: Build ${{ matrix.label }}
+    needs: preflight
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: darwin-arm64 (Apple Silicon)
+            os: macos-latest
+            triple: aarch64-apple-darwin
+            platformDir: team-napi-darwin-arm64
+            artifact: aiyou-team-napi.darwin-arm64.node
+          - label: darwin-x64 (Intel Mac)
+            os: macos-13
+            triple: x86_64-apple-darwin
+            platformDir: team-napi-darwin-x64
+            artifact: aiyou-team-napi.darwin-x64.node
+          - label: linux-x64-gnu
+            os: ubuntu-latest
+            triple: x86_64-unknown-linux-gnu
+            platformDir: team-napi-linux-x64-gnu
+            artifact: aiyou-team-napi.linux-x64-gnu.node
+          - label: linux-arm64-gnu
+            os: ubuntu-22.04-arm
+            triple: aarch64-unknown-linux-gnu
+            platformDir: team-napi-linux-arm64-gnu
+            artifact: aiyou-team-napi.linux-arm64-gnu.node
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check if version changed
-        id: version-check
-        run: |
-          PREV_VERSION=$(git show HEAD~1:package.json 2>/dev/null | node -pe "JSON.parse(require('fs').readFileSync(0, 'utf8')).version" || echo "")
-          CURR_VERSION=$(node -p "require('./package.json').version")
-          echo "current=$CURR_VERSION" >> "$GITHUB_OUTPUT"
-          if [ "$PREV_VERSION" = "$CURR_VERSION" ]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build native artifact for ${{ matrix.triple }}
+        run: npm run build:rs
+
+      - name: Upload native artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.platformDir }}
+          path: ${{ matrix.artifact }}
+          if-no-files-found: error
+          retention-days: 7
+
+  # Step 3: collect every platform artifact, place it next to its platform
+  # package, and publish the root package + each platform package.
+  publish:
+    name: Publish @aiyou-dev/team and platform packages
+    needs: build-native
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # required for npm --provenance
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
-        if: steps.version-check.outputs.skip == 'false'
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
           cache: npm
 
       - uses: dtolnay/rust-toolchain@stable
-        if: steps.version-check.outputs.skip == 'false'
 
       - name: Install dependencies
-        if: steps.version-check.outputs.skip == 'false'
         run: npm ci
 
-      - name: Type check
-        if: steps.version-check.outputs.skip == 'false'
-        run: npm run typecheck
+      # Download every native artifact produced by the build-native matrix and
+      # place it next to its matching platform package so release-registry.mjs
+      # can stage it without having to compile anything.
+      - name: Collect native artifacts into platform packages
+        env:
+          ARTIFACT_DIR: platform-artifacts
+        run: |
+          set -euo pipefail
+          for entry in packages/team-napi-*; do
+            [ -d "$entry" ] || continue
+            name=$(basename "$entry")
+            artifact_dir="$ARTIFACT_DIR/native-$name"
+            if [ ! -d "$artifact_dir" ]; then
+              echo "::warning::No native artifact uploaded for $name; that platform will be skipped at publish time."
+              continue
+            fi
+            # Take the first .node file under the artifact directory. The build
+            # job uploads exactly one .node per matrix entry, named after the
+            # napi triple (e.g. aiyou-team-napi.darwin-arm64.node).
+            node_file=$(find "$artifact_dir" -maxdepth 1 -name '*.node' -print -quit)
+            if [ -z "$node_file" ]; then
+              echo "::warning::Artifact directory for $name exists but contains no .node file."
+              continue
+            fi
+            cp "$node_file" "$entry/"
+            echo "staged $node_file -> $entry/"
+          done
+          echo "--- artifacts staged ---"
+          ls -la packages/team-napi-*/  | grep -E "\.node$|^/" | sed 's/^/  /'
 
-      - name: Run tests
-        if: steps.version-check.outputs.skip == 'false'
-        run: npm test
-
-      - name: Publish to npm
-        if: steps.version-check.outputs.skip == 'false'
-        run: npm publish --access public
+      # Skip preflight and pack/smoke here because preflight already ran and
+      # pack:release is unnecessary (npm pack is implicit in npm publish).
+      # --noBump keeps whatever version release-tag.yml committed.
+      - name: Publish root package + all platform packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+        run: node ./scripts/release-registry.mjs --publish --skipPreflight --skipPackage --noBump
+
+      # As a smoke test after publish, install the freshly published package
+      # exactly the way an end user would, and confirm the optional platform
+      # binary loads. This is what proves the release is self-sufficient.
+      - name: Smoke install from registry
+        env:
+          # Use a one-off scoped registry to avoid polluting cache
+          TMPDIR: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          WORK=$(mktemp -d)
+          cd "$WORK"
+          npm init -y >/dev/null
+          npm install "@aiyou-dev/team@${VERSION}" --no-audit --no-fund
+          node --input-type=module -e "
+            import { createRequire } from 'node:module';
+            import { readFileSync } from 'node:fs';
+            import { dirname } from 'node:path';
+            const require = createRequire(import.meta.url);
+            // 1. Verify the root package exposes the plugin entry
+            const mod = require('@aiyou-dev/team');
+            if (!mod || typeof mod.default !== 'function') {
+              throw new Error('Plugin entry did not expose the default export');
+            }
+            // 2. Read the optionalDependencies from the installed package.json
+            //    on disk (the package.json subpath is not exported). We use the
+            //    installed location rather than guessing the platform suffix
+            //    because Linux triples include libc suffixes (e.g. linux-x64-gnu).
+            const rootEntry = require.resolve('@aiyou-dev/team');
+            const rootPkg = JSON.parse(readFileSync(require('node:path').join(dirname(dirname(rootEntry)), 'package.json'), 'utf8'));
+            const optional = rootPkg.optionalDependencies ?? {};
+            const installed = Object.keys(optional).filter((name) => {
+              try {
+                require.resolve(name, { paths: [process.cwd()] });
+                return true;
+              } catch {
+                return false;
+              }
+            });
+            if (installed.length === 0) {
+              throw new Error('No optional platform package was installed for this platform.');
+            }
+            // 3. Load the native binary through one of the installed platform
+            //    packages and confirm the expected API surface is present.
+            const napi = require(installed[0]);
+            if (typeof napi.validateTeamManifestFile !== 'function') {
+              throw new Error('Native napi binary did not expose validateTeamManifestFile');
+            }
+            console.log('Installed package smoke OK; native napi loaded via ' + installed[0]);
+          "
+          cd "$GITHUB_WORKSPACE"
+          rm -rf "$WORK"
