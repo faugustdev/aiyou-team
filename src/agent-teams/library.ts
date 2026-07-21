@@ -5,7 +5,7 @@ import type { AiyouTeamLanguage } from "./constants";
 
 import type { TeamValidationIssue } from "./types";
 import { normalizeTeamAgentIds } from "./canonical-agent-id";
-import { BUILTIN_CODING_TEAM_ID } from "./constants";
+import { BUILTIN_CODING_TEAM_ID, TEAM_CONFIG_ROOT } from "./constants";
 import { createEmbeddedCodingTeam } from "./embedded/coding-team";
 import {
   listConfiguredTeamSources,
@@ -14,6 +14,7 @@ import {
   loadTeamDefinitionFromDirectoryWithIssues,
   resolveTeamConfigRoot,
   type ConfiguredTeamSource,
+  type TeamConfigSourceScope,
 } from "./filesystem";
 import { validateTeamDefinition } from "./validation";
 
@@ -93,10 +94,92 @@ export function loadTeamLibraryFromDirectory(
   };
 }
 
+/**
+ * Auto-discovered filesystem Team source. Created when a `<root>/teams/`
+ * directory exists and contains subdirectories with a `team.manifest.yaml`,
+ * but the user has not declared them explicitly in `aiyou-team.json`.
+ */
+interface AutoDiscoveredFilesystemSource {
+  kind: "filesystem";
+  teamDir: string;
+  priority: number;
+  sourceScope: TeamConfigSourceScope;
+  sourcePrecedence: number;
+  configPath: string;
+}
+
+/**
+ * Auto-discovered filesystem Teams get a priority *higher* (numerically) than
+ * any explicit configuration entry, so they lose to user-declared teams but
+ * still benefit from project > global precedence ordering. Embedded Teams
+ * keep their default `0` priority so auto-discovered filesystem Teams can
+ * shadow embedded Teams with the same id (a common case when a project ships
+ * a custom `coding-team`).
+ */
+const PROJECT_TEAMS_AUTO_DISCOVERY_PRIORITY = 2;
+const GLOBAL_TEAMS_AUTO_DISCOVERY_PRIORITY = 3;
+
+function collectAutoDiscoveredFilesystemSources(input: {
+  globalConfigRoot?: string;
+  projectWorktree?: string;
+}): AutoDiscoveredFilesystemSource[] {
+  const sources: AutoDiscoveredFilesystemSource[] = [];
+  const seen = new Set<string>();
+
+  const addDir = (teamDir: string, opts: {
+    scope: TeamConfigSourceScope;
+    precedence: number;
+    priority: number;
+  }): void => {
+    const normalized = path.resolve(teamDir);
+    const key = normalized.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    sources.push({
+      kind: "filesystem",
+      teamDir: normalized,
+      priority: opts.priority,
+      sourceScope: opts.scope,
+      sourcePrecedence: opts.precedence,
+      configPath: path.join(normalized, "team.manifest.yaml"),
+    });
+  };
+
+  if (input.projectWorktree) {
+    const projectTeamsRoot = path.resolve(input.projectWorktree, TEAM_CONFIG_ROOT);
+    for (const teamDir of listTeamDirectories(projectTeamsRoot)) {
+      addDir(teamDir, {
+        scope: "project",
+        precedence: 0,
+        priority: PROJECT_TEAMS_AUTO_DISCOVERY_PRIORITY,
+      });
+    }
+  }
+
+  if (input.globalConfigRoot) {
+    const globalTeamsRoot = path.resolve(input.globalConfigRoot, TEAM_CONFIG_ROOT);
+    for (const teamDir of listTeamDirectories(globalTeamsRoot)) {
+      addDir(teamDir, {
+        scope: "global",
+        precedence: 1,
+        priority: GLOBAL_TEAMS_AUTO_DISCOVERY_PRIORITY,
+      });
+    }
+  }
+
+  return sources;
+}
+
 export function loadDefaultTeamLibrary(input: string | LoadDefaultTeamLibraryOptions = process.cwd()): TeamLibrary {
   const baseDir = typeof input === "string"
     ? input
     : (input.projectWorktree ?? process.cwd());
+  const globalConfigRoot = typeof input === "string"
+    ? undefined
+    : input.globalConfigRoot;
+  const projectWorktree = typeof input === "string"
+    ? input
+    : input.projectWorktree;
   const configured = listConfiguredTeamSources(
     typeof input === "string"
       ? { projectWorktree: input }
@@ -111,6 +194,53 @@ export function loadDefaultTeamLibrary(input: string | LoadDefaultTeamLibraryOpt
     sourceScope: string;
     configPath: string;
   }> = [];
+
+  // Auto-discover filesystem Teams from conventional `<worktree>/teams/` and
+  // `<globalConfigRoot>/teams/` directories so users don't have to declare them
+  // in `aiyou-team.json` for every project. Explicit config entries still take
+  // precedence (they're already in `configured.sources` and win because they
+  // share the same precedence but use a non-negative priority while auto-
+  // discovered ones use negative priorities).
+  const autoDiscovered = collectAutoDiscoveredFilesystemSources({
+    globalConfigRoot,
+    projectWorktree,
+  });
+
+  // Track explicit filesystem source paths so we skip auto-discovered ones
+  // that the user has already declared explicitly.
+  const explicitFilesystemDirs = new Set(
+    configured.sources
+      .filter((source): source is Extract<ConfiguredTeamSource, { kind: "filesystem" }> => source.kind === "filesystem")
+      .map((source) => source.teamDir.toLowerCase()),
+  );
+
+  for (const auto of autoDiscovered) {
+    if (explicitFilesystemDirs.has(auto.teamDir.toLowerCase())) {
+      continue;
+    }
+
+    pendingTeams.push({
+      loader: () => {
+        try {
+          const loaded = loadTeamDefinitionFromDirectoryWithIssues(auto.teamDir, baseDir, language);
+          return {
+            team: loaded.team,
+            issues: loaded.issues,
+          };
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          return {
+            issues: [createSkippedTeamIssue(auto.teamDir, message)],
+          };
+        }
+      },
+      priority: auto.priority,
+      order: 0,
+      sourcePrecedence: auto.sourcePrecedence,
+      sourceScope: auto.sourceScope,
+      configPath: auto.configPath,
+    });
+  }
 
   for (const source of configured.sources) {
     if (!source.enabled) {

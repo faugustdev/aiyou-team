@@ -71,7 +71,7 @@ test("installAiyouTeam supports registry source in dry-run mode", async () => {
   });
 
   assert.equal(result.pluginEntry, "aiyou-team");
-  assert.equal(result.packageSpec, "aiyou-team@latest");
+  assert.equal(result.packageSpec, "@aiyou-dev/team@latest");
   assert.equal(result.tarballPath, undefined);
   assert.equal(existsSync(configPath), false);
 });

@@ -39,7 +39,7 @@ export async function installAiyouTeam(input: {
       tarballPath,
     });
   } else {
-    packageSpec = input.options.channel === "next" ? "aiyou-team@next" : "aiyou-team@latest";
+    packageSpec = input.options.channel === "next" ? "@aiyou-dev/team@next" : "@aiyou-dev/team@latest";
     installRegistryPackage({
       dryRun: input.options.dryRun,
       installRoot: packageWorkspaceRoot,

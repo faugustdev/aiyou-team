@@ -2,14 +2,15 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 
 export const AIYOU_TEAM_PACKAGE_NAME = "aiyou-team";
-export const AIYOU_TEAM_PACKAGE_WORKSPACE = "aiyou-team@latest";
+export const AIYOU_TEAM_NPM_PACKAGE_NAME = "@aiyou-dev/team";
+export const AIYOU_TEAM_PACKAGE_WORKSPACE = "@aiyou-dev/team@latest";
 
 export function resolvePackageWorkspaceRoot(installRoot: string): string {
   return path.join(installRoot, "packages", AIYOU_TEAM_PACKAGE_WORKSPACE);
 }
 
 export function resolveInstalledPackageRoot(installRoot: string): string {
-  return path.join(resolvePackageWorkspaceRoot(installRoot), "node_modules", AIYOU_TEAM_PACKAGE_NAME);
+  return path.join(resolvePackageWorkspaceRoot(installRoot), "node_modules", AIYOU_TEAM_NPM_PACKAGE_NAME);
 }
 
 export function resolveInstalledPluginPath(installRoot: string): string {

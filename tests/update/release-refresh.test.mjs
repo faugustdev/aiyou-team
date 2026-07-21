@@ -58,9 +58,10 @@ test("findConfiguredAiyouTeamReleaseIntent resolves plain aiyou-team to latest w
     writeConfigRoot(configRoot, "aiyou-team");
     const intent = findConfiguredAiyouTeamReleaseIntent();
     assert.equal(intent?.entry, "aiyou-team");
+    assert.equal(intent?.packageName, "@aiyou-dev/team");
     assert.equal(intent?.requestedVersion, "latest");
     assert.equal(intent?.isPinned, false);
-    assert.match(intent?.workspaceRoot ?? "", /packages[\\/]aiyou-team@latest$/);
+    assert.match(intent?.workspaceRoot ?? "", /packages[\\/]@aiyou-dev\/team@latest$/);
   });
 });
 
@@ -94,10 +95,10 @@ test("runBackgroundReleaseRefresh syncs workspace dependency intent and records 
 
   await withEnv({ OPENCODE_CONFIG_DIR: configRoot, XDG_CACHE_HOME: cacheRoot }, async () => {
     writeConfigRoot(configRoot, "aiyou-team");
-    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "aiyou-team@latest");
-    const installedRoot = path.join(workspaceRoot, "node_modules", "aiyou-team");
+    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "@aiyou-dev/team@latest");
+    const installedRoot = path.join(workspaceRoot, "node_modules", "@aiyou-dev", "team");
     mkdirSync(installedRoot, { recursive: true });
-    writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "aiyou-team", version: "0.1.3" }, null, 2), "utf8");
+    writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "@aiyou-dev/team", version: "0.1.3" }, null, 2), "utf8");
 
     let installCalled = false;
     const result = await runBackgroundReleaseRefresh(createPluginInput(), {
@@ -107,9 +108,9 @@ test("runBackgroundReleaseRefresh syncs workspace dependency intent and records 
       async runInstall(dir) {
         installCalled = true;
         assert.equal(dir, workspaceRoot);
-        assert.equal(existsSync(path.join(workspaceRoot, "node_modules", "aiyou-team")), false);
+        assert.equal(existsSync(path.join(workspaceRoot, "node_modules", "@aiyou-dev", "team")), false);
         const pkg = JSON.parse(readFileSync(path.join(workspaceRoot, "package.json"), "utf8"));
-        assert.equal(pkg.dependencies["aiyou-team"], "0.1.5");
+        assert.equal(pkg.dependencies["@aiyou-dev/team"], "0.1.5");
         return true;
       },
     });
@@ -129,8 +130,8 @@ test("runBackgroundReleaseRefresh refreshes latest when installed version is unr
 
   await withEnv({ OPENCODE_CONFIG_DIR: configRoot, XDG_CACHE_HOME: cacheRoot }, async () => {
     writeConfigRoot(configRoot, "aiyou-team@latest");
-    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "aiyou-team@latest");
-    const installedRoot = path.join(workspaceRoot, "node_modules", "aiyou-team");
+    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "@aiyou-dev/team@latest");
+    const installedRoot = path.join(workspaceRoot, "node_modules", "@aiyou-dev", "team");
     mkdirSync(installedRoot, { recursive: true });
     writeAiyouTeamReleaseState({
       lastCheckedAt: Date.now(),
@@ -148,7 +149,7 @@ test("runBackgroundReleaseRefresh refreshes latest when installed version is unr
         assert.equal(dir, workspaceRoot);
         assert.equal(existsSync(installedRoot), false);
         const pkg = JSON.parse(readFileSync(path.join(workspaceRoot, "package.json"), "utf8"));
-        assert.equal(pkg.dependencies["aiyou-team"], "0.1.21");
+        assert.equal(pkg.dependencies["@aiyou-dev/team"], "0.1.21");
         return true;
       },
     });
@@ -203,9 +204,9 @@ test("runBackgroundReleaseRefresh respects failure cooldown", async () => {
 
   await withEnv({ OPENCODE_CONFIG_DIR: configRoot, XDG_CACHE_HOME: cacheRoot }, async () => {
     writeConfigRoot(configRoot, "aiyou-team");
-    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "aiyou-team@latest");
-    mkdirSync(path.join(workspaceRoot, "node_modules", "aiyou-team"), { recursive: true });
-    writeFileSync(path.join(workspaceRoot, "node_modules", "aiyou-team", "package.json"), JSON.stringify({ name: "aiyou-team", version: "0.1.3" }, null, 2), "utf8");
+    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "@aiyou-dev/team@latest");
+    mkdirSync(path.join(workspaceRoot, "node_modules", "@aiyou-dev", "team"), { recursive: true });
+    writeFileSync(path.join(workspaceRoot, "node_modules", "@aiyou-dev", "team", "package.json"), JSON.stringify({ name: "@aiyou-dev/team", version: "0.1.3" }, null, 2), "utf8");
 
     let installCalls = 0;
     let fetchCalls = 0;
@@ -238,9 +239,9 @@ test("runBackgroundReleaseRefresh bypasses stale success state when registry has
 
   await withEnv({ OPENCODE_CONFIG_DIR: configRoot, XDG_CACHE_HOME: cacheRoot }, async () => {
     writeConfigRoot(configRoot, "aiyou-team@latest");
-    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "aiyou-team@latest");
-    mkdirSync(path.join(workspaceRoot, "node_modules", "aiyou-team"), { recursive: true });
-    writeFileSync(path.join(workspaceRoot, "node_modules", "aiyou-team", "package.json"), JSON.stringify({ name: "aiyou-team", version: "0.1.16" }, null, 2), "utf8");
+    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "@aiyou-dev/team@latest");
+    mkdirSync(path.join(workspaceRoot, "node_modules", "@aiyou-dev", "team"), { recursive: true });
+    writeFileSync(path.join(workspaceRoot, "node_modules", "@aiyou-dev", "team", "package.json"), JSON.stringify({ name: "@aiyou-dev/team", version: "0.1.16" }, null, 2), "utf8");
     writeAiyouTeamReleaseState({
       lastCheckedAt: Date.now(),
       lastKnownVersion: "0.1.16",
@@ -271,9 +272,9 @@ test("runBackgroundReleaseRefresh retries immediately when the latest target cha
 
   await withEnv({ OPENCODE_CONFIG_DIR: configRoot, XDG_CACHE_HOME: cacheRoot }, async () => {
     writeConfigRoot(configRoot, "aiyou-team@latest");
-    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "aiyou-team@latest");
-    mkdirSync(path.join(workspaceRoot, "node_modules", "aiyou-team"), { recursive: true });
-    writeFileSync(path.join(workspaceRoot, "node_modules", "aiyou-team", "package.json"), JSON.stringify({ name: "aiyou-team", version: "0.1.3" }, null, 2), "utf8");
+    const workspaceRoot = path.join(cacheRoot, "opencode", "packages", "@aiyou-dev/team@latest");
+    mkdirSync(path.join(workspaceRoot, "node_modules", "@aiyou-dev", "team"), { recursive: true });
+    writeFileSync(path.join(workspaceRoot, "node_modules", "@aiyou-dev", "team", "package.json"), JSON.stringify({ name: "@aiyou-dev/team", version: "0.1.3" }, null, 2), "utf8");
     writeAiyouTeamReleaseState({
       lastCheckedAt: Date.now(),
       lastAttemptedVersion: "0.1.5",

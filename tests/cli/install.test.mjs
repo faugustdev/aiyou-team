@@ -112,7 +112,7 @@ test("runCli setup dry-run prints the productized next steps without mutating in
 
   assert.equal(exitCode, 0);
   assert.match(stdout.getOutput(), /aiyou-team setup plan generated/);
-  assert.match(stdout.getOutput(), /Registry package: aiyou-team@latest/);
+  assert.match(stdout.getOutput(), /Registry package: @aiyou-dev\/team@latest/);
   assert.match(stdout.getOutput(), /No files changed/);
   assert.match(stdout.getOutput(), /select coding-leader/);
   assert.equal(stderr.getOutput(), "");
@@ -210,12 +210,12 @@ test("runCli doctor reports Team diagnostics for the selected project worktree",
   const installRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-doctor-install-"));
   const configRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-doctor-config-"));
   const projectWorktree = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-doctor-project-"));
-  const installedRoot = path.join(installRoot, "packages", "aiyou-team@latest", "node_modules", "aiyou-team");
+  const installedRoot = path.join(installRoot, "packages", "@aiyou-dev/team@latest", "node_modules", "@aiyou-dev", "team");
   const configPath = path.join(configRoot, "opencode.json");
 
   mkdirSync(installedRoot, { recursive: true });
   mkdirSync(path.join(projectWorktree, ".aiyou-team"), { recursive: true });
-  writeFileSync(path.join(installRoot, "packages", "aiyou-team@latest", "package.json"), JSON.stringify({ private: true }, null, 2), "utf8");
+  writeFileSync(path.join(installRoot, "packages", "@aiyou-dev/team@latest", "package.json"), JSON.stringify({ private: true }, null, 2), "utf8");
   writeFileSync(path.join(installedRoot, "package.json"), JSON.stringify({ name: "aiyou-team", version: "9.9.9" }, null, 2), "utf8");
   writeFileSync(path.join(installedRoot, "opencode-plugin.mjs"), "export default {};\n", "utf8");
   writeFileSync(configPath, JSON.stringify({ plugin: ["aiyou-team"] }, null, 2), "utf8");
@@ -283,7 +283,7 @@ test("runCli version reports current and installed package versions", async () =
   const stderr = createCaptureStream();
   const currentRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-current-"));
   const installRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-install-"));
-  const installedRoot = path.join(installRoot, "packages", "aiyou-team@latest", "node_modules", "aiyou-team");
+  const installedRoot = path.join(installRoot, "packages", "@aiyou-dev/team@latest", "node_modules", "@aiyou-dev", "team");
 
   writeFileSync(path.join(currentRoot, "package.json"), JSON.stringify({ name: "aiyou-team", version: "1.2.3" }, null, 2), "utf8");
   mkdirSync(installedRoot, { recursive: true });
@@ -306,7 +306,7 @@ test("runCli version detects installed package in the OpenCode package cache", a
   const stderr = createCaptureStream();
   const currentRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-current-cache-"));
   const installRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-cli-install-cache-"));
-  const installedRoot = path.join(installRoot, "packages", "aiyou-team@latest", "node_modules", "aiyou-team");
+  const installedRoot = path.join(installRoot, "packages", "@aiyou-dev/team@latest", "node_modules", "@aiyou-dev", "team");
 
   writeFileSync(path.join(currentRoot, "package.json"), JSON.stringify({ name: "aiyou-team", version: "1.2.3" }, null, 2), "utf8");
   mkdirSync(installedRoot, { recursive: true });

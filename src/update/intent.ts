@@ -6,6 +6,7 @@ import type { AiyouTeamReleaseIntent } from "./types";
 
 const EXACT_SEMVER_REGEX = /^\d+\.\d+\.\d+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$/;
 const AIYOU_TEAM_PACKAGE_NAME = "aiyou-team";
+const AIYOU_TEAM_NPM_PACKAGE_NAME = "@aiyou-dev/team";
 
 export function findConfiguredAiyouTeamReleaseIntent(): AiyouTeamReleaseIntent | undefined {
   const configPath = resolveOpenCodeConfigPath();
@@ -21,7 +22,7 @@ export function findConfiguredAiyouTeamReleaseIntent(): AiyouTeamReleaseIntent |
       return {
         configPath,
         entry,
-        packageName: AIYOU_TEAM_PACKAGE_NAME,
+        packageName: AIYOU_TEAM_NPM_PACKAGE_NAME,
         requestedVersion: "latest",
         channel: "latest",
         isPinned: false,
@@ -38,7 +39,7 @@ export function findConfiguredAiyouTeamReleaseIntent(): AiyouTeamReleaseIntent |
       return {
         configPath,
         entry,
-        packageName: AIYOU_TEAM_PACKAGE_NAME,
+        packageName: AIYOU_TEAM_NPM_PACKAGE_NAME,
         requestedVersion,
         channel: EXACT_SEMVER_REGEX.test(requestedVersion) ? "latest" : requestedVersion,
         isPinned: EXACT_SEMVER_REGEX.test(requestedVersion),
@@ -51,7 +52,20 @@ export function findConfiguredAiyouTeamReleaseIntent(): AiyouTeamReleaseIntent |
 }
 
 function resolveReleaseWorkspaceRoot(entry: string): string {
-  return path.join(resolveInstallRoot(), "packages", sanitizePackageSpec(entry === AIYOU_TEAM_PACKAGE_NAME ? "aiyou-team@latest" : entry));
+  // The plugin entry in opencode.json uses the canonical short name
+  // (`aiyou-team` or `aiyou-team@<version>`). The npm package is published
+  // under the scoped name `@aiyou-dev/team`. Workspace folders mirror the
+  // npm install layout, so we always translate to the scoped spec here.
+  let spec: string;
+  if (entry === AIYOU_TEAM_PACKAGE_NAME) {
+    spec = `${AIYOU_TEAM_NPM_PACKAGE_NAME}@latest`;
+  } else if (entry.startsWith(`${AIYOU_TEAM_PACKAGE_NAME}@`)) {
+    const requestedVersion = entry.slice(AIYOU_TEAM_PACKAGE_NAME.length + 1).trim();
+    spec = `${AIYOU_TEAM_NPM_PACKAGE_NAME}@${requestedVersion}`;
+  } else {
+    spec = entry;
+  }
+  return path.join(resolveInstallRoot(), "packages", sanitizePackageSpec(spec));
 }
 
 function sanitizePackageSpec(value: string): string {

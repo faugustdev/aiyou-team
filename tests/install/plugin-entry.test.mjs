@@ -17,16 +17,16 @@ test("createCanonicalPluginEntry uses package-name config and package workspace 
   assert.equal(createCanonicalPluginEntry(installRoot), "aiyou-team");
   assert.match(content, /await import/);
   assert.match(content, /\.\/dist\/opencode-plugin\.mjs/);
-  assert.equal(resolveInstalledPluginPath(installRoot).replace(/\\/g, "/").endsWith("/packages/aiyou-team@latest/node_modules/aiyou-team/opencode-plugin.mjs"), true);
+  assert.equal(resolveInstalledPluginPath(installRoot).replace(/\\/g, "/").endsWith("/packages/@aiyou-dev/team@latest/node_modules/@aiyou-dev/team/opencode-plugin.mjs"), true);
 });
 
 test("assertInstalledPluginExists accepts the OpenCode package cache layout", () => {
   const installRoot = mkdtempSync(path.join(os.tmpdir(), "aiyou-team-plugin-cache-entry-"));
-  const packageRoot = path.join(installRoot, "packages", "aiyou-team@latest", "node_modules", "aiyou-team");
-  const pluginPath = path.join(installRoot, "packages", "aiyou-team@latest", "node_modules", "aiyou-team", "opencode-plugin.mjs");
+  const packageRoot = path.join(installRoot, "packages", "@aiyou-dev/team@latest", "node_modules", "@aiyou-dev", "team");
+  const pluginPath = path.join(installRoot, "packages", "@aiyou-dev/team@latest", "node_modules", "@aiyou-dev", "team", "opencode-plugin.mjs");
 
   mkdirSync(packageRoot, { recursive: true });
-  writeFileSync(path.join(packageRoot, "package.json"), '{"name":"aiyou-team"}\n', "utf8");
+  writeFileSync(path.join(packageRoot, "package.json"), '{"name":"@aiyou-dev/team"}\n', "utf8");
   writeFileSync(pluginPath, 'export default {};\n', "utf8");
 
   assert.doesNotThrow(() => assertInstalledPluginExists(installRoot));
