@@ -26,7 +26,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Install current dependencies
-        run: npm ci
+        run: npm install
 
       - name: Update OpenCode plugin dependency to latest
         run: npm install @opencode-ai/plugin@latest --save-exact

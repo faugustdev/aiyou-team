@@ -32,7 +32,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Type check
         run: npm run typecheck
@@ -91,7 +91,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build native artifact for ${{ matrix.triple }}
         run: npm run build:rs
@@ -127,11 +127,16 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       # Download every native artifact produced by the build-native matrix and
       # place it next to its matching platform package so release-registry.mjs
       # can stage it without having to compile anything.
+      - name: Download native artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: platform-artifacts
+
       - name: Collect native artifacts into platform packages
         env:
           ARTIFACT_DIR: platform-artifacts
