@@ -1,7 +1,7 @@
 {
   "name": "@aiyou-dev/team",
-  "version": "0.1.9",
-  "description": "AI agent teams for aiyou-dev \u2014 structured, file-based agent teams with role specialization and quality gates",
+  "version": "0.1.11",
+  "description": "AI agent teams for aiyou-dev — structured, file-based agent teams with role specialization and quality gates",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -81,9 +81,9 @@
     "mcp"
   ],
   "optionalDependencies": {
-    "@aiyou-dev/team-napi-darwin-arm64": "0.1.9",
-    "@aiyou-dev/team-napi-darwin-x64": "0.1.9",
-    "@aiyou-dev/team-napi-linux-x64-gnu": "0.1.9",
-    "@aiyou-dev/team-napi-linux-arm64-gnu": "0.1.9"
+    "@aiyou-dev/team-napi-darwin-arm64": "0.1.11",
+    "@aiyou-dev/team-napi-darwin-x64": "0.1.11",
+    "@aiyou-dev/team-napi-linux-x64-gnu": "0.1.11",
+    "@aiyou-dev/team-napi-linux-arm64-gnu": "0.1.11"
   }
 }
