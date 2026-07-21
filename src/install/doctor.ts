@@ -18,7 +18,23 @@ import {
 import type { DoctorOptions, DoctorResult } from "./types";
 
 function isValidAiyouTeamConfigEntry(entry: string, expectedPluginEntry: string): boolean {
-  return entry === expectedPluginEntry || entry === `${expectedPluginEntry}@latest`;
+  if (entry === expectedPluginEntry || entry === `${expectedPluginEntry}@latest`) {
+    return true;
+  }
+
+  // Accept the scoped npm spec directly: `@aiyou-dev/team` or `@aiyou-dev/team@<version>`.
+  // This is the form npm registry publishes under, and what users naturally write
+  // when copy-pasting from the npm page.
+  if (entry === "@aiyou-dev/team" || entry.startsWith("@aiyou-dev/team@")) {
+    return true;
+  }
+
+  // Accept the legacy short alias: `aiyou-team` or `aiyou-team@<version>`.
+  if (entry === "aiyou-team" || entry.startsWith("aiyou-team@")) {
+    return true;
+  }
+
+  return false;
 }
 
 export async function runDoctor(options: DoctorOptions): Promise<DoctorResult> {

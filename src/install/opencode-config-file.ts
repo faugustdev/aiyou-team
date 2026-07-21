@@ -162,6 +162,10 @@ function isAiyouTeamPluginReference(value: string): boolean {
     return true;
   }
 
+  if (value === "@aiyou-dev/team" || value.startsWith("@aiyou-dev/team@")) {
+    return true;
+  }
+
   const normalized = value.replace(/\\/g, "/").toLowerCase();
   return normalized.includes("/node_modules/@aiyou-dev/team/") || normalized.includes("/node_modules/aiyou-team/") || normalized.endsWith("/entry/aiyou-team-opencode-entry.mjs");
 }

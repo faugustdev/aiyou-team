@@ -46,22 +46,55 @@ export function findConfiguredAiyouTeamReleaseIntent(): AiyouTeamReleaseIntent |
         workspaceRoot: resolveReleaseWorkspaceRoot(entry),
       };
     }
+
+    if (entry === AIYOU_TEAM_NPM_PACKAGE_NAME) {
+      return {
+        configPath,
+        entry,
+        packageName: AIYOU_TEAM_NPM_PACKAGE_NAME,
+        requestedVersion: "latest",
+        channel: "latest",
+        isPinned: false,
+        workspaceRoot: resolveReleaseWorkspaceRoot(entry),
+      };
+    }
+
+    if (entry.startsWith(`${AIYOU_TEAM_NPM_PACKAGE_NAME}@`)) {
+      const requestedVersion = entry.slice(AIYOU_TEAM_NPM_PACKAGE_NAME.length + 1).trim();
+      if (!requestedVersion) {
+        continue;
+      }
+
+      return {
+        configPath,
+        entry,
+        packageName: AIYOU_TEAM_NPM_PACKAGE_NAME,
+        requestedVersion,
+        channel: EXACT_SEMVER_REGEX.test(requestedVersion) ? "latest" : requestedVersion,
+        isPinned: EXACT_SEMVER_REGEX.test(requestedVersion),
+        workspaceRoot: resolveReleaseWorkspaceRoot(entry),
+      };
+    }
   }
 
   return undefined;
 }
 
 function resolveReleaseWorkspaceRoot(entry: string): string {
-  // The plugin entry in opencode.json uses the canonical short name
-  // (`aiyou-team` or `aiyou-team@<version>`). The npm package is published
-  // under the scoped name `@aiyou-dev/team`. Workspace folders mirror the
-  // npm install layout, so we always translate to the scoped spec here.
+  // The plugin entry in opencode.json can use either the canonical short alias
+  // (`aiyou-team` or `aiyou-team@<version>`) or the scoped npm spec
+  // (`@aiyou-dev/team` or `@aiyou-dev/team@<version>`). Workspace folders mirror
+  // the npm install layout, so we always translate to the scoped spec here.
   let spec: string;
   if (entry === AIYOU_TEAM_PACKAGE_NAME) {
     spec = `${AIYOU_TEAM_NPM_PACKAGE_NAME}@latest`;
   } else if (entry.startsWith(`${AIYOU_TEAM_PACKAGE_NAME}@`)) {
     const requestedVersion = entry.slice(AIYOU_TEAM_PACKAGE_NAME.length + 1).trim();
     spec = `${AIYOU_TEAM_NPM_PACKAGE_NAME}@${requestedVersion}`;
+  } else if (entry === AIYOU_TEAM_NPM_PACKAGE_NAME) {
+    spec = `${AIYOU_TEAM_NPM_PACKAGE_NAME}@latest`;
+  } else if (entry.startsWith(`${AIYOU_TEAM_NPM_PACKAGE_NAME}@`)) {
+    spec = entry;
   } else {
     spec = entry;
   }
