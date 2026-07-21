@@ -24,13 +24,60 @@ function resolveBinaryNames(): string[] {
   return [`${base}.node`];
 }
 
+function resolvePlatformPackageName(): string | null {
+  // Map Node process.platform/process.arch to the matching
+  // `@aiyou-dev/team-napi-<triple>` optional package, if any.
+  if (process.platform === "darwin") {
+    if (process.arch === "arm64") return "@aiyou-dev/team-napi-darwin-arm64";
+    if (process.arch === "x64") return "@aiyou-dev/team-napi-darwin-x64";
+    return null;
+  }
+
+  if (process.platform === "linux") {
+    // napi-rs targets the GNU libc variants; musl falls back to the source build path below.
+    if (process.arch === "x64") return "@aiyou-dev/team-napi-linux-x64-gnu";
+    if (process.arch === "arm64") return "@aiyou-dev/team-napi-linux-arm64-gnu";
+    return null;
+  }
+
+  return null;
+}
+
+function tryLoadFromOptionalPackage(): NapiBindings | null {
+  const packageName = resolvePlatformPackageName();
+  if (!packageName) return null;
+
+  // `__filename` is provided by Node CommonJS; this module compiles to CJS
+  // (the package does not declare `"type": "module"`), so we use it instead of
+  // `import.meta.url` to remain compatible with the existing build output.
+  const requireFromHere = createRequire(__filename);
+
+  try {
+    const mod = requireFromHere(packageName);
+    if (mod && typeof mod === "object") {
+      return mod as NapiBindings;
+    }
+  } catch {
+    // optionalDependencies are best-effort; fall through to filesystem search
+  }
+
+  return null;
+}
+
 function loadBindings(): NapiBindings {
   if (_napi) return _napi;
 
+  // 1. Optional platform-specific npm package (preferred; ships prebuilt .node).
+  const fromOptional = tryLoadFromOptionalPackage();
+  if (fromOptional) {
+    _napi = fromOptional;
+    return fromOptional;
+  }
+
   const binaryNames = resolveBinaryNames();
 
-  // __dirname is either src/napi/ (dev) or dist/src/napi/ (prod).
-  // Walk up to find project root (contains package.json).
+  // 2. __dirname is either src/napi/ (dev) or dist/src/napi/ (prod).
+  //    Walk up to find project root (contains package.json).
   let dir = __dirname;
   for (let i = 0; i < 4; i++) {
     for (const binaryName of binaryNames) {
@@ -46,7 +93,7 @@ function loadBindings(): NapiBindings {
     dir = path.dirname(dir);
   }
 
-  // Last resort: crate directory
+  // 3. Last resort: crate directory (local Rust source build).
   for (let i = 0; i < 4; i++) {
     for (const binaryName of binaryNames) {
       const candidate = path.resolve(__dirname, ...Array(i).fill(".."), "crates", "aiyou-team-napi", binaryName);

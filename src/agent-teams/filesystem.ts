@@ -974,6 +974,43 @@ function resolveLanguageFile(dir: string, baseName: string, lang: AiyouTeamLangu
   return path.join(dir, baseName);
 }
 
+/**
+ * Resolve the active Agent profile filename for a given base `<id>.agent.md`
+ * and the configured language. Localized variants are accepted in two forms:
+ *   - `<id>.<lang>.agent.md` (idiomatic — same suffix scheme as the base)
+ *   - `<id>.<lang>.md`        (legacy — used by some hand-written teams)
+ *
+ * Returns the resolved absolute path, or `null` if the base should be skipped
+ * because a localized variant exists that we should be loading instead.
+ */
+function resolveAgentLanguageFile(
+  teamDir: string,
+  baseEntry: string,
+  lang: AiyouTeamLanguage,
+): string | null {
+  const basePath = path.join(teamDir, baseEntry);
+  const id = baseEntry.slice(0, -".agent.md".length);
+
+  if (lang === DEFAULT_LANGUAGE) {
+    // Default language: always load the base, never a localized sibling.
+    return basePath;
+  }
+
+  // Prefer `<id>.<lang>.agent.md` first, then fall back to `<id>.<lang>.md`.
+  const idiomaticLangPath = path.join(teamDir, `${id}.${lang}.agent.md`);
+  if (existsSync(idiomaticLangPath)) {
+    return idiomaticLangPath;
+  }
+
+  const legacyLangPath = path.join(teamDir, `${id}.${lang}.md`);
+  if (existsSync(legacyLangPath)) {
+    return legacyLangPath;
+  }
+
+  // No localized variant — fall back to the base file.
+  return basePath;
+}
+
 export function loadTeamDefinitionFromDirectoryWithIssues(
   teamDir: string,
   workspaceRoot: string = process.cwd(),
@@ -990,18 +1027,17 @@ export function loadTeamDefinitionFromDirectoryWithIssues(
   }
 
   const allFiles = readdirSync(teamDir).sort();
-  const langSuffix = lang !== DEFAULT_LANGUAGE ? `.${lang}` : "";
 
-  const agentFiles = allFiles
-    .filter((entry) => {
-      if (!entry.endsWith(".agent.md")) return false;
-      if (langSuffix && entry.includes(langSuffix)) return true;
-      if (langSuffix) {
-        const langVersion = entry.replace(".agent.md", `${langSuffix}.agent.md`);
-        return !allFiles.includes(langVersion);
-      }
-      return true;
-    })
+  // Discover base agent filenames (always the `<id>.agent.md` form).
+  // Then resolve the active file for each base according to `lang`, supporting
+  // both `<id>.<lang>.agent.md` and `<id>.<lang>.md` as localized variants.
+  // When `lang` is the default language, the base form is always used and any
+  // `<id>.<lang>.md` siblings are ignored so we don't load duplicates.
+  const baseAgentFiles = allFiles.filter((entry) => entry.endsWith(".agent.md"));
+
+  const agentFiles = baseAgentFiles
+    .map((entry) => resolveAgentLanguageFile(teamDir, entry, lang))
+    .filter((resolved): resolved is string => resolved !== null)
     .sort();
 
   const issues: TeamValidationIssue[] = [];
@@ -1018,9 +1054,7 @@ export function loadTeamDefinitionFromDirectoryWithIssues(
     });
   }
 
-  const agents = agentFiles.flatMap((entry) => {
-    const agentPath = path.join(teamDir, entry);
-
+  const agents = agentFiles.flatMap((agentPath) => {
     try {
       return [mapAgentProfile(agentPath)];
     } catch (error) {
