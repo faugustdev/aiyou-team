@@ -1,6 +1,6 @@
 {
   "name": "@aiyou-dev/team-napi-darwin-arm64",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Native NAPI binary for @aiyou-dev/team on darwin-arm64 (Apple Silicon)",
   "license": "MIT",
   "repository": {
