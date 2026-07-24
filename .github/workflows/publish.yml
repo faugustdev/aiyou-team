@@ -203,7 +203,25 @@ jobs:
           WORK=$(mktemp -d)
           cd "$WORK"
           npm init -y >/dev/null
-          npm install "@aiyou-dev/team@${VERSION}" --no-audit --no-fund
+
+          # npm's registry/CDN takes a few seconds to fully propagate a
+          # brand-new version after `npm publish` returns, so an install
+          # attempted immediately can silently resolve without the optional
+          # platform package even though the release itself is fine. Retry
+          # with backoff instead of racing it.
+          attempt=1
+          max_attempts=6
+          until [ "$attempt" -gt "$max_attempts" ]; do
+            rm -rf node_modules package-lock.json
+            npm install "@aiyou-dev/team@${VERSION}" --no-audit --no-fund
+            if find node_modules/@aiyou-dev -maxdepth 1 -iname 'team-napi-*' -print -quit 2>/dev/null | grep -q .; then
+              break
+            fi
+            echo "Optional platform package not yet resolvable (attempt ${attempt}/${max_attempts}); waiting for registry propagation..."
+            attempt=$((attempt + 1))
+            sleep 10
+          done
+
           node --input-type=module -e "
             import { createRequire } from 'node:module';
             import { readFileSync } from 'node:fs';
