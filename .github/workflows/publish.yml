@@ -89,6 +89,14 @@ jobs:
           cache: npm
 
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          # GitHub's "Intel Mac" macOS runner labels now resolve to arm64
+          # images (Apple retired the real Intel hosted runners), so the
+          # darwin-x64 matrix entry cross-compiles from an aarch64 host.
+          # Without explicitly installing the target, rustup only sets up
+          # the host triple and napi build fails with "can't find crate for
+          # `core`" because no x86_64-apple-darwin sysroot exists.
+          targets: ${{ matrix.triple }}
 
       - name: Install dependencies
         run: npm install
