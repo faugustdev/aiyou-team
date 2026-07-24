@@ -148,7 +148,14 @@ jobs:
         with:
           path: platform-artifacts
 
-      - name: Collect native artifacts into platform packages
+      - name: Collect native artifacts into package root
+        # release-registry.mjs's stagePlatformPackageArtifacts() expects each
+        # .node artifact to sit next to the root package.json (the same place
+        # `napi build --platform --release` drops it when run locally), and it
+        # copies from there into the matching packages/team-napi-*/ directory
+        # itself. Copying straight into packages/team-napi-*/ here bypassed
+        # that staging step entirely, so the publish step always saw every
+        # platform artifact as "missing" even though they were uploaded fine.
         env:
           ARTIFACT_DIR: platform-artifacts
         run: |
@@ -169,11 +176,11 @@ jobs:
               echo "::warning::Artifact directory for $name exists but contains no .node file."
               continue
             fi
-            cp "$node_file" "$entry/"
-            echo "staged $node_file -> $entry/"
+            cp "$node_file" .
+            echo "staged $node_file -> ./$(basename "$node_file")"
           done
           echo "--- artifacts staged ---"
-          ls -la packages/team-napi-*/  | grep -E "\.node$|^/" | sed 's/^/  /'
+          ls -la *.node
 
       # Skip preflight and pack/smoke here because preflight already ran and
       # pack:release is unnecessary (npm pack is implicit in npm publish).
