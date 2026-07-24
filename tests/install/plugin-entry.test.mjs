@@ -14,7 +14,7 @@ test("createCanonicalPluginEntry uses package-name config and package workspace 
   writeFileSync(pluginPath, 'const mod = await import("./dist/opencode-plugin.mjs");\n\nconst plugin = mod.default ?? mod;\n\nexport default plugin;\n', "utf8");
   const content = readFileSync(pluginPath, "utf8");
 
-  assert.equal(createCanonicalPluginEntry(installRoot), "aiyou-team");
+  assert.equal(createCanonicalPluginEntry(installRoot), "@aiyou-dev/team");
   assert.match(content, /await import/);
   assert.match(content, /\.\/dist\/opencode-plugin\.mjs/);
   assert.equal(resolveInstalledPluginPath(installRoot).replace(/\\/g, "/").endsWith("/packages/@aiyou-dev/team@latest/node_modules/@aiyou-dev/team/opencode-plugin.mjs"), true);

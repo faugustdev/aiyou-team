@@ -26,7 +26,11 @@ export function detectInstalledPluginPath(installRoot: string): string {
 }
 
 export function createCanonicalPluginEntry(_installRoot?: string): string {
-  return AIYOU_TEAM_PACKAGE_NAME;
+  // OpenCode resolves "plugin" entries as real npm package specifiers that it
+  // installs itself (via Bun) — the unscoped "aiyou-team" alias is not a
+  // published package, so writing it here leaves the plugin silently
+  // unloaded (no entry in OpenCode's plugin list, no error surfaced).
+  return AIYOU_TEAM_NPM_PACKAGE_NAME;
 }
 
 export function assertInstalledPluginExists(installRoot: string): void {

@@ -87,7 +87,7 @@ test("runDoctor reports a healthy user-level install when config and files are c
   assert.equal(result.hasInstalledPackage, true);
   assert.equal(result.hasPluginFile, true);
   assert.equal(result.hasWorkspaceManifest, true);
-  assert.equal(result.expectedPluginEntry, "aiyou-team");
+  assert.equal(result.expectedPluginEntry, "@aiyou-dev/team");
 });
 
 test("runDoctor accepts the OpenCode package cache layout", async () => {

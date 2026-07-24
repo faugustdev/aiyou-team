@@ -41,7 +41,7 @@ test("installAiyouTeam plans a user-level install without mutating files in dry-
   assert.equal(result.dryRun, true);
   assert.equal(result.workspaceCreated, true);
   assert.equal(result.tarballPath, tarballPath);
-  assert.equal(result.pluginEntry, "aiyou-team");
+  assert.equal(result.pluginEntry, "@aiyou-dev/team");
   assert.equal(result.aiyouTeamConfigPath, path.join(path.dirname(configPath), "aiyou-team.json"));
   assert.equal(result.aiyouTeamConfigChanged, true);
   assert.equal(result.aiyouTeamConfigReason, "created-default");
@@ -70,7 +70,7 @@ test("installAiyouTeam supports registry source in dry-run mode", async () => {
     },
   });
 
-  assert.equal(result.pluginEntry, "aiyou-team");
+  assert.equal(result.pluginEntry, "@aiyou-dev/team");
   assert.equal(result.packageSpec, "@aiyou-dev/team@latest");
   assert.equal(result.tarballPath, undefined);
   assert.equal(existsSync(configPath), false);
