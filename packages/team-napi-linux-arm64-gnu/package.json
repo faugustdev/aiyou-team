@@ -1,6 +1,6 @@
 {
   "name": "@aiyou-dev/team-napi-linux-arm64-gnu",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Native NAPI binary for @aiyou-dev/team on linux-arm64-gnu",
   "license": "MIT",
   "repository": {
