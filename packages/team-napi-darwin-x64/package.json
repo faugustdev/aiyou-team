@@ -1,6 +1,6 @@
 {
   "name": "@aiyou-dev/team-napi-darwin-x64",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Native NAPI binary for @aiyou-dev/team on darwin-x64 (Intel macOS)",
   "license": "MIT",
   "repository": {
@@ -20,7 +20,6 @@
   "cpu": [
     "x64"
   ],
-  "libc": [],
   "engines": {
     "node": ">=18"
   }

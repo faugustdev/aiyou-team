@@ -1,6 +1,6 @@
 {
   "name": "@aiyou-dev/team-napi-linux-x64-gnu",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Native NAPI binary for @aiyou-dev/team on linux-x64-gnu",
   "license": "MIT",
   "repository": {
@@ -19,9 +19,6 @@
   ],
   "cpu": [
     "x64"
-  ],
-  "libc": [
-    "glibc"
   ],
   "engines": {
     "node": ">=18"
