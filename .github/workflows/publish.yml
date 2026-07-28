@@ -193,70 +193,16 @@ jobs:
       # As a smoke test after publish, install the freshly published package
       # exactly the way an end user would, and confirm the optional platform
       # binary loads. This is what proves the release is self-sufficient.
+      #
+      # The script polls the npm registry document for the matching
+      # @aiyou-dev/team-napi-* package (validating dist.unpackedSize > 0 and
+      # the tarball URL returns 200) before attempting `npm install`. Racing
+      # the publish via npm install alone is unreliable: a missing optional
+      # dep logs a warning and is silently skipped, so the install "succeeds"
+      # with the wrong package count and the failure only surfaces in the
+      # follow-up assertion.
       - name: Smoke install from registry
         env:
           # Use a one-off scoped registry to avoid polluting cache
           TMPDIR: ${{ runner.temp }}
-        run: |
-          set -euo pipefail
-          VERSION=$(node -p "require('./package.json').version")
-          WORK=$(mktemp -d)
-          cd "$WORK"
-          npm init -y >/dev/null
-
-          # npm's registry/CDN takes a few seconds to fully propagate a
-          # brand-new version after `npm publish` returns, so an install
-          # attempted immediately can silently resolve without the optional
-          # platform package even though the release itself is fine. Retry
-          # with backoff instead of racing it.
-          attempt=1
-          max_attempts=18
-          until [ "$attempt" -gt "$max_attempts" ]; do
-            rm -rf node_modules package-lock.json
-            npm install "@aiyou-dev/team@${VERSION}" --no-audit --no-fund
-            if find node_modules/@aiyou-dev -maxdepth 1 -iname 'team-napi-*' -print -quit 2>/dev/null | grep -q .; then
-              break
-            fi
-            echo "Optional platform package not yet resolvable (attempt ${attempt}/${max_attempts}); waiting for registry propagation..."
-            attempt=$((attempt + 1))
-            sleep 15
-          done
-
-          node --input-type=module -e "
-            import { createRequire } from 'node:module';
-            import { readFileSync } from 'node:fs';
-            import { dirname } from 'node:path';
-            const require = createRequire(import.meta.url);
-            // 1. Verify the root package exposes the plugin entry
-            const mod = require('@aiyou-dev/team');
-            if (!mod || typeof mod.default !== 'function') {
-              throw new Error('Plugin entry did not expose the default export');
-            }
-            // 2. Read the optionalDependencies from the installed package.json
-            //    on disk (the package.json subpath is not exported). We use the
-            //    installed location rather than guessing the platform suffix
-            //    because Linux triples include libc suffixes (e.g. linux-x64-gnu).
-            const rootEntry = require.resolve('@aiyou-dev/team');
-            const rootPkg = JSON.parse(readFileSync(require('node:path').join(dirname(dirname(rootEntry)), 'package.json'), 'utf8'));
-            const optional = rootPkg.optionalDependencies ?? {};
-            const installed = Object.keys(optional).filter((name) => {
-              try {
-                require.resolve(name, { paths: [process.cwd()] });
-                return true;
-              } catch {
-                return false;
-              }
-            });
-            if (installed.length === 0) {
-              throw new Error('No optional platform package was installed for this platform.');
-            }
-            // 3. Load the native binary through one of the installed platform
-            //    packages and confirm the expected API surface is present.
-            const napi = require(installed[0]);
-            if (typeof napi.validateTeamManifestFile !== 'function') {
-              throw new Error('Native napi binary did not expose validateTeamManifestFile');
-            }
-            console.log('Installed package smoke OK; native napi loaded via ' + installed[0]);
-          "
-          cd "$GITHUB_WORKSPACE"
-          rm -rf "$WORK"
+        run: node ./scripts/smoke-install-from-registry.mjs
