@@ -19,7 +19,7 @@ if (result.status !== 0) {
   process.exit(result.status ?? 1);
 }
 
-const generatedTarballName = readdirSync(outputDir).find((entry) => /^aiyou-team-.*\.tgz$/i.test(entry));
+const generatedTarballName = readdirSync(outputDir).find((entry) => /^aiyou[-]dev[-]team-.*\.tgz$/i.test(entry));
 
 if (!generatedTarballName) {
   console.error(`\nNo aiyou-team tarball was generated in ${outputDir}`);

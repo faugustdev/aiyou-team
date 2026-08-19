@@ -77,7 +77,7 @@ jobs:
         run: |
           set -euo pipefail
           npm run pack:release
-          TARBALL=$(find .artifacts/release -name 'aiyou-team-*.tgz' -print -quit)
+          TARBALL=$(find .artifacts/release -name 'aiyou-dev-team-*.tgz' -print -quit)
           if [ -z "$TARBALL" ]; then
             echo "::error::release tarball was not generated."
             exit 1
