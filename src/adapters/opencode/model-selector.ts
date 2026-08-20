@@ -1,4 +1,60 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { AGENT_MODEL_REQUIREMENTS, type AgentModelRequirements } from "../../agent-teams/constants";
+
+// ── aiyoucli.config.json override (cross-host model pinning) ────────
+//
+// `aiyou-team.json`'s per-team `model_config_override.agents.<id>.model`
+// (see agent-teams/filesystem.ts) is the pre-existing, more powerful way to
+// pin a model on the OpenCode side — it's resolved upstream in
+// model-resolution.ts and always wins when set. This reads the *same*
+// `agents.<name>.model` key that `aiyoucli agent set-model` writes to
+// `.aiyoucli/config.json` / `aiyoucli.config.json`, so a single CLI command
+// pins a model on both hosts without hand-editing `aiyou-team.json`. Only
+// consulted here, in the "auto" fallback path — an explicit team-manifest
+// override still takes precedence upstream.
+
+interface AiyouCliAgentsConfig {
+  agents?: Record<string, { model?: string }>;
+}
+
+let cachedAgentModelOverrides: Record<string, string> | null | undefined;
+
+function loadAiyouCliAgentModelOverrides(): Record<string, string> | null {
+  if (cachedAgentModelOverrides !== undefined) {
+    return cachedAgentModelOverrides;
+  }
+
+  const cwd = process.cwd();
+  const candidates = [
+    join(cwd, "aiyoucli.config.json"),
+    join(cwd, ".aiyoucli", "config.json"),
+  ];
+
+  for (const path of candidates) {
+    if (!existsSync(path)) continue;
+    try {
+      const parsed = JSON.parse(readFileSync(path, "utf-8")) as AiyouCliAgentsConfig;
+      const overrides: Record<string, string> = {};
+      for (const [agentId, cfg] of Object.entries(parsed.agents ?? {})) {
+        if (cfg?.model) overrides[agentId] = cfg.model;
+      }
+      cachedAgentModelOverrides = overrides;
+      return overrides;
+    } catch {
+      // Malformed config — fall through to auto-selection rather than crash.
+    }
+  }
+
+  cachedAgentModelOverrides = null;
+  return null;
+}
+
+/** Exposed for tests — clears the memoized config read. */
+export function resetAgentModelOverrideCache(): void {
+  cachedAgentModelOverrides = undefined;
+}
 
 interface ModelCapability {
   vision?: boolean;
@@ -70,6 +126,11 @@ export function selectBestModelForAgent(input: {
   agentId: string;
   availableModels: readonly string[];
 }): string | undefined {
+  const pinned = loadAiyouCliAgentModelOverrides()?.[input.agentId];
+  if (pinned && input.availableModels.includes(pinned)) {
+    return pinned;
+  }
+
   const requirements = AGENT_MODEL_REQUIREMENTS[input.agentId];
   if (!requirements) {
     return undefined;
